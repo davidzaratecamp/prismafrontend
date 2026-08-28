@@ -38,7 +38,21 @@ export function ProjectCard({ project: p }: { project: Project }) {
         <div className="mt-4 flex items-center justify-between border-t pt-3 text-xs text-muted-foreground">
           <span className="flex items-center gap-1.5">
             <LayoutGrid className="size-3.5" />
-            {p.module_count} módulo{p.module_count === 1 ? '' : 's'}
+            {p.planned_modules_count != null ? (
+              <span
+                className={
+                  p.planned_modules_count > p.module_count
+                    ? 'font-medium text-amber-600 dark:text-amber-400'
+                    : undefined
+                }
+              >
+                {p.module_count}/{p.planned_modules_count} módulos
+              </span>
+            ) : (
+              <>
+                {p.module_count} módulo{p.module_count === 1 ? '' : 's'}
+              </>
+            )}
           </span>
           {p.due_date && (
             <span

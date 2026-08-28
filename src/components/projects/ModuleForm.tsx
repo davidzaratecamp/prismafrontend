@@ -27,11 +27,13 @@ export function ModuleForm({
   open,
   onOpenChange,
   projectId,
+  projectDueDate,
   module: mod,
 }: {
   open: boolean
   onOpenChange: (v: boolean) => void
   projectId: number
+  projectDueDate?: string | null
   module?: Module
 }) {
   const { create, update } = useModuleMutations(projectId)
@@ -40,7 +42,6 @@ export function ModuleForm({
     name: '',
     description: '',
     status: 'planned',
-    weight: '1',
     progress_manual: '',
     due_date: '',
     repo_url: '',
@@ -52,7 +53,6 @@ export function ModuleForm({
       name: mod?.name ?? '',
       description: mod?.description ?? '',
       status: mod?.status ?? 'planned',
-      weight: String(mod?.weight ?? 1),
       progress_manual: mod?.progress_manual != null ? String(mod.progress_manual) : '',
       due_date: mod?.due_date ?? '',
       repo_url: mod?.repo_url ?? '',
@@ -62,11 +62,15 @@ export function ModuleForm({
   const submit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!form.name.trim()) return toast.error('El nombre es obligatorio')
+    if (form.due_date && projectDueDate && form.due_date > projectDueDate) {
+      return toast.error(
+        `La entrega del módulo no puede pasar de la del proyecto (${projectDueDate}).`,
+      )
+    }
     const payload = {
       name: form.name.trim(),
       description: form.description.trim() || null,
       status: form.status,
-      weight: Number(form.weight) || 1,
       progress_manual: form.progress_manual === '' ? null : Number(form.progress_manual),
       due_date: form.due_date || null,
       repo_url: form.repo_url.trim() || null,
@@ -115,34 +119,37 @@ export function ModuleForm({
               </Select>
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="m-weight">Peso (1–10)</Label>
+              <Label htmlFor="m-due">Entrega</Label>
               <Input
-                id="m-weight"
-                type="number"
-                min={1}
-                max={10}
-                value={form.weight}
-                onChange={(e) => setForm({ ...form, weight: e.target.value })}
+                id="m-due"
+                type="date"
+                value={form.due_date}
+                max={projectDueDate ?? undefined}
+                onChange={(e) => setForm({ ...form, due_date: e.target.value })}
               />
+              {projectDueDate && (
+                <p className="text-xs text-muted-foreground">
+                  No puede pasar de la entrega del proyecto ({projectDueDate}).
+                </p>
+              )}
             </div>
           </div>
-          <div className="grid gap-4 sm:grid-cols-2">
-            <div className="space-y-1.5">
-              <Label htmlFor="m-due">Entrega</Label>
-              <Input id="m-due" type="date" value={form.due_date} onChange={(e) => setForm({ ...form, due_date: e.target.value })} />
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="m-manual">Avance manual %</Label>
-              <Input
-                id="m-manual"
-                type="number"
-                min={0}
-                max={100}
-                placeholder="Auto por tareas"
-                value={form.progress_manual}
-                onChange={(e) => setForm({ ...form, progress_manual: e.target.value })}
-              />
-            </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="m-manual">Avance manual %</Label>
+            <Input
+              id="m-manual"
+              type="number"
+              min={0}
+              max={100}
+              placeholder="Déjalo vacío para el cálculo automático"
+              value={form.progress_manual}
+              onChange={(e) => setForm({ ...form, progress_manual: e.target.value })}
+            />
+            <p className="text-xs text-muted-foreground">
+              Vacío: el avance se calcula por las tareas del módulo; si aún no tiene tareas, se toma
+              de su estado (En progreso 40%, En pruebas 75%, Completado 100%). Llénalo solo para
+              fijar el porcentaje a mano.
+            </p>
           </div>
           <DialogFooter>
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={busy}>

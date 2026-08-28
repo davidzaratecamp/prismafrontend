@@ -1,11 +1,13 @@
 import { useState } from 'react'
-import { Outlet } from 'react-router-dom'
+import { Outlet, useLocation } from 'react-router-dom'
 import { Sidebar } from './Sidebar'
 import { Topbar } from './Topbar'
 import { Dialog, DialogContent } from '@/components/ui/dialog'
+import { ErrorBoundary } from '@/components/common/ErrorBoundary'
 
 export function AppShell() {
   const [mobileOpen, setMobileOpen] = useState(false)
+  const location = useLocation()
 
   return (
     <div className="flex min-h-screen">
@@ -25,7 +27,9 @@ export function AppShell() {
         <Topbar onOpenSidebar={() => setMobileOpen(true)} />
         <main className="flex-1 p-4 sm:p-6 lg:p-8">
           <div className="mx-auto max-w-[1400px]">
-            <Outlet />
+            <ErrorBoundary key={location.pathname}>
+              <Outlet />
+            </ErrorBoundary>
           </div>
         </main>
       </div>

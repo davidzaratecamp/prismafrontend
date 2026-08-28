@@ -22,15 +22,30 @@ import type { Module, Project } from '@/lib/types'
 
 export function ModulesPanel({ project, canWrite }: { project: Project; canWrite: boolean }) {
   const modules = project.modules ?? []
+  const planned = project.planned_modules_count
+  const scopeIncomplete = planned != null && planned > modules.length
   const [addOpen, setAddOpen] = useState(false)
   const [editModule, setEditModule] = useState<Module | null>(null)
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between gap-3">
         <p className="text-sm text-muted-foreground">
-          {modules.length} módulo{modules.length === 1 ? '' : 's'} · el avance del proyecto se calcula
-          ponderando su peso.
+          {planned != null ? (
+            <>
+              {modules.length} de {planned} módulos previstos
+              {scopeIncomplete && (
+                <span className="ml-2 rounded bg-amber-100 px-1.5 py-0.5 text-xs font-medium text-amber-700 dark:bg-amber-950 dark:text-amber-300">
+                  faltan {planned - modules.length} por crear
+                </span>
+              )}
+            </>
+          ) : (
+            <>
+              {modules.length} módulo{modules.length === 1 ? '' : 's'} · el avance del proyecto es el
+              promedio del avance de sus módulos.
+            </>
+          )}
         </p>
         {canWrite && (
           <Button size="sm" onClick={() => setAddOpen(true)}>
@@ -65,11 +80,17 @@ export function ModulesPanel({ project, canWrite }: { project: Project; canWrite
         </div>
       )}
 
-      <ModuleForm open={addOpen} onOpenChange={setAddOpen} projectId={project.id} />
+      <ModuleForm
+        open={addOpen}
+        onOpenChange={setAddOpen}
+        projectId={project.id}
+        projectDueDate={project.due_date}
+      />
       <ModuleForm
         open={!!editModule}
         onOpenChange={(v) => !v && setEditModule(null)}
         projectId={project.id}
+        projectDueDate={project.due_date}
         module={editModule ?? undefined}
       />
     </div>
@@ -123,7 +144,7 @@ function ModuleCard({
           <div className="mt-1.5 flex items-center gap-2">
             <Progress value={m.progress_cached} className="h-1.5 max-w-40" />
             <span className="text-xs tabular-nums text-muted-foreground">
-              {m.progress_cached}% · {done}/{total} tareas · peso {m.weight}
+              {m.progress_cached}% · {done}/{total} tareas
             </span>
           </div>
         </div>

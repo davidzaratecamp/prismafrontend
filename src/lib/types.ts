@@ -91,6 +91,7 @@ export interface Project {
   completed_at: string | null
   progress_manual: number | null
   progress_cached: number
+  planned_modules_count: number | null
   created_at: string
   updated_at: string
   archived_at: string | null

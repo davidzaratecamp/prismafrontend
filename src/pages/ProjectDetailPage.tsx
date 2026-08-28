@@ -102,8 +102,22 @@ export default function ProjectDetailPage() {
             <div className="text-sm">
               <p className="font-medium">Avance global</p>
               <p className="text-muted-foreground">
-                {project.progress_manual != null ? 'Definido manualmente' : 'Calculado por tareas'}
+                {project.progress_manual != null
+                  ? 'Definido manualmente'
+                  : 'Calculado a partir de módulos y tareas'}
               </p>
+              {project.planned_modules_count != null && (
+                <p
+                  className={
+                    project.planned_modules_count > project.module_count
+                      ? 'mt-0.5 font-medium text-amber-600 dark:text-amber-400'
+                      : 'mt-0.5 text-muted-foreground'
+                  }
+                >
+                  {project.module_count} de {project.planned_modules_count} módulos previstos
+                  {project.planned_modules_count > project.module_count && ' · alcance en definición'}
+                </p>
+              )}
             </div>
           </div>
 

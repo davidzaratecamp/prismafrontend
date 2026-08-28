@@ -44,6 +44,7 @@ type FormState = {
   start_date: string
   due_date: string
   progress_manual: string
+  planned_modules_count: string
   member_ids: number[]
 }
 
@@ -58,6 +59,7 @@ const empty: FormState = {
   start_date: '',
   due_date: '',
   progress_manual: '',
+  planned_modules_count: '',
   member_ids: [],
 }
 
@@ -82,6 +84,8 @@ export function ProjectForm({ open, onOpenChange, project, defaultAreaId, onCrea
         start_date: project.start_date ?? '',
         due_date: project.due_date ?? '',
         progress_manual: project.progress_manual != null ? String(project.progress_manual) : '',
+        planned_modules_count:
+          project.planned_modules_count != null ? String(project.planned_modules_count) : '',
         member_ids: project.members.map((m) => m.id),
       })
     } else {
@@ -108,6 +112,8 @@ export function ProjectForm({ open, onOpenChange, project, defaultAreaId, onCrea
       start_date: form.start_date || null,
       due_date: form.due_date || null,
       progress_manual: form.progress_manual === '' ? null : Number(form.progress_manual),
+      planned_modules_count:
+        form.planned_modules_count === '' ? null : Number(form.planned_modules_count),
     }
 
     try {
@@ -266,6 +272,21 @@ export function ProjectForm({ open, onOpenChange, project, defaultAreaId, onCrea
               />
             </div>
             <div className="space-y-1.5">
+              <Label htmlFor="p-planned">Módulos previstos</Label>
+              <Input
+                id="p-planned"
+                type="number"
+                min={1}
+                max={100}
+                value={form.planned_modules_count}
+                onChange={(e) => set('planned_modules_count', e.target.value)}
+                placeholder="Total esperado del proyecto"
+              />
+            </div>
+          </div>
+
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div className="space-y-1.5">
               <Label htmlFor="p-manual">Avance manual %</Label>
               <Input
                 id="p-manual"
@@ -274,10 +295,16 @@ export function ProjectForm({ open, onOpenChange, project, defaultAreaId, onCrea
                 max={100}
                 value={form.progress_manual}
                 onChange={(e) => set('progress_manual', e.target.value)}
-                placeholder="Auto por tareas si se deja vacío"
+                placeholder="Automático (módulos) si se deja vacío"
               />
             </div>
           </div>
+
+          <p className="text-xs text-muted-foreground">
+            <strong>Módulos previstos:</strong> si el proyecto tendrá más módulos de los que ya
+            creaste, indícalo aquí. El avance se calcula sobre ese total, así no llega al 100 %
+            mientras el alcance esté incompleto. Déjalo vacío si ya cargaste todos los módulos.
+          </p>
 
           {!editing && (
             <div className="space-y-1.5">

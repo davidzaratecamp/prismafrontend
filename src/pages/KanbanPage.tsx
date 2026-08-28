@@ -74,8 +74,12 @@ export default function KanbanPage() {
         </div>
       ) : !data || isEmpty ? (
         <EmptyState
-          title="No hay tareas en el tablero"
-          description="Crea módulos y tareas en un proyecto para verlos aquí."
+          title="No hay tareas para mostrar"
+          description={
+            area !== 'all' || project !== 'all'
+              ? 'Con estos filtros no hay tareas. Prueba con "Todas las áreas" y "Todos los proyectos".'
+              : 'El tablero muestra las tareas de los módulos. Entra a un proyecto → pestaña "Módulos y tareas" y añade tareas a un módulo; aparecerán aquí.'
+          }
         />
       ) : (
         <KanbanBoard data={data} canWrite={canWrite} />
