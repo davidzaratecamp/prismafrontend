@@ -45,7 +45,7 @@ export const PRIORITY_OPTIONS = Object.entries(PRIORITY).map(([value, m]) => ({
   label: m.label,
 }))
 
-export const KANBAN_COLUMNS: TaskStatus[] = ['todo', 'in_progress', 'testing', 'blocked', 'done']
+export const KANBAN_COLUMNS: TaskStatus[] = ['todo', 'in_progress', 'testing', 'done', 'blocked']
 
 export function progressTone(pct: number): string {
   if (pct >= 100) return '#10b981'
