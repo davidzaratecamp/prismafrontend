@@ -77,7 +77,7 @@ export default function ProjectDetailPage() {
             {project.area && <AreaBadge name={project.area.name} color={project.area.color} />}
             <StatusBadge status={project.status} />
             <PriorityBadge priority={project.priority} />
-            {currentUser && project.requested_by_user_id === currentUser.id && (
+            {currentUser && project.requesters.some((r) => r.id === currentUser.id) && (
               <span className="inline-flex items-center gap-1 rounded-md bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
                 <Sparkles className="size-3" /> Solicitado por ti
               </span>
@@ -140,15 +140,15 @@ export default function ProjectDetailPage() {
               )}
             </Info>
             <Info label="Solicitado por">
-              {project.requester ? (
-                <span className="flex items-center gap-2">
-                  <UserAvatar
-                    name={project.requester.name}
-                    color={project.requester.avatar_color}
-                    size="xs"
-                  />
-                  {project.requester.name}
-                </span>
+              {project.requesters.length ? (
+                <div className="flex flex-wrap gap-x-3 gap-y-1">
+                  {project.requesters.map((r) => (
+                    <span key={r.id} className="flex items-center gap-1.5">
+                      <UserAvatar name={r.name} color={r.avatar_color} size="xs" />
+                      {r.name}
+                    </span>
+                  ))}
+                </div>
               ) : (
                 <span className="text-muted-foreground">Sin especificar</span>
               )}

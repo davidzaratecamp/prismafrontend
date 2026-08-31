@@ -40,7 +40,7 @@ type FormState = {
   status: string
   priority: string
   lead_user_id: string
-  requested_by_user_id: string
+  requester_ids: number[]
   repo_url: string
   start_date: string
   due_date: string
@@ -56,7 +56,7 @@ const empty: FormState = {
   status: 'planned',
   priority: 'medium',
   lead_user_id: '',
-  requested_by_user_id: '',
+  requester_ids: [],
   repo_url: '',
   start_date: '',
   due_date: '',
@@ -82,9 +82,7 @@ export function ProjectForm({ open, onOpenChange, project, defaultAreaId, onCrea
         status: project.status,
         priority: project.priority,
         lead_user_id: project.lead_user_id ? String(project.lead_user_id) : '',
-        requested_by_user_id: project.requested_by_user_id
-          ? String(project.requested_by_user_id)
-          : '',
+        requester_ids: project.requesters.map((r) => r.id),
         repo_url: project.repo_url ?? '',
         start_date: project.start_date ?? '',
         due_date: project.due_date ?? '',
@@ -113,9 +111,7 @@ export function ProjectForm({ open, onOpenChange, project, defaultAreaId, onCrea
       status: form.status,
       priority: form.priority,
       lead_user_id: form.lead_user_id ? Number(form.lead_user_id) : null,
-      requested_by_user_id: form.requested_by_user_id
-        ? Number(form.requested_by_user_id)
-        : null,
+      requester_ids: form.requester_ids,
       repo_url: form.repo_url.trim() || null,
       start_date: form.start_date || null,
       due_date: form.due_date || null,
@@ -217,26 +213,15 @@ export function ProjectForm({ open, onOpenChange, project, defaultAreaId, onCrea
 
           <div className="space-y-1.5">
             <Label>Solicitado por</Label>
-            <Select
-              value={form.requested_by_user_id || 'none'}
-              onValueChange={(v) => set('requested_by_user_id', v === 'none' ? '' : v)}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Quién pidió el desarrollo" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="none">Sin especificar</SelectItem>
-                {users?.map((u) => {
-                  const areaName = areas?.find((a) => a.id === u.area_id)?.name
-                  return (
-                    <SelectItem key={u.id} value={String(u.id)}>
-                      {u.name}
-                      {areaName ? ` · ${areaName}` : ''}
-                    </SelectItem>
-                  )
-                })}
-              </SelectContent>
-            </Select>
+            <MemberPicker
+              users={users ?? []}
+              selected={form.requester_ids}
+              onChange={(ids) => set('requester_ids', ids)}
+            />
+            <p className="text-xs text-muted-foreground">
+              Quién pidió el desarrollo. Puedes marcar a más de una persona (normalmente los
+              referentes del área).
+            </p>
           </div>
 
           <div className="grid gap-4 sm:grid-cols-2">

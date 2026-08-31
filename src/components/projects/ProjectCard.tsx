@@ -12,7 +12,7 @@ import type { Project } from '@/lib/types'
 
 export function ProjectCard({ project: p }: { project: Project }) {
   const currentUserId = useAuthStore((s) => s.user?.id)
-  const requestedByMe = !!currentUserId && p.requested_by_user_id === currentUserId
+  const requestedByMe = !!currentUserId && p.requesters.some((r) => r.id === currentUserId)
   const overdue =
     p.due_date && isPast(parseISO(p.due_date)) && p.status !== 'completed' && p.status !== 'paused'
 
