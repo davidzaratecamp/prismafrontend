@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
-import { Plus, Search } from 'lucide-react'
+import { Plus, Search, Sparkles } from 'lucide-react'
 import { PageHeader } from '@/components/common/PageHeader'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -17,11 +17,12 @@ import { ProjectCard } from '@/components/projects/ProjectCard'
 import { ProjectForm } from '@/components/projects/ProjectForm'
 import { useAreas, useProjects, useUsers } from '@/hooks/queries'
 import { PROJECT_STATUS_OPTIONS } from '@/lib/status'
-import { useCanWrite } from '@/stores/auth'
+import { useAuthStore, useCanWrite } from '@/stores/auth'
 
 export default function ProjectsPage() {
   const [params, setParams] = useSearchParams()
   const canWrite = useCanWrite()
+  const currentUser = useAuthStore((s) => s.user)
   const { data: areas } = useAreas()
   const { data: users } = useUsers()
   const [formOpen, setFormOpen] = useState(false)
@@ -30,6 +31,7 @@ export default function ProjectsPage() {
   const area = params.get('area') ?? 'all'
   const status = params.get('status') ?? 'all'
   const lead = params.get('lead') ?? 'all'
+  const mine = params.get('mine') === '1'
 
   const setParam = (key: string, value: string) => {
     const next = new URLSearchParams(params)
@@ -43,9 +45,10 @@ export default function ProjectsPage() {
       area_id: area !== 'all' ? area : undefined,
       status: status !== 'all' ? status : undefined,
       lead_user_id: lead !== 'all' ? lead : undefined,
+      requested_by_user_id: mine && currentUser ? currentUser.id : undefined,
       q: q.trim() || undefined,
     }),
-    [area, status, lead, q],
+    [area, status, lead, mine, currentUser, q],
   )
 
   const { data: projects, isLoading } = useProjects(filters)
@@ -106,6 +109,14 @@ export default function ProjectsPage() {
               ))}
           </SelectContent>
         </Select>
+
+        <Button
+          type="button"
+          variant={mine ? 'default' : 'outline'}
+          onClick={() => setParam('mine', mine ? 'all' : '1')}
+        >
+          <Sparkles className="size-4" /> Mis solicitudes
+        </Button>
       </div>
 
       {isLoading ? (

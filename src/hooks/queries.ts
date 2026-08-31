@@ -79,6 +79,7 @@ export interface ProjectFilters {
   area_id?: number | string
   status?: string
   lead_user_id?: number | string
+  requested_by_user_id?: number | string
   q?: string
   archived?: boolean
 }

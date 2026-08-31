@@ -1,24 +1,41 @@
 import { Link } from 'react-router-dom'
 import { format, isPast, parseISO } from 'date-fns'
 import { es } from 'date-fns/locale'
-import { CalendarDays, LayoutGrid } from 'lucide-react'
+import { CalendarDays, LayoutGrid, Sparkles } from 'lucide-react'
 import { Card } from '@/components/ui/card'
 import { ProgressRing } from '@/components/common/ProgressRing'
 import { StatusBadge, PriorityBadge } from '@/components/common/StatusBadge'
 import { AreaBadge } from '@/components/common/AreaBadge'
 import { AvatarStack } from '@/components/common/UserAvatar'
+import { useAuthStore } from '@/stores/auth'
 import type { Project } from '@/lib/types'
 
 export function ProjectCard({ project: p }: { project: Project }) {
+  const currentUserId = useAuthStore((s) => s.user?.id)
+  const requestedByMe = !!currentUserId && p.requested_by_user_id === currentUserId
   const overdue =
     p.due_date && isPast(parseISO(p.due_date)) && p.status !== 'completed' && p.status !== 'paused'
 
   return (
     <Link to={`/projects/${p.id}`}>
-      <Card className="group h-full p-5 transition-all hover:border-primary/40 hover:shadow-md">
+      <Card
+        className={
+          'group h-full p-5 transition-all hover:shadow-md ' +
+          (requestedByMe
+            ? 'border-primary/40 ring-1 ring-primary/20 hover:border-primary/60'
+            : 'hover:border-primary/40')
+        }
+      >
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
-            {p.area && <AreaBadge name={p.area.name} color={p.area.color} />}
+            <div className="flex flex-wrap items-center gap-1.5">
+              {p.area && <AreaBadge name={p.area.name} color={p.area.color} />}
+              {requestedByMe && (
+                <span className="inline-flex items-center gap-1 rounded-md bg-primary/10 px-1.5 py-0.5 text-[11px] font-medium text-primary">
+                  <Sparkles className="size-3" /> Solicitado por ti
+                </span>
+              )}
+            </div>
             <h3 className="mt-2 line-clamp-2 font-semibold leading-snug group-hover:text-primary">
               {p.name}
             </h3>

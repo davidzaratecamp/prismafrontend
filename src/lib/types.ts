@@ -85,6 +85,7 @@ export interface Project {
   status: ProjectStatus
   priority: Priority
   lead_user_id: number | null
+  requested_by_user_id: number | null
   repo_url: string | null
   start_date: string | null
   due_date: string | null
@@ -96,6 +97,7 @@ export interface Project {
   updated_at: string
   archived_at: string | null
   lead: MiniUser | null
+  requester: MiniUser | null
   area: Pick<Area, 'id' | 'name' | 'slug' | 'color'> | null
   members: MiniUser[]
   module_count: number

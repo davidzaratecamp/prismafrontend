@@ -9,6 +9,7 @@ import {
   ExternalLink,
   GitBranch,
   Pencil,
+  Sparkles,
 } from 'lucide-react'
 import { format, parseISO } from 'date-fns'
 import { es } from 'date-fns/locale'
@@ -30,12 +31,13 @@ import { MemberPicker } from '@/components/projects/MemberPicker'
 import { ActivityFeed } from '@/components/dashboard/ActivityFeed'
 import { useProject, useProjectMutations, useUsers } from '@/hooks/queries'
 import { apiErrorMessage } from '@/lib/api'
-import { useCanWrite } from '@/stores/auth'
+import { useAuthStore, useCanWrite } from '@/stores/auth'
 
 export default function ProjectDetailPage() {
   const { id } = useParams()
   const navigate = useNavigate()
   const canWrite = useCanWrite()
+  const currentUser = useAuthStore((s) => s.user)
   const { data: project, isLoading } = useProject(id)
   const { data: users } = useUsers({ active: true })
   const { setMembers, archive } = useProjectMutations()
@@ -75,6 +77,11 @@ export default function ProjectDetailPage() {
             {project.area && <AreaBadge name={project.area.name} color={project.area.color} />}
             <StatusBadge status={project.status} />
             <PriorityBadge priority={project.priority} />
+            {currentUser && project.requested_by_user_id === currentUser.id && (
+              <span className="inline-flex items-center gap-1 rounded-md bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
+                <Sparkles className="size-3" /> Solicitado por ti
+              </span>
+            )}
           </span>
         }
         actions={
@@ -121,7 +128,7 @@ export default function ProjectDetailPage() {
             </div>
           </div>
 
-          <div className="grid gap-4 text-sm sm:grid-cols-3">
+          <div className="grid gap-4 text-sm sm:grid-cols-2 lg:grid-cols-4">
             <Info label="Líder">
               {project.lead ? (
                 <span className="flex items-center gap-2">
@@ -130,6 +137,20 @@ export default function ProjectDetailPage() {
                 </span>
               ) : (
                 <span className="text-muted-foreground">Sin asignar</span>
+              )}
+            </Info>
+            <Info label="Solicitado por">
+              {project.requester ? (
+                <span className="flex items-center gap-2">
+                  <UserAvatar
+                    name={project.requester.name}
+                    color={project.requester.avatar_color}
+                    size="xs"
+                  />
+                  {project.requester.name}
+                </span>
+              ) : (
+                <span className="text-muted-foreground">Sin especificar</span>
               )}
             </Info>
             <Info label="Fechas">
