@@ -22,6 +22,9 @@ const SERIES = [
 
 export function WorkloadChart({ data }: { data: DashboardData['workload'] }) {
   const rows = data.map((w) => ({ ...w, short: w.name.split(' ')[0] }))
+  const hasLoad = rows.some(
+    (w) => w.todo + w.in_progress + w.testing + w.blocked > 0,
+  )
 
   return (
     <Card>
@@ -29,8 +32,12 @@ export function WorkloadChart({ data }: { data: DashboardData['workload'] }) {
         <CardTitle className="text-base">Carga por desarrollador</CardTitle>
       </CardHeader>
       <CardContent>
-        {rows.length === 0 ? (
-          <EmptyState icon={Users} title="Sin tareas asignadas" />
+        {rows.length === 0 || !hasLoad ? (
+          <EmptyState
+            icon={Users}
+            title="Sin tareas asignadas"
+            description="Asigna un responsable a las tareas (en Módulos y tareas o en el Tablero) para ver aquí la carga de cada desarrollador."
+          />
         ) : (
           <ResponsiveContainer width="100%" height={260}>
             <BarChart data={rows} margin={{ left: -16, right: 8 }}>
