@@ -97,6 +97,7 @@ export interface Project {
   archived_at: string | null
   lead: MiniUser | null
   area: Pick<Area, 'id' | 'name' | 'slug' | 'color'> | null
+  areas: Pick<Area, 'id' | 'name' | 'slug' | 'color'>[]
   members: MiniUser[]
   requesters: MiniUser[]
   module_count: number

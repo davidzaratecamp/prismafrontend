@@ -74,7 +74,9 @@ export default function ProjectDetailPage() {
         title={project.name}
         description={
           <span className="flex flex-wrap items-center gap-1.5">
-            {project.area && <AreaBadge name={project.area.name} color={project.area.color} />}
+            {(project.areas.length ? project.areas : project.area ? [project.area] : []).map((a) => (
+              <AreaBadge key={a.id} name={a.name} color={a.color} />
+            ))}
             <StatusBadge status={project.status} />
             <PriorityBadge priority={project.priority} />
             {currentUser && project.requesters.some((r) => r.id === currentUser.id) && (

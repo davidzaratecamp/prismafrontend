@@ -30,6 +30,11 @@ export function ProjectCard({ project: p }: { project: Project }) {
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-1.5">
               {p.area && <AreaBadge name={p.area.name} color={p.area.color} />}
+              {p.areas.length > 1 && (
+                <span className="rounded-md bg-muted px-1.5 py-0.5 text-[11px] font-medium text-muted-foreground">
+                  +{p.areas.length - 1} área{p.areas.length - 1 === 1 ? '' : 's'}
+                </span>
+              )}
               {requestedByMe && (
                 <span className="inline-flex items-center gap-1 rounded-md bg-primary/10 px-1.5 py-0.5 text-[11px] font-medium text-primary">
                   <Sparkles className="size-3" /> Solicitado por ti

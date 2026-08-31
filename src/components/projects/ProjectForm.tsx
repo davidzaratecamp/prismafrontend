@@ -37,6 +37,7 @@ type FormState = {
   name: string
   description: string
   area_id: string
+  extra_area_ids: number[]
   status: string
   priority: string
   lead_user_id: string
@@ -53,6 +54,7 @@ const empty: FormState = {
   name: '',
   description: '',
   area_id: '',
+  extra_area_ids: [],
   status: 'planned',
   priority: 'medium',
   lead_user_id: '',
@@ -79,6 +81,9 @@ export function ProjectForm({ open, onOpenChange, project, defaultAreaId, onCrea
         name: project.name,
         description: project.description ?? '',
         area_id: String(project.area_id),
+        extra_area_ids: project.areas
+          .filter((a) => a.id !== project.area_id)
+          .map((a) => a.id),
         status: project.status,
         priority: project.priority,
         lead_user_id: project.lead_user_id ? String(project.lead_user_id) : '',
@@ -108,6 +113,7 @@ export function ProjectForm({ open, onOpenChange, project, defaultAreaId, onCrea
       name: form.name.trim(),
       description: form.description.trim() || null,
       area_id: Number(form.area_id),
+      area_ids: [Number(form.area_id), ...form.extra_area_ids],
       status: form.status,
       priority: form.priority,
       lead_user_id: form.lead_user_id ? Number(form.lead_user_id) : null,
@@ -174,8 +180,17 @@ export function ProjectForm({ open, onOpenChange, project, defaultAreaId, onCrea
 
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-1.5">
-              <Label>Área *</Label>
-              <Select value={form.area_id} onValueChange={(v) => set('area_id', v)}>
+              <Label>Área principal *</Label>
+              <Select
+                value={form.area_id}
+                onValueChange={(v) =>
+                  setForm((f) => ({
+                    ...f,
+                    area_id: v,
+                    extra_area_ids: f.extra_area_ids.filter((id) => id !== Number(v)),
+                  }))
+                }
+              >
                 <SelectTrigger>
                   <SelectValue placeholder="Selecciona un área" />
                 </SelectTrigger>
@@ -209,6 +224,43 @@ export function ProjectForm({ open, onOpenChange, project, defaultAreaId, onCrea
                 </SelectContent>
               </Select>
             </div>
+          </div>
+
+          <div className="space-y-1.5">
+            <Label>Otras áreas involucradas</Label>
+            <div className="flex flex-wrap gap-2">
+              {areas
+                ?.filter((a) => String(a.id) !== form.area_id)
+                .map((a) => {
+                  const active = form.extra_area_ids.includes(a.id)
+                  return (
+                    <button
+                      key={a.id}
+                      type="button"
+                      onClick={() =>
+                        set(
+                          'extra_area_ids',
+                          active
+                            ? form.extra_area_ids.filter((id) => id !== a.id)
+                            : [...form.extra_area_ids, a.id],
+                        )
+                      }
+                      className={
+                        'flex items-center gap-1.5 rounded-full border px-3 py-1 text-sm transition-colors ' +
+                        (active
+                          ? 'border-primary bg-primary/10 text-foreground'
+                          : 'text-muted-foreground hover:bg-accent')
+                      }
+                    >
+                      <span className="size-2 rounded-full" style={{ background: a.color }} />
+                      {a.name}
+                    </button>
+                  )
+                })}
+            </div>
+            <p className="text-xs text-muted-foreground">
+              El proyecto aparecerá también en el panel y la lista de estas áreas.
+            </p>
           </div>
 
           <div className="space-y-1.5">
