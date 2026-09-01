@@ -11,6 +11,8 @@ import { ProgressRing } from '@/components/common/ProgressRing'
 import { UserAvatar } from '@/components/common/UserAvatar'
 import { EmptyState } from '@/components/common/EmptyState'
 import { HealthBadge } from '@/components/portal/HealthBadge'
+import { WatchToggle } from '@/components/portal/WatchToggle'
+import { DeliveryCountdown } from '@/components/portal/DeliveryCountdown'
 import { StageList } from '@/components/portal/StageList'
 import { PortalActivity } from '@/components/portal/PortalActivity'
 import { PROJECT_STATUS } from '@/lib/status'
@@ -67,7 +69,10 @@ export default function PortalProjectPage() {
           ))}
           <HealthBadge project={p} size="md" />
         </div>
-        <h1 className="mt-2 text-2xl font-semibold tracking-tight">{p.name}</h1>
+        <div className="mt-2 flex flex-wrap items-start justify-between gap-2">
+          <h1 className="text-2xl font-semibold tracking-tight">{p.name}</h1>
+          <WatchToggle projectId={p.id} watched={p.is_watched} withLabel />
+        </div>
         {p.description && <p className="mt-2 max-w-2xl text-muted-foreground">{p.description}</p>}
       </div>
 
@@ -75,9 +80,14 @@ export default function PortalProjectPage() {
         <CardContent className="grid gap-6 p-6 sm:grid-cols-[auto_1fr] sm:items-center">
           <div className="flex items-center gap-4">
             <ProgressRing value={p.progress_cached} size={80} strokeWidth={7} />
-            <div className="max-w-xs text-sm">
-              <p className="font-medium">¿En qué va?</p>
-              <p className="mt-1 text-muted-foreground">{summarySentence(p)}</p>
+            <div className="max-w-xs space-y-2 text-sm">
+              <div>
+                <p className="font-medium">¿En qué va?</p>
+                <p className="mt-1 text-muted-foreground">{summarySentence(p)}</p>
+              </div>
+              {p.status !== 'completed' && p.status !== 'paused' && (
+                <DeliveryCountdown due={p.due_date} status={p.status} variant="block" />
+              )}
             </div>
           </div>
 

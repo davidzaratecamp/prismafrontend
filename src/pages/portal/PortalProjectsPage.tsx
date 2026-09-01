@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
-import { Search } from 'lucide-react'
+import { Search, Star } from 'lucide-react'
+import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import {
   Select,
@@ -29,6 +30,7 @@ export default function PortalProjectsPage() {
   const [q, setQ] = useState('')
   const area = params.get('area') ?? 'all'
   const health = params.get('health') ?? 'all'
+  const mine = params.get('mine') === '1'
 
   const setParam = (key: string, value: string) => {
     const next = new URLSearchParams(params)
@@ -45,11 +47,12 @@ export default function PortalProjectsPage() {
     if (!projects) return []
     const hf = HEALTH_FILTERS.find((f) => f.value === health)
     return projects.filter((p) => {
+      if (mine && !p.is_watched) return false
       if (q.trim() && !p.name.toLowerCase().includes(q.trim().toLowerCase())) return false
       if (hf && hf.keys.length && !hf.keys.includes(projectHealth(p).key)) return false
       return true
     })
-  }, [projects, q, health])
+  }, [projects, q, health, mine])
 
   return (
     <div className="space-y-6">
@@ -87,6 +90,13 @@ export default function PortalProjectsPage() {
             ))}
           </SelectContent>
         </Select>
+        <Button
+          type="button"
+          variant={mine ? 'default' : 'outline'}
+          onClick={() => setParam('mine', mine ? 'all' : '1')}
+        >
+          <Star className={mine ? 'size-4 fill-current' : 'size-4'} /> Los que sigo
+        </Button>
       </div>
 
       {isLoading ? (

@@ -35,6 +35,7 @@ function makeProject(over: Partial<Project> = {}): Project {
     areas: [{ id: 1, name: 'Claro TyT', slug: 'claro-tyt', color: '#e11d48' }],
     members: [],
     requesters: [],
+    is_watched: false,
     module_count: 2,
     task_counts: {},
     ...over,

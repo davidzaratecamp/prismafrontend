@@ -32,10 +32,6 @@ export default function PortalAreaPage() {
   const inProgress = projects.filter(
     (p) => p.status !== 'completed' && p.status !== 'paused',
   ).length
-  const year = new Date().getFullYear()
-  const deliveredThisYear = projects.filter(
-    (p) => p.status === 'completed' && p.completed_at && parseISO(p.completed_at).getFullYear() === year,
-  ).length
   const upcoming = projects.filter((p) => {
     if (!p.due_date || p.status === 'completed' || p.status === 'paused') return false
     const d = differenceInCalendarDays(parseISO(p.due_date), new Date())
@@ -59,7 +55,6 @@ export default function PortalAreaPage() {
 
       <PortalKpis
         inProgress={inProgress}
-        deliveredThisYear={deliveredThisYear}
         needsAttention={healthCounts(projects).needsAttention}
         upcoming={upcoming}
       />

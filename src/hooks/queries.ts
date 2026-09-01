@@ -80,6 +80,7 @@ export interface ProjectFilters {
   status?: string
   lead_user_id?: number | string
   requested_by_user_id?: number | string
+  watched?: boolean
   q?: string
   archived?: boolean
 }
@@ -96,6 +97,18 @@ export function useProject(id?: number | string) {
     queryKey: ['project', String(id)],
     queryFn: async () => (await api.get<Project>(`/projects/${id}`)).data,
     enabled: !!id,
+  })
+}
+
+export function useToggleWatch() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: async ({ id, watched }: { id: number; watched: boolean }) =>
+      (await api.put(`/projects/${id}/watch`, { watched })).data,
+    onSuccess: (_d, { id }) => {
+      qc.invalidateQueries({ queryKey: ['projects'] })
+      qc.invalidateQueries({ queryKey: ['project', String(id)] })
+    },
   })
 }
 
