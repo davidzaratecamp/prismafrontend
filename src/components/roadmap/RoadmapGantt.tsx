@@ -19,7 +19,13 @@ import type { RoadmapProject } from '@/lib/types'
 const DAY_PX = 4 // ancho por día
 const LABEL_W = 220
 
-export function RoadmapGantt({ projects }: { projects: RoadmapProject[] }) {
+export function RoadmapGantt({
+  projects,
+  linkBase = '/projects',
+}: {
+  projects: RoadmapProject[]
+  linkBase?: string
+}) {
   const dated = projects.filter((p) => p.start_date || p.due_date)
 
   const { start, end, months } = useMemo(() => {
@@ -116,7 +122,7 @@ export function RoadmapGantt({ projects }: { projects: RoadmapProject[] }) {
                   <div key={p.id} className="flex border-b last:border-0 hover:bg-accent/30">
                     <div className="shrink-0 border-r p-2" style={{ width: LABEL_W }}>
                       <Link
-                        to={`/projects/${p.id}`}
+                        to={`${linkBase}/${p.id}`}
                         className="line-clamp-1 text-sm font-medium hover:text-primary"
                       >
                         {p.name}
