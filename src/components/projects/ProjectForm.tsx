@@ -23,6 +23,7 @@ import { MemberPicker } from './MemberPicker'
 import { useAreas, useProjectMutations, useUsers } from '@/hooks/queries'
 import { PRIORITY_OPTIONS, PROJECT_STATUS_OPTIONS } from '@/lib/status'
 import { apiErrorMessage } from '@/lib/api'
+import { useIsAdmin } from '@/stores/auth'
 import type { Project } from '@/lib/types'
 
 interface Props {
@@ -72,7 +73,10 @@ export function ProjectForm({ open, onOpenChange, project, defaultAreaId, onCrea
   const { data: users } = useUsers({ active: true })
   const { create, update } = useProjectMutations()
   const [form, setForm] = useState<FormState>(empty)
+  const isAdmin = useIsAdmin()
   const editing = !!project
+  // La fecha de entrega, una vez fijada, solo la cambia un admin.
+  const dueDateLocked = editing && !isAdmin && !!project?.due_date
 
   useEffect(() => {
     if (!open) return
@@ -325,8 +329,14 @@ export function ProjectForm({ open, onOpenChange, project, defaultAreaId, onCrea
                 id="p-due"
                 type="date"
                 value={form.due_date}
+                disabled={dueDateLocked}
                 onChange={(e) => set('due_date', e.target.value)}
               />
+              {dueDateLocked && (
+                <p className="text-xs text-muted-foreground">
+                  Ya está definida. Solo un administrador puede cambiarla.
+                </p>
+              )}
             </div>
           </div>
 
