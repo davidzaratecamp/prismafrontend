@@ -1,24 +1,18 @@
 import type { ComponentType } from 'react'
-import { CalendarClock, FolderKanban, TriangleAlert } from 'lucide-react'
+import { CalendarClock, FolderKanban, TrendingUp } from 'lucide-react'
 import { Card } from '@/components/ui/card'
-import { cn } from '@/lib/utils'
 
 interface Kpi {
   label: string
   value: string | number
   hint?: string
   icon: ComponentType<{ className?: string }>
-  tone: 'default' | 'danger'
 }
 
-function Tile({ label, value, hint, icon: Icon, tone }: Kpi) {
-  const toneClass = {
-    default: 'bg-primary/10 text-primary',
-    danger: 'bg-red-500/10 text-red-600 dark:text-red-400',
-  }[tone]
+function Tile({ label, value, hint, icon: Icon }: Kpi) {
   return (
     <Card className="p-6">
-      <div className={cn('mb-3 flex size-11 items-center justify-center rounded-lg', toneClass)}>
+      <div className="mb-3 flex size-11 items-center justify-center rounded-lg bg-primary/10 text-primary">
         <Icon className="size-5" />
       </div>
       <p className="text-4xl font-semibold tabular-nums">{value}</p>
@@ -30,29 +24,22 @@ function Tile({ label, value, hint, icon: Icon, tone }: Kpi) {
 
 export function PortalKpis({
   inProgress,
-  needsAttention,
+  avgProgress,
   upcoming,
 }: {
   inProgress: number
-  needsAttention: number
+  avgProgress: number
   upcoming: number
 }) {
   return (
     <div className="grid gap-4 sm:grid-cols-3">
-      <Tile label="Proyectos en curso" value={inProgress} icon={FolderKanban} tone="default" />
-      <Tile
-        label="Necesitan atención"
-        value={needsAttention}
-        hint={needsAttention === 0 ? 'todo bajo control' : 'en riesgo o con retraso'}
-        icon={TriangleAlert}
-        tone={needsAttention > 0 ? 'danger' : 'default'}
-      />
+      <Tile label="Proyectos en curso" value={inProgress} icon={FolderKanban} />
+      <Tile label="Avance promedio" value={`${avgProgress}%`} icon={TrendingUp} />
       <Tile
         label="Próximas entregas"
         value={upcoming}
         hint="en los próximos 30 días"
         icon={CalendarClock}
-        tone="default"
       />
     </div>
   )

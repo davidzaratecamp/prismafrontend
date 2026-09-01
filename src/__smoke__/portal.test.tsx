@@ -5,7 +5,6 @@ import { expect, test } from 'vitest'
 import { projectHealth } from '@/lib/health'
 import { PortalProjectCard } from '@/components/portal/PortalProjectCard'
 import { AreaStatusGrid } from '@/components/portal/AreaStatusGrid'
-import { AttentionList } from '@/components/portal/AttentionList'
 import PortalOverviewPage from '@/pages/portal/PortalOverviewPage'
 import type { Area, Project } from '@/lib/types'
 
@@ -56,17 +55,16 @@ test('componentes del portal renderizan', () => {
     makeProject({ id: 1, due_date: '2000-01-01', progress_cached: 20 }),
     makeProject({ id: 2, status: 'completed', progress_cached: 100 }),
   ]
-  const { getByText, getAllByText } = render(
+  const { getAllByText } = render(
     <QueryClientProvider client={qc}>
       <MemoryRouter>
         <PortalProjectCard project={projects[0]} />
         <AreaStatusGrid areas={[area]} projects={projects} />
-        <AttentionList projects={projects} />
       </MemoryRouter>
     </QueryClientProvider>,
   )
   expect(getAllByText('Con retraso').length).toBeGreaterThan(0)
-  expect(getByText('Requiere atención')).toBeTruthy()
+  expect(getAllByText('Claro TyT').length).toBeGreaterThan(0)
 })
 
 test('PortalOverviewPage monta con datos', () => {

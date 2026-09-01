@@ -6,26 +6,26 @@ import { useAuthStore } from '@/stores/auth'
 import { PortalKpis } from '@/components/portal/PortalKpis'
 import { PortalProjectCard } from '@/components/portal/PortalProjectCard'
 import { AreaStatusGrid } from '@/components/portal/AreaStatusGrid'
-import { AttentionList } from '@/components/portal/AttentionList'
 import { UpcomingDeliveries } from '@/components/portal/UpcomingDeliveries'
 import { PortalActivity } from '@/components/portal/PortalActivity'
 import { Card } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
-import { healthCounts } from '@/lib/health'
 import { countdownTo } from '@/lib/time'
 import type { Project } from '@/lib/types'
 
+function avgOf(projects: Project[]) {
+  if (!projects.length) return 0
+  return Math.round(projects.reduce((s, p) => s + p.progress_cached, 0) / projects.length)
+}
+
 function headline(projects: Project[]): string {
   const active = projects.filter((p) => p.status !== 'completed' && p.status !== 'paused')
-  const attention = healthCounts(projects).needsAttention
   const next = active
     .filter((p) => p.due_date)
     .sort((a, b) => (a.due_date || '').localeCompare(b.due_date || ''))
     .find((p) => !countdownTo(p.due_date!).overdue)
 
-  const parts = [`${active.length} proyecto${active.length === 1 ? '' : 's'} en curso`]
-  if (attention > 0) parts.push(`${attention} necesita${attention === 1 ? '' : 'n'} atención`)
-  let s = parts.join(', ') + '.'
+  let s = `${active.length} proyecto${active.length === 1 ? '' : 's'} en curso con ${avgOf(active)}% de avance promedio.`
   if (next) s += ` Próxima entrega: ${next.name} (${countdownTo(next.due_date!).label}).`
   return s
 }
@@ -50,10 +50,9 @@ export default function PortalOverviewPage() {
   }
 
   const watched = projects.filter((p) => p.is_watched)
-  const inProgress = projects.filter(
-    (p) => p.status !== 'completed' && p.status !== 'paused',
-  ).length
-  const needsAttention = healthCounts(projects).needsAttention
+  const active = projects.filter((p) => p.status !== 'completed' && p.status !== 'paused')
+  const inProgress = active.length
+  const avgProgress = avgOf(active)
   const upcoming = projects.filter((p) => {
     if (!p.due_date || p.status === 'completed' || p.status === 'paused') return false
     const d = differenceInCalendarDays(parseISO(p.due_date), new Date())
@@ -75,7 +74,7 @@ export default function PortalOverviewPage() {
         <p className="text-[15px] leading-relaxed">{headline(projects)}</p>
       </Card>
 
-      <PortalKpis inProgress={inProgress} needsAttention={needsAttention} upcoming={upcoming} />
+      <PortalKpis inProgress={inProgress} avgProgress={avgProgress} upcoming={upcoming} />
 
       <section>
         <h2 className="mb-3 flex items-center gap-2 text-lg font-semibold">
@@ -101,11 +100,9 @@ export default function PortalOverviewPage() {
       </section>
 
       <div className="grid gap-6 lg:grid-cols-2">
-        <AttentionList projects={projects} />
         <UpcomingDeliveries projects={projects} />
+        <PortalActivity />
       </div>
-
-      <PortalActivity />
     </div>
   )
 }

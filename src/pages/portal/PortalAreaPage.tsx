@@ -5,13 +5,11 @@ import { differenceInCalendarDays, parseISO } from 'date-fns'
 import { useAreas, useProjects } from '@/hooks/queries'
 import { PortalKpis } from '@/components/portal/PortalKpis'
 import { PortalProjectCard } from '@/components/portal/PortalProjectCard'
-import { AttentionList } from '@/components/portal/AttentionList'
 import { UpcomingDeliveries } from '@/components/portal/UpcomingDeliveries'
 import { PortalActivity } from '@/components/portal/PortalActivity'
 import { EmptyState } from '@/components/common/EmptyState'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Button } from '@/components/ui/button'
-import { healthCounts } from '@/lib/health'
 
 export default function PortalAreaPage() {
   const { slug } = useParams()
@@ -29,9 +27,11 @@ export default function PortalAreaPage() {
     )
   }
 
-  const inProgress = projects.filter(
-    (p) => p.status !== 'completed' && p.status !== 'paused',
-  ).length
+  const active = projects.filter((p) => p.status !== 'completed' && p.status !== 'paused')
+  const inProgress = active.length
+  const avgProgress = active.length
+    ? Math.round(active.reduce((s, p) => s + p.progress_cached, 0) / active.length)
+    : 0
   const upcoming = projects.filter((p) => {
     if (!p.due_date || p.status === 'completed' || p.status === 'paused') return false
     const d = differenceInCalendarDays(parseISO(p.due_date), new Date())
@@ -53,11 +53,7 @@ export default function PortalAreaPage() {
         {area.description && <p className="mt-1 text-muted-foreground">{area.description}</p>}
       </div>
 
-      <PortalKpis
-        inProgress={inProgress}
-        needsAttention={healthCounts(projects).needsAttention}
-        upcoming={upcoming}
-      />
+      <PortalKpis inProgress={inProgress} avgProgress={avgProgress} upcoming={upcoming} />
 
       <section>
         <h2 className="mb-3 text-lg font-semibold">Proyectos del área ({projects.length})</h2>
@@ -73,11 +69,9 @@ export default function PortalAreaPage() {
       </section>
 
       <div className="grid gap-6 lg:grid-cols-2">
-        <AttentionList projects={projects} />
         <UpcomingDeliveries projects={projects} />
+        <PortalActivity areaId={area.id} />
       </div>
-
-      <PortalActivity areaId={area.id} />
     </div>
   )
 }

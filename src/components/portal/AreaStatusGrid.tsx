@@ -2,7 +2,6 @@ import { Link } from 'react-router-dom'
 import { Card } from '@/components/ui/card'
 import { ProgressRing } from '@/components/common/ProgressRing'
 import { EmptyState } from '@/components/common/EmptyState'
-import { healthCounts } from '@/lib/health'
 import type { Area, Project } from '@/lib/types'
 
 export function AreaStatusGrid({
@@ -35,11 +34,10 @@ export function AreaStatusGrid({
         const avg = Math.round(
           list.reduce((s, p) => s + p.progress_cached, 0) / list.length,
         )
-        const c = healthCounts(list)
         return (
           <Link key={area.id} to={`/areas/${area.slug}`}>
             <Card className="h-full p-5 transition-all hover:border-primary/40 hover:shadow-md">
-              <div className="flex items-start justify-between">
+              <div className="flex items-center justify-between">
                 <div className="min-w-0">
                   <span className="flex items-center gap-2">
                     <span className="size-2.5 rounded-full" style={{ background: area.color }} />
@@ -49,27 +47,12 @@ export function AreaStatusGrid({
                     {active} en curso · {list.length} en total
                   </p>
                 </div>
-                <ProgressRing value={avg} size={48} />
-              </div>
-
-              <div className="mt-4 flex flex-wrap gap-x-4 gap-y-1 text-xs">
-                <Dot color="#10b981" label={`${c.ontrack} en fecha`} />
-                <Dot color="#f59e0b" label={`${c.risk} en riesgo`} />
-                <Dot color="#ef4444" label={`${c.delayed + c.attention} con retraso`} />
+                <ProgressRing value={avg} size={52} />
               </div>
             </Card>
           </Link>
         )
       })}
     </div>
-  )
-}
-
-function Dot({ color, label }: { color: string; label: string }) {
-  return (
-    <span className="flex items-center gap-1.5 text-muted-foreground">
-      <span className="size-1.5 rounded-full" style={{ background: color }} />
-      {label}
-    </span>
   )
 }
