@@ -39,11 +39,7 @@ export default function PortalOverviewPage() {
     return (
       <div className="space-y-6">
         <Skeleton className="h-10 w-64" />
-        <div className="grid gap-4 sm:grid-cols-3">
-          {Array.from({ length: 3 }).map((_, i) => (
-            <Skeleton key={i} className="h-36 rounded-xl" />
-          ))}
-        </div>
+        <Skeleton className="h-20 rounded-xl" />
         <Skeleton className="h-64 rounded-xl" />
       </div>
     )

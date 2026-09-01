@@ -9,16 +9,20 @@ interface Kpi {
   icon: ComponentType<{ className?: string }>
 }
 
-function Tile({ label, value, hint, icon: Icon }: Kpi) {
+function Cell({ label, value, hint, icon: Icon }: Kpi) {
   return (
-    <Card className="p-6">
-      <div className="mb-3 flex size-11 items-center justify-center rounded-lg bg-primary/10 text-primary">
-        <Icon className="size-5" />
+    <div className="flex items-center gap-3 px-4 py-3">
+      <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+        <Icon className="size-4" />
       </div>
-      <p className="text-4xl font-semibold tabular-nums">{value}</p>
-      <p className="mt-1 text-sm font-medium">{label}</p>
-      {hint && <p className="mt-0.5 text-xs text-muted-foreground">{hint}</p>}
-    </Card>
+      <div className="min-w-0">
+        <p className="text-xl font-semibold leading-none tabular-nums">{value}</p>
+        <p className="mt-1 truncate text-xs text-muted-foreground">
+          {label}
+          {hint ? ` · ${hint}` : ''}
+        </p>
+      </div>
+    </div>
   )
 }
 
@@ -32,15 +36,10 @@ export function PortalKpis({
   upcoming: number
 }) {
   return (
-    <div className="grid gap-4 sm:grid-cols-3">
-      <Tile label="Proyectos en curso" value={inProgress} icon={FolderKanban} />
-      <Tile label="Avance promedio" value={`${avgProgress}%`} icon={TrendingUp} />
-      <Tile
-        label="Próximas entregas"
-        value={upcoming}
-        hint="en los próximos 30 días"
-        icon={CalendarClock}
-      />
-    </div>
+    <Card className="grid divide-y sm:grid-cols-3 sm:divide-x sm:divide-y-0">
+      <Cell label="Proyectos en curso" value={inProgress} icon={FolderKanban} />
+      <Cell label="Avance promedio" value={`${avgProgress}%`} icon={TrendingUp} />
+      <Cell label="Próximas entregas" value={upcoming} hint="30 días" icon={CalendarClock} />
+    </Card>
   )
 }
