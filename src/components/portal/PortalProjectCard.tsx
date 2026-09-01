@@ -1,5 +1,7 @@
 import { Link } from 'react-router-dom'
-import { ChevronRight } from 'lucide-react'
+import { ChevronRight, History } from 'lucide-react'
+import { formatDistanceToNow } from 'date-fns'
+import { es } from 'date-fns/locale'
 import { Card } from '@/components/ui/card'
 import { Progress } from '@/components/ui/progress'
 import { AreaBadge } from '@/components/common/AreaBadge'
@@ -8,6 +10,7 @@ import { HealthBadge } from './HealthBadge'
 import { WatchToggle } from './WatchToggle'
 import { DeliveryCountdown } from './DeliveryCountdown'
 import { PROJECT_STATUS } from '@/lib/status'
+import { parseDbDate } from '@/lib/time'
 import type { Project } from '@/lib/types'
 
 export function PortalProjectCard({ project: p }: { project: Project }) {
@@ -61,8 +64,15 @@ export function PortalProjectCard({ project: p }: { project: Project }) {
           </p>
         )}
 
-        <div className="mt-1 flex items-center gap-1 text-xs font-medium text-primary opacity-0 transition-opacity group-hover:opacity-100">
-          Ver detalle <ChevronRight className="size-3.5" />
+        <div className="mt-2 flex items-center justify-between">
+          <span className="flex items-center gap-1 text-[11px] text-muted-foreground">
+            <History className="size-3" />
+            Actualizado{' '}
+            {formatDistanceToNow(parseDbDate(p.last_activity_at), { locale: es, addSuffix: true })}
+          </span>
+          <span className="flex items-center gap-1 text-xs font-medium text-primary opacity-0 transition-opacity group-hover:opacity-100">
+            Ver detalle <ChevronRight className="size-3.5" />
+          </span>
         </div>
       </Card>
     </Link>

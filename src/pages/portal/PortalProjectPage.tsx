@@ -1,7 +1,8 @@
 import { Link, useParams } from 'react-router-dom'
-import { format, parseISO } from 'date-fns'
+import { format, formatDistanceToNow, parseISO } from 'date-fns'
 import { es } from 'date-fns/locale'
-import { ArrowLeft, CalendarDays, Flag } from 'lucide-react'
+import { ArrowLeft, CalendarDays, Flag, History } from 'lucide-react'
+import { parseDbDate } from '@/lib/time'
 import { useProject } from '@/hooks/queries'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
@@ -73,6 +74,11 @@ export default function PortalProjectPage() {
           <h1 className="text-2xl font-semibold tracking-tight">{p.name}</h1>
           <WatchToggle projectId={p.id} watched={p.is_watched} withLabel />
         </div>
+        <p className="mt-1 flex items-center gap-1 text-xs text-muted-foreground">
+          <History className="size-3" />
+          Última actualización{' '}
+          {formatDistanceToNow(parseDbDate(p.last_activity_at), { locale: es, addSuffix: true })}
+        </p>
         {p.description && <p className="mt-2 max-w-2xl text-muted-foreground">{p.description}</p>}
       </div>
 

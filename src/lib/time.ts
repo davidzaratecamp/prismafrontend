@@ -1,6 +1,12 @@
 import { useEffect, useState } from 'react'
 import { parseISO } from 'date-fns'
 
+/** Fechas de MySQL vienen como 'YYYY-MM-DD HH:MM:SS' en UTC (sin zona). */
+export function parseDbDate(s: string): Date {
+  const iso = s.includes('T') ? s : s.replace(' ', 'T')
+  return new Date(/[Z+]/.test(iso.slice(10)) ? iso : `${iso}Z`)
+}
+
 /** Re-renderiza cada `ms` para mantener vivos los contadores. */
 export function useNow(ms = 60_000) {
   const [now, setNow] = useState(() => Date.now())

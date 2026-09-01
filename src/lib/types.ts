@@ -101,6 +101,7 @@ export interface Project {
   members: MiniUser[]
   requesters: MiniUser[]
   is_watched: boolean
+  last_activity_at: string
   module_count: number
   task_counts: Partial<Record<TaskStatus, number>>
   modules?: Module[]

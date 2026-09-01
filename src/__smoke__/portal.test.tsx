@@ -35,6 +35,7 @@ function makeProject(over: Partial<Project> = {}): Project {
     members: [],
     requesters: [],
     is_watched: false,
+    last_activity_at: '2026-08-30 12:00:00',
     module_count: 2,
     task_counts: {},
     ...over,
