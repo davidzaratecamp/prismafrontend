@@ -28,6 +28,7 @@ export function CallsTab({ range }: { range: { from?: string; to?: string } }) {
   const [agentId, setAgentId] = useState('all')
   const [direction, setDirection] = useState('all')
   const [status, setStatus] = useState('all')
+  const [result, setResult] = useState('all') // all | ok | fail
   const [page, setPage] = useState(1)
   const [openCall, setOpenCall] = useState<string | null>(null)
 
@@ -36,6 +37,7 @@ export function CallsTab({ range }: { range: { from?: string; to?: string } }) {
     agentId: agentId === 'all' ? undefined : agentId,
     direction: direction === 'all' ? undefined : (direction as 'inbound' | 'outbound'),
     status: status === 'all' ? undefined : status,
+    callSuccessful: result === 'ok' ? 'true' : result === 'fail' ? 'false' : undefined,
     allStatuses: status === 'all',
     page,
     pageSize: 25,
@@ -85,6 +87,17 @@ export function CallsTab({ range }: { range: { from?: string; to?: string } }) {
             <SelectItem value="error">Error</SelectItem>
             <SelectItem value="ongoing">En curso</SelectItem>
             <SelectItem value="not_connected">No conectó</SelectItem>
+          </SelectContent>
+        </Select>
+
+        <Select value={result} onValueChange={resetPage(setResult)}>
+          <SelectTrigger className="h-9 w-40">
+            <SelectValue placeholder="Resultado" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Todo resultado</SelectItem>
+            <SelectItem value="ok">Exitosas</SelectItem>
+            <SelectItem value="fail">Fallidas</SelectItem>
           </SelectContent>
         </Select>
       </div>

@@ -247,7 +247,15 @@ export interface RetellAgentStat {
   minutes: number
   avg_duration_seconds: number
   avg_latency_e2e_ms: number | null
+  successful: number
   success_rate: number | null
+  cost_per_successful_usd: number | null
+  inbound: number
+  outbound: number
+  positive: number
+  negative: number
+  neutral: number
+  positive_rate: number | null
 }
 
 export interface RetellProductCost {
@@ -312,4 +320,75 @@ export interface RetellFilterOptions {
   date_range: { min: string | null; max: string | null }
   call_types: string[]
   directions: string[]
+}
+
+export interface RetellVolumeDay {
+  day: string
+  calls: number
+  inbound: number
+  outbound: number
+  ended: number
+  error: number
+}
+
+export interface RetellHeatCell {
+  hour: number
+  weekday: number // 0 = lunes … 6 = domingo
+  calls: number
+}
+
+export interface RetellDurationBucket {
+  bucket: string
+  calls: number
+}
+
+export interface RetellLatencyStats {
+  e2e_p50_avg_ms: number | null
+  e2e_p90_avg_ms: number | null
+  e2e_p90_max_ms: number | null
+  llm_p50_avg_ms: number | null
+}
+
+export interface RetellStatusRow {
+  status: string
+  calls: number
+}
+
+export interface RetellDailyTrend {
+  day: string
+  calls: number
+  cost_usd: number
+  success_rate: number | null
+  positive_rate: number | null
+  negative_rate: number | null
+}
+
+export interface RetellMonthlyComparison {
+  current_month: {
+    label: string
+    calls: number
+    cost_usd: number
+    minutes: number
+    successful: number
+    days_elapsed: number
+    days_in_month: number
+    projected_cost_usd: number
+  }
+  previous_month: {
+    label: string
+    calls: number
+    cost_usd: number
+    minutes: number
+    successful: number
+  }
+  projected_vs_previous_pct: number | null
+}
+
+export interface RetellDisconnectionBySuccess {
+  reason: string
+  total: number
+  successful: number
+  failed: number
+  success_rate: number | null
+  avg_duration_seconds: number | null
 }

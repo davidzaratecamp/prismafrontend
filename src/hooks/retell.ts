@@ -7,11 +7,19 @@ import type {
   RetellCallsPage,
   RetellConfig,
   RetellCostDay,
+  RetellDailyTrend,
+  RetellDisconnectionBySuccess,
+  RetellDurationBucket,
   RetellFilterOptions,
+  RetellHeatCell,
+  RetellLatencyStats,
+  RetellMonthlyComparison,
   RetellOverview,
   RetellProductCost,
   RetellReasonRow,
   RetellSentimentRow,
+  RetellStatusRow,
+  RetellVolumeDay,
 } from '@/lib/types'
 
 export interface RetellFilters {
@@ -21,6 +29,8 @@ export interface RetellFilters {
   direction?: 'inbound' | 'outbound'
   callType?: 'web_call' | 'phone_call'
   status?: string
+  sentiment?: string
+  callSuccessful?: 'true' | 'false'
   allStatuses?: boolean
   page?: number
   pageSize?: number
@@ -69,6 +79,34 @@ export const useRetellSentiment = (f?: RetellFilters) =>
 
 export const useRetellDisconnections = (f?: RetellFilters) =>
   useRetellQuery<RetellReasonRow[]>('disconnection-reasons', 'analytics/disconnection-reasons', f)
+
+export const useRetellVolumeByDay = (f?: RetellFilters) =>
+  useRetellQuery<RetellVolumeDay[]>('volume-by-day', 'analytics/volume-by-day', f)
+
+export const useRetellHeatmap = (f?: RetellFilters) =>
+  useRetellQuery<RetellHeatCell[]>('heatmap', 'analytics/heatmap', f)
+
+export const useRetellDurationBuckets = (f?: RetellFilters) =>
+  useRetellQuery<RetellDurationBucket[]>('duration-buckets', 'analytics/duration-buckets', f)
+
+export const useRetellLatency = (f?: RetellFilters) =>
+  useRetellQuery<RetellLatencyStats>('latency', 'analytics/latency', f)
+
+export const useRetellStatusBreakdown = (f?: RetellFilters) =>
+  useRetellQuery<RetellStatusRow[]>('status-breakdown', 'analytics/status-breakdown', f)
+
+export const useRetellDailyTrend = (f?: RetellFilters) =>
+  useRetellQuery<RetellDailyTrend[]>('daily-trend', 'analytics/daily-trend', f)
+
+export const useRetellMonthlyComparison = (f?: RetellFilters) =>
+  useRetellQuery<RetellMonthlyComparison>('monthly-comparison', 'analytics/monthly-comparison', f)
+
+export const useRetellDisconnectionBySuccess = (f?: RetellFilters) =>
+  useRetellQuery<RetellDisconnectionBySuccess[]>(
+    'disconnection-by-success',
+    'analytics/disconnection-by-success',
+    f,
+  )
 
 export const useRetellCalls = (f?: RetellFilters) =>
   useRetellQuery<RetellCallsPage>('calls', 'calls', f)

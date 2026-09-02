@@ -5,9 +5,9 @@ import { es } from 'date-fns/locale'
 import {
   AlertTriangle,
   Bot,
+  CheckCheck,
   Clock,
   DollarSign,
-  Gauge,
   PhoneCall,
   RefreshCw,
   Timer,
@@ -29,8 +29,16 @@ import { EmptyState } from '@/components/common/EmptyState'
 import { CostByDayChart } from '@/components/retell/CostByDayChart'
 import { MiniBarList, type MiniBarRow } from '@/components/retell/MiniBarList'
 import { AgentCostTable } from '@/components/retell/AgentCostTable'
+import { AgentCompare } from '@/components/retell/AgentCompare'
+import { DisconnectionBySuccessTable } from '@/components/retell/DisconnectionBySuccessTable'
 import { CallsTab } from '@/components/retell/CallsTab'
-import { dur, num, pct, usd } from '@/components/retell/format'
+import { VolumeByDayChart } from '@/components/retell/VolumeByDayChart'
+import { HourHeatmap } from '@/components/retell/HourHeatmap'
+import { DurationHistogram } from '@/components/retell/DurationHistogram'
+import { LatencyPanel } from '@/components/retell/LatencyPanel'
+import { MonthlyComparisonCard } from '@/components/retell/MonthlyComparisonCard'
+import { SuccessTrendChart } from '@/components/retell/SuccessTrendChart'
+import { num, pct, usd } from '@/components/retell/format'
 import { apiErrorMessage } from '@/lib/api'
 import { parseDbDate } from '@/lib/time'
 import {
@@ -38,10 +46,18 @@ import {
   useRetellConfig,
   useRetellCostByDay,
   useRetellCostByProduct,
+  useRetellDailyTrend,
   useRetellDisconnections,
+  useRetellDisconnectionBySuccess,
+  useRetellDurationBuckets,
+  useRetellHeatmap,
+  useRetellLatency,
+  useRetellMonthlyComparison,
   useRetellOverview,
   useRetellSentiment,
+  useRetellStatusBreakdown,
   useRetellSync,
+  useRetellVolumeByDay,
   type RetellFilters,
 } from '@/hooks/retell'
 
@@ -75,13 +91,6 @@ export default function RetellPage() {
   const config = useRetellConfig()
   const sync = useRetellSync()
 
-  const overview = useRetellOverview(range)
-  const costByDay = useRetellCostByDay(range)
-  const byAgent = useRetellByAgent(range)
-  const byProduct = useRetellCostByProduct(range)
-  const sentiment = useRetellSentiment(range)
-  const disconnects = useRetellDisconnections(range)
-
   const callsState = config.data?.sync_status?.find((s) => s.resource === 'calls')
   const lastRun = callsState?.last_run_at
     ? formatDistanceToNow(parseDbDate(callsState.last_run_at), { addSuffix: true, locale: es })
@@ -96,8 +105,6 @@ export default function RetellPage() {
       toast.error(apiErrorMessage(err, 'No se pudo sincronizar'))
     }
   }
-
-  const k = overview.data
 
   return (
     <div className="space-y-6">
@@ -152,88 +159,170 @@ export default function RetellPage() {
       <Tabs defaultValue="resumen">
         <TabsList>
           <TabsTrigger value="resumen">Resumen</TabsTrigger>
+          <TabsTrigger value="actividad">Actividad</TabsTrigger>
           <TabsTrigger value="agentes">Agentes</TabsTrigger>
           <TabsTrigger value="llamadas">Llamadas</TabsTrigger>
         </TabsList>
 
-        {/* ─────────── Resumen ─────────── */}
-        <TabsContent value="resumen" className="space-y-6 pt-4">
-          {overview.isLoading || !k ? (
-            <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
-              {Array.from({ length: 5 }).map((_, i) => (
-                <Skeleton key={i} className="h-28 rounded-xl" />
-              ))}
-            </div>
-          ) : k.total_calls === 0 ? (
-            <EmptyState
-              icon={PhoneCall}
-              title="Sin llamadas sincronizadas en este rango"
-              description="Pulsa “Sincronizar” para traer los datos desde Retell, o amplía el rango de fechas."
-            />
-          ) : (
-            <>
-              <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
-                <KpiCard label="Llamadas" value={num(k.total_calls)} hint={`${k.unique_agents} agentes`} icon={PhoneCall} />
-                <KpiCard label="Costo total" value={usd(k.total_cost_usd)} hint={`prom. ${usd(k.avg_cost_usd, 3)}/llamada`} icon={DollarSign} tone="success" />
-                <KpiCard label="Minutos" value={num(k.total_minutes)} hint={`${k.total_hours} h en total`} icon={Timer} />
-                <KpiCard label="Costo por minuto" value={usd(k.cost_per_minute_usd, 3)} hint={`dur. media ${dur(k.avg_duration_seconds)}`} icon={Gauge} />
-                <KpiCard
-                  label="Tasa de éxito"
-                  value={pct(k.success_rate)}
-                  hint={`${k.successful_calls} ok · ${k.failed_calls} fallidas`}
-                  icon={Bot}
-                  tone={k.success_rate != null && k.success_rate < 0.6 ? 'warning' : 'success'}
-                />
-              </div>
-
-              <CostByDayChart data={costByDay.data ?? []} />
-
-              <div className="grid gap-4 lg:grid-cols-3">
-                <MiniBarList
-                  title="Costo por producto (USD)"
-                  emptyLabel="Sin desglose de costos"
-                  rows={(byProduct.data ?? []).map<MiniBarRow>((p) => ({
-                    label: p.product,
-                    value: p.cost_usd,
-                    display: usd(p.cost_usd),
-                  }))}
-                />
-                <MiniBarList
-                  title="Sentimiento del usuario"
-                  emptyLabel="Sin análisis de sentimiento"
-                  rows={(sentiment.data ?? []).map<MiniBarRow>((s) => ({
-                    label: s.sentiment,
-                    value: s.calls,
-                    color: SENTIMENT_COLOR[s.sentiment],
-                  }))}
-                />
-                <MiniBarList
-                  title="Motivos de desconexión"
-                  emptyLabel="Sin datos de corte"
-                  rows={(disconnects.data ?? []).slice(0, 6).map<MiniBarRow>((r) => ({
-                    label: r.reason,
-                    value: r.calls,
-                  }))}
-                />
-              </div>
-            </>
-          )}
+        <TabsContent value="resumen" className="pt-4">
+          <ResumenTab range={range} />
         </TabsContent>
-
-        {/* ─────────── Agentes ─────────── */}
+        <TabsContent value="actividad" className="pt-4">
+          <ActividadTab range={range} />
+        </TabsContent>
         <TabsContent value="agentes" className="pt-4">
-          {byAgent.isLoading ? (
-            <Skeleton className="h-72 rounded-xl" />
-          ) : (
-            <AgentCostTable rows={byAgent.data ?? []} />
-          )}
+          <AgentesTab range={range} />
         </TabsContent>
-
-        {/* ─────────── Llamadas ─────────── */}
         <TabsContent value="llamadas" className="pt-4">
           <CallsTab range={range} />
         </TabsContent>
       </Tabs>
+    </div>
+  )
+}
+
+/* ───────────────────────── Resumen ───────────────────────── */
+
+function ResumenTab({ range }: { range: RetellFilters }) {
+  const overview = useRetellOverview(range)
+  const monthly = useRetellMonthlyComparison(range)
+  const costByDay = useRetellCostByDay(range)
+  const trend = useRetellDailyTrend(range)
+  const byProduct = useRetellCostByProduct(range)
+  const sentiment = useRetellSentiment(range)
+  const disconnects = useRetellDisconnections(range)
+
+  const k = overview.data
+
+  if (overview.isLoading || !k) {
+    return (
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
+        {Array.from({ length: 5 }).map((_, i) => (
+          <Skeleton key={i} className="h-28 rounded-xl" />
+        ))}
+      </div>
+    )
+  }
+
+  if (k.total_calls === 0) {
+    return (
+      <EmptyState
+        icon={PhoneCall}
+        title="Sin llamadas sincronizadas en este rango"
+        description="Pulsa “Sincronizar” para traer los datos desde Retell, o amplía el rango de fechas."
+      />
+    )
+  }
+
+  const costPerSuccess = k.successful_calls > 0 ? k.total_cost_usd / k.successful_calls : null
+
+  return (
+    <div className="space-y-6">
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
+        <KpiCard label="Llamadas" value={num(k.total_calls)} hint={`${k.unique_agents} agentes`} icon={PhoneCall} />
+        <KpiCard label="Costo total" value={usd(k.total_cost_usd)} hint={`prom. ${usd(k.avg_cost_usd, 3)}/llamada`} icon={DollarSign} tone="success" />
+        <KpiCard label="Costo / llamada exitosa" value={usd(costPerSuccess, 3)} hint={`${num(k.successful_calls)} exitosas`} icon={CheckCheck} tone="success" />
+        <KpiCard label="Minutos" value={num(k.total_minutes)} hint={`${k.total_hours} h · ${usd(k.cost_per_minute_usd, 3)}/min`} icon={Timer} />
+        <KpiCard
+          label="Tasa de éxito"
+          value={pct(k.success_rate)}
+          hint={`${num(k.successful_calls)} ok · ${num(k.failed_calls)} fallidas`}
+          icon={Bot}
+          tone={k.success_rate != null && k.success_rate < 0.6 ? 'warning' : 'success'}
+        />
+      </div>
+
+      <div className="grid gap-4 lg:grid-cols-2">
+        <MonthlyComparisonCard data={monthly.data} />
+        <CostByDayChart data={costByDay.data ?? []} />
+      </div>
+
+      <SuccessTrendChart data={trend.data ?? []} />
+
+      <div className="grid gap-4 lg:grid-cols-3">
+        <MiniBarList
+          title="Costo por producto (USD)"
+          emptyLabel="Sin desglose de costos"
+          rows={(byProduct.data ?? []).map<MiniBarRow>((p) => ({
+            label: p.product,
+            value: p.cost_usd,
+            display: usd(p.cost_usd),
+          }))}
+        />
+        <MiniBarList
+          title="Sentimiento del usuario"
+          emptyLabel="Sin análisis de sentimiento"
+          rows={(sentiment.data ?? []).map<MiniBarRow>((s) => ({
+            label: s.sentiment,
+            value: s.calls,
+            color: SENTIMENT_COLOR[s.sentiment],
+          }))}
+        />
+        <MiniBarList
+          title="Motivos de desconexión"
+          emptyLabel="Sin datos de corte"
+          rows={(disconnects.data ?? []).slice(0, 6).map<MiniBarRow>((r) => ({
+            label: r.reason,
+            value: r.calls,
+          }))}
+        />
+      </div>
+    </div>
+  )
+}
+
+/* ───────────────────────── Actividad ───────────────────────── */
+
+function ActividadTab({ range }: { range: RetellFilters }) {
+  const volume = useRetellVolumeByDay(range)
+  const heatmap = useRetellHeatmap(range)
+  const duration = useRetellDurationBuckets(range)
+  const status = useRetellStatusBreakdown(range)
+  const latency = useRetellLatency(range)
+
+  const loading = volume.isLoading || heatmap.isLoading
+
+  if (loading) {
+    return (
+      <div className="space-y-4">
+        <Skeleton className="h-72 rounded-xl" />
+        <Skeleton className="h-72 rounded-xl" />
+      </div>
+    )
+  }
+
+  return (
+    <div className="space-y-6">
+      <VolumeByDayChart data={volume.data ?? []} />
+      <HourHeatmap data={heatmap.data ?? []} />
+      <div className="grid gap-4 lg:grid-cols-2">
+        <DurationHistogram data={duration.data ?? []} />
+        <MiniBarList
+          title="Estado de las llamadas"
+          emptyLabel="Sin llamadas en el rango"
+          rows={(status.data ?? []).map<MiniBarRow>((s) => ({ label: s.status, value: s.calls }))}
+        />
+      </div>
+      <LatencyPanel data={latency.data} />
+    </div>
+  )
+}
+
+/* ───────────────────────── Agentes ───────────────────────── */
+
+function AgentesTab({ range }: { range: RetellFilters }) {
+  const byAgent = useRetellByAgent(range)
+  const discXSuccess = useRetellDisconnectionBySuccess(range)
+
+  if (byAgent.isLoading) return <Skeleton className="h-72 rounded-xl" />
+
+  const rows = byAgent.data ?? []
+
+  return (
+    <div className="space-y-6">
+      <AgentCostTable rows={rows} />
+      {rows.length >= 2 && <AgentCompare agents={rows} />}
+      <DisconnectionBySuccessTable rows={discXSuccess.data ?? []} />
     </div>
   )
 }
