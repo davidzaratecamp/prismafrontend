@@ -20,6 +20,8 @@ import {
   Select,
   SelectContent,
   SelectItem,
+  SelectLabel,
+  SelectSeparator,
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
@@ -50,6 +52,7 @@ import {
   useRetellDisconnections,
   useRetellDisconnectionBySuccess,
   useRetellDurationBuckets,
+  useRetellFilterOptions,
   useRetellHeatmap,
   useRetellLatency,
   useRetellMonthlyComparison,
@@ -60,12 +63,12 @@ import {
   useRetellVolumeByDay,
   type RetellFilters,
 } from '@/hooks/retell'
+import { RETELL_TZ_OFFSET_MS } from '@/components/retell/format'
 
-const RANGES = [
+const RELATIVE_RANGES = [
   { value: '7', label: 'Últimos 7 días' },
   { value: '30', label: 'Últimos 30 días' },
   { value: '90', label: 'Últimos 90 días' },
-  { value: 'all', label: 'Todo el histórico' },
 ]
 
 const SENTIMENT_COLOR: Record<string, string> = {
@@ -75,18 +78,50 @@ const SENTIMENT_COLOR: Record<string, string> = {
   Unknown: '#cbd5e1',
 }
 
-function useRange(days: string): RetellFilters {
+/** Últimos N meses como opciones {value: 'month:YYYY-MM', label: 'Septiembre 2026'}. */
+function monthOptions(count = 12) {
+  const nl = new Date(Date.now() + RETELL_TZ_OFFSET_MS)
+  const out: { value: string; label: string }[] = []
+  for (let i = 0; i < count; i++) {
+    const d = new Date(Date.UTC(nl.getUTCFullYear(), nl.getUTCMonth() - i, 1))
+    const ym = `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, '0')}`
+    const raw = d.toLocaleDateString('es-CO', { month: 'long', year: 'numeric', timeZone: 'UTC' })
+    out.push({ value: `month:${ym}`, label: raw.charAt(0).toUpperCase() + raw.slice(1) })
+  }
+  return out
+}
+
+/** Traduce la selección de rango a filtros {from, to, month}. */
+function useSelection(key: string): RetellFilters {
   return useMemo(() => {
-    if (days === 'all') return {}
+    if (key === 'all') return {}
+    if (key.startsWith('month:')) {
+      const ym = key.slice(6)
+      const [y, m] = ym.split('-').map(Number)
+      // límites del mes en Bogotá, expresados como instantes UTC
+      const from = new Date(Date.UTC(y, m - 1, 1) - RETELL_TZ_OFFSET_MS)
+      const to = new Date(Date.UTC(y, m, 1) - RETELL_TZ_OFFSET_MS)
+      return { from: from.toISOString(), to: to.toISOString(), month: ym }
+    }
     const to = new Date()
-    const from = new Date(to.getTime() - Number(days) * 86400000)
+    const from = new Date(to.getTime() - Number(key) * 86400000)
     return { from: from.toISOString(), to: to.toISOString() }
-  }, [days])
+  }, [key])
 }
 
 export default function RetellPage() {
-  const [rangeDays, setRangeDays] = useState('30')
-  const range = useRange(rangeDays)
+  const [rangeKey, setRangeKey] = useState('30')
+  const [agentId, setAgentId] = useState('all')
+  const selection = useSelection(rangeKey)
+  const months = useMemo(() => monthOptions(12), [])
+
+  const filterOptions = useRetellFilterOptions()
+  const agents = filterOptions.data?.agents ?? []
+
+  const filters: RetellFilters = useMemo(
+    () => ({ ...selection, agentId: agentId === 'all' ? undefined : agentId }),
+    [selection, agentId],
+  )
 
   const config = useRetellConfig()
   const sync = useRetellSync()
@@ -112,17 +147,39 @@ export default function RetellPage() {
         title="Retell IA"
         description="Costos, agentes virtuales y llamadas del proveedor de IA (Retell)."
         actions={
-          <div className="flex items-center gap-2">
-            <Select value={rangeDays} onValueChange={setRangeDays}>
-              <SelectTrigger className="h-9 w-44">
+          <div className="flex flex-wrap items-center gap-2">
+            <Select value={agentId} onValueChange={setAgentId}>
+              <SelectTrigger className="h-9 w-48">
+                <SelectValue placeholder="Agente" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todos los agentes</SelectItem>
+                {agents.map((a) => (
+                  <SelectItem key={a.agent_id} value={a.agent_id}>
+                    {a.agent_name || a.agent_id}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Select value={rangeKey} onValueChange={setRangeKey}>
+              <SelectTrigger className="h-9 w-48">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                {RANGES.map((r) => (
+                {RELATIVE_RANGES.map((r) => (
                   <SelectItem key={r.value} value={r.value}>
                     {r.label}
                   </SelectItem>
                 ))}
+                <SelectSeparator />
+                <SelectLabel>Mes específico</SelectLabel>
+                {months.map((r) => (
+                  <SelectItem key={r.value} value={r.value}>
+                    {r.label}
+                  </SelectItem>
+                ))}
+                <SelectSeparator />
+                <SelectItem value="all">Todo el histórico</SelectItem>
               </SelectContent>
             </Select>
             <Button onClick={runSync} disabled={sync.isPending}>
@@ -165,16 +222,16 @@ export default function RetellPage() {
         </TabsList>
 
         <TabsContent value="resumen" className="pt-4">
-          <ResumenTab range={range} />
+          <ResumenTab range={filters} />
         </TabsContent>
         <TabsContent value="actividad" className="pt-4">
-          <ActividadTab range={range} />
+          <ActividadTab range={filters} />
         </TabsContent>
         <TabsContent value="agentes" className="pt-4">
-          <AgentesTab range={range} />
+          <AgentesTab range={filters} singleAgent={agentId !== 'all'} />
         </TabsContent>
         <TabsContent value="llamadas" className="pt-4">
-          <CallsTab range={range} />
+          <CallsTab key={`${rangeKey}:${agentId}`} filters={filters} />
         </TabsContent>
       </Tabs>
     </div>
@@ -310,7 +367,7 @@ function ActividadTab({ range }: { range: RetellFilters }) {
 
 /* ───────────────────────── Agentes ───────────────────────── */
 
-function AgentesTab({ range }: { range: RetellFilters }) {
+function AgentesTab({ range, singleAgent }: { range: RetellFilters; singleAgent: boolean }) {
   const byAgent = useRetellByAgent(range)
   const discXSuccess = useRetellDisconnectionBySuccess(range)
 
@@ -321,7 +378,13 @@ function AgentesTab({ range }: { range: RetellFilters }) {
   return (
     <div className="space-y-6">
       <AgentCostTable rows={rows} />
-      {rows.length >= 2 && <AgentCompare agents={rows} />}
+      {rows.length >= 2 ? (
+        <AgentCompare agents={rows} />
+      ) : singleAgent ? (
+        <p className="text-xs text-muted-foreground">
+          Elige “Todos los agentes” arriba para ver la comparativa lado a lado.
+        </p>
+      ) : null}
       <DisconnectionBySuccessTable rows={discXSuccess.data ?? []} />
     </div>
   )

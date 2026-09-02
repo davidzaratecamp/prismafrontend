@@ -31,6 +31,7 @@ export interface RetellFilters {
   status?: string
   sentiment?: string
   callSuccessful?: 'true' | 'false'
+  month?: string // 'YYYY-MM' — solo lo usa monthly-comparison
   allStatuses?: boolean
   page?: number
   pageSize?: number

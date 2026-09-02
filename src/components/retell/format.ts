@@ -5,6 +5,9 @@ import { parseDbDate } from '@/lib/time'
 /** Zona horaria en la que se muestran todas las fechas/horas del panel. */
 export const RETELL_TZ = 'America/Bogota'
 
+/** Offset fijo de Bogotá respecto a UTC, en ms (UTC−5, sin horario de verano). */
+export const RETELL_TZ_OFFSET_MS = -5 * 60 * 60 * 1000
+
 /**
  * Formatea una fecha de MySQL (UTC, 'YYYY-MM-DD HH:MM:SS') a hora de Bogotá.
  */

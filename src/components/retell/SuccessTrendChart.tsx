@@ -13,11 +13,13 @@ import { EmptyState } from '@/components/common/EmptyState'
 import type { RetellDailyTrend } from '@/lib/types'
 
 export function SuccessTrendChart({ data }: { data: RetellDailyTrend[] }) {
+  const pct = (v: number | null) => (v == null ? null : Math.round(v * 100))
   const rows = data.map((d) => ({
     day: d.day,
-    exito: d.success_rate == null ? null : Math.round(d.success_rate * 100),
-    positivo: d.positive_rate == null ? null : Math.round(d.positive_rate * 100),
-    negativo: d.negative_rate == null ? null : Math.round(d.negative_rate * 100),
+    exito: pct(d.success_rate),
+    positivo: pct(d.positive_rate),
+    neutral: pct(d.neutral_rate),
+    negativo: pct(d.negative_rate),
   }))
 
   return (
@@ -25,10 +27,11 @@ export function SuccessTrendChart({ data }: { data: RetellDailyTrend[] }) {
       <CardHeader>
         <CardTitle className="text-base">Tendencia de éxito y sentimiento (%)</CardTitle>
       </CardHeader>
-      <CardContent>
+      <CardContent className="space-y-2">
         {rows.length === 0 ? (
           <EmptyState icon={LineIcon} title="Sin datos en el rango" />
         ) : (
+          <>
           <ResponsiveContainer width="100%" height={280}>
             <LineChart data={rows} margin={{ left: 4, right: 12, top: 4 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" vertical={false} />
@@ -59,9 +62,16 @@ export function SuccessTrendChart({ data }: { data: RetellDailyTrend[] }) {
               />
               <Line type="monotone" dataKey="exito" name="Éxito" stroke="var(--color-primary)" strokeWidth={2} dot={false} connectNulls />
               <Line type="monotone" dataKey="positivo" name="Sent. positivo" stroke="#10b981" strokeWidth={2} dot={false} connectNulls />
+              <Line type="monotone" dataKey="neutral" name="Sent. neutral" stroke="#94a3b8" strokeWidth={1.5} strokeDasharray="4 3" dot={false} connectNulls />
               <Line type="monotone" dataKey="negativo" name="Sent. negativo" stroke="#ef4444" strokeWidth={2} dot={false} connectNulls />
             </LineChart>
           </ResponsiveContainer>
+          <p className="text-[11px] text-muted-foreground">
+            Positivo + neutral + negativo = 100% (reparto del sentimiento). El
+            <span className="font-medium"> éxito</span> es una medida aparte: % de llamadas
+            que cumplieron su objetivo, sin relación directa con el tono.
+          </p>
+          </>
         )}
       </CardContent>
     </Card>

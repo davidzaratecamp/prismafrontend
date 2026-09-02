@@ -12,7 +12,7 @@ import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'
 import { EmptyState } from '@/components/common/EmptyState'
-import { useRetellCalls, useRetellFilterOptions, type RetellFilters } from '@/hooks/retell'
+import { useRetellCalls, type RetellFilters } from '@/hooks/retell'
 import { dur, fmtBogota, usd } from './format'
 import { CallDetailDialog } from './CallDetailDialog'
 
@@ -22,9 +22,8 @@ const SENTIMENT_TONE: Record<string, string> = {
   Neutral: 'text-muted-foreground',
 }
 
-export function CallsTab({ range }: { range: { from?: string; to?: string } }) {
-  const { data: options } = useRetellFilterOptions()
-  const [agentId, setAgentId] = useState('all')
+/** `filters` trae from/to/agentId globales del panel; aquí se añaden dirección/estado/resultado. */
+export function CallsTab({ filters: base }: { filters: RetellFilters }) {
   const [direction, setDirection] = useState('all')
   const [status, setStatus] = useState('all')
   const [result, setResult] = useState('all') // all | ok | fail
@@ -32,8 +31,7 @@ export function CallsTab({ range }: { range: { from?: string; to?: string } }) {
   const [openCall, setOpenCall] = useState<string | null>(null)
 
   const filters: RetellFilters = {
-    ...range,
-    agentId: agentId === 'all' ? undefined : agentId,
+    ...base,
     direction: direction === 'all' ? undefined : (direction as 'inbound' | 'outbound'),
     status: status === 'all' ? undefined : status,
     callSuccessful: result === 'ok' ? 'true' : result === 'fail' ? 'false' : undefined,
@@ -51,20 +49,6 @@ export function CallsTab({ range }: { range: { from?: string; to?: string } }) {
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap gap-2">
-        <Select value={agentId} onValueChange={resetPage(setAgentId)}>
-          <SelectTrigger className="h-9 w-52">
-            <SelectValue placeholder="Agente" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Todos los agentes</SelectItem>
-            {options?.agents.map((a) => (
-              <SelectItem key={a.agent_id} value={a.agent_id}>
-                {a.agent_name || a.agent_id}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-
         <Select value={direction} onValueChange={resetPage(setDirection)}>
           <SelectTrigger className="h-9 w-40">
             <SelectValue placeholder="Dirección" />

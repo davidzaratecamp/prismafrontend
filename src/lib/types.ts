@@ -361,9 +361,11 @@ export interface RetellDailyTrend {
   success_rate: number | null
   positive_rate: number | null
   negative_rate: number | null
+  neutral_rate: number | null
 }
 
 export interface RetellMonthlyComparison {
+  is_current_month: boolean
   current_month: {
     label: string
     calls: number
