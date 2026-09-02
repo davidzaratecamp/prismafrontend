@@ -19,6 +19,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import {
   Select,
   SelectContent,
+  SelectGroup,
   SelectItem,
   SelectLabel,
   SelectSeparator,
@@ -166,20 +167,26 @@ export default function RetellPage() {
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                {RELATIVE_RANGES.map((r) => (
-                  <SelectItem key={r.value} value={r.value}>
-                    {r.label}
-                  </SelectItem>
-                ))}
+                <SelectGroup>
+                  {RELATIVE_RANGES.map((r) => (
+                    <SelectItem key={r.value} value={r.value}>
+                      {r.label}
+                    </SelectItem>
+                  ))}
+                </SelectGroup>
                 <SelectSeparator />
-                <SelectLabel>Mes específico</SelectLabel>
-                {months.map((r) => (
-                  <SelectItem key={r.value} value={r.value}>
-                    {r.label}
-                  </SelectItem>
-                ))}
+                <SelectGroup>
+                  <SelectLabel>Mes específico</SelectLabel>
+                  {months.map((r) => (
+                    <SelectItem key={r.value} value={r.value}>
+                      {r.label}
+                    </SelectItem>
+                  ))}
+                </SelectGroup>
                 <SelectSeparator />
-                <SelectItem value="all">Todo el histórico</SelectItem>
+                <SelectGroup>
+                  <SelectItem value="all">Todo el histórico</SelectItem>
+                </SelectGroup>
               </SelectContent>
             </Select>
             <Button onClick={runSync} disabled={sync.isPending}>
