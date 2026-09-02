@@ -197,3 +197,119 @@ export type KanbanData = Record<TaskStatus, {
   assignee_name: string | null
   assignee_color: string | null
 }[]>
+
+/* ----------------------------- Retell IA ----------------------------- */
+
+export interface RetellSyncStateRow {
+  resource: 'calls' | 'agents' | 'phone_numbers'
+  last_synced_timestamp: number
+  last_processed_count: number
+  last_status: 'ok' | 'error' | 'running' | null
+  last_error: string | null
+  last_run_at: string | null
+}
+
+export interface RetellConfig {
+  configured: boolean
+  sync_status: RetellSyncStateRow[]
+}
+
+export interface RetellOverview {
+  total_calls: number
+  total_cost_usd: number
+  avg_cost_usd: number
+  total_minutes: number
+  total_hours: number
+  avg_duration_seconds: number
+  cost_per_minute_usd: number | null
+  successful_calls: number
+  failed_calls: number
+  success_rate: number | null
+  inbound_calls: number
+  outbound_calls: number
+  voicemail_calls: number
+  unique_agents: number
+}
+
+export interface RetellCostDay {
+  day: string
+  calls: number
+  cost_usd: number
+  minutes: number
+}
+
+export interface RetellAgentStat {
+  agent_id: string
+  agent_name: string
+  calls: number
+  cost_usd: number
+  avg_cost_usd: number
+  minutes: number
+  avg_duration_seconds: number
+  avg_latency_e2e_ms: number | null
+  success_rate: number | null
+}
+
+export interface RetellProductCost {
+  product: string
+  cost_usd: number
+  count: number
+}
+
+export interface RetellSentimentRow {
+  sentiment: string
+  calls: number
+}
+
+export interface RetellReasonRow {
+  reason: string
+  calls: number
+}
+
+export interface RetellCall {
+  call_id: string
+  agent_id: string | null
+  agent_name: string | null
+  call_type: string | null
+  call_status: string | null
+  direction: string | null
+  from_number: string | null
+  to_number: string | null
+  started_at: string | null
+  ended_at: string | null
+  duration_seconds: number | null
+  combined_cost_usd: number | null
+  user_sentiment: string | null
+  call_successful: boolean | null
+  in_voicemail: boolean | null
+  disconnection_reason: string | null
+  call_summary: string | null
+  recording_url: string | null
+  public_log_url: string | null
+}
+
+export interface RetellCallsPage {
+  page: number
+  page_size: number
+  total: number
+  total_pages: number
+  rows: RetellCall[]
+}
+
+export interface RetellAgent {
+  agent_id: string
+  agent_name: string | null
+  channel: string | null
+  voice_id: string | null
+  language: string | null
+  version: string | null
+  last_modification_timestamp: number | null
+  synced_at: string | null
+}
+
+export interface RetellFilterOptions {
+  agents: { agent_id: string; agent_name: string }[]
+  date_range: { min: string | null; max: string | null }
+  call_types: string[]
+  directions: string[]
+}

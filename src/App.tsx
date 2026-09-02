@@ -16,6 +16,7 @@ const KanbanPage = lazy(() => import('@/pages/KanbanPage'))
 const RoadmapPage = lazy(() => import('@/pages/RoadmapPage'))
 const TeamPage = lazy(() => import('@/pages/TeamPage'))
 const AreasAdminPage = lazy(() => import('@/pages/AreasAdminPage'))
+const RetellPage = lazy(() => import('@/pages/RetellPage'))
 const SettingsPage = lazy(() => import('@/pages/SettingsPage'))
 
 // Portal (viewer)
@@ -72,6 +73,7 @@ export default function App() {
               <Route path="/settings" element={<SettingsPage />} />
               <Route element={<AdminRoute />}>
                 <Route path="/admin/areas" element={<AreasAdminPage />} />
+                <Route path="/admin/retell" element={<RetellPage />} />
               </Route>
               <Route path="*" element={<Navigate to="/" replace />} />
             </Route>

@@ -7,6 +7,7 @@ import {
   Users,
   Shapes,
   Settings,
+  Bot,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useAreas } from '@/hooks/queries'
@@ -92,7 +93,13 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
         </nav>
       </ScrollArea>
 
-      <div className="border-t p-3">
+      <div className="space-y-1 border-t p-3">
+        {isAdmin && (
+          <NavLink to="/admin/retell" className={itemClass} onClick={onNavigate}>
+            <Bot className="size-4" />
+            Retell IA
+          </NavLink>
+        )}
         <NavLink to="/settings" className={itemClass} onClick={onNavigate}>
           <Settings className="size-4" />
           Ajustes
