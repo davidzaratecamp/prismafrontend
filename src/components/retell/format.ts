@@ -1,5 +1,23 @@
 /** Formateadores compartidos por el panel de Retell IA. */
 
+import { parseDbDate } from '@/lib/time'
+
+/** Zona horaria en la que se muestran todas las fechas/horas del panel. */
+export const RETELL_TZ = 'America/Bogota'
+
+/**
+ * Formatea una fecha de MySQL (UTC, 'YYYY-MM-DD HH:MM:SS') a hora de Bogotá.
+ */
+export function fmtBogota(
+  dbUtc: string | null | undefined,
+  opts: Intl.DateTimeFormatOptions = { dateStyle: 'short', timeStyle: 'short' },
+): string {
+  if (!dbUtc) return '—'
+  const d = parseDbDate(dbUtc)
+  if (Number.isNaN(d.getTime())) return '—'
+  return d.toLocaleString('es-CO', { timeZone: RETELL_TZ, ...opts })
+}
+
 export function usd(n: number | null | undefined, dp = 2): string {
   if (n == null) return '—'
   return n.toLocaleString('en-US', {

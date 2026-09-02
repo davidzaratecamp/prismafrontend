@@ -13,8 +13,7 @@ import { Badge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'
 import { EmptyState } from '@/components/common/EmptyState'
 import { useRetellCalls, useRetellFilterOptions, type RetellFilters } from '@/hooks/retell'
-import { parseDbDate } from '@/lib/time'
-import { dur, usd } from './format'
+import { dur, fmtBogota, usd } from './format'
 import { CallDetailDialog } from './CallDetailDialog'
 
 const SENTIMENT_TONE: Record<string, string> = {
@@ -112,7 +111,7 @@ export function CallsTab({ range }: { range: { from?: string; to?: string } }) {
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b bg-muted/40 text-left text-xs uppercase tracking-wide text-muted-foreground">
-                  <th className="px-4 py-2.5 font-medium">Fecha</th>
+                  <th className="px-4 py-2.5 font-medium">Fecha (Bogotá)</th>
                   <th className="px-4 py-2.5 font-medium">Agente</th>
                   <th className="px-4 py-2.5 font-medium">Dirección</th>
                   <th className="px-4 py-2.5 text-right font-medium">Duración</th>
@@ -129,10 +128,7 @@ export function CallsTab({ range }: { range: { from?: string; to?: string } }) {
                     className="cursor-pointer border-b last:border-0 hover:bg-muted/30"
                   >
                     <td className="whitespace-nowrap px-4 py-2.5 tabular-nums">
-                      {c.started_at ? parseDbDate(c.started_at).toLocaleString('es-CO', {
-                        dateStyle: 'short',
-                        timeStyle: 'short',
-                      }) : '—'}
+                      {fmtBogota(c.started_at)}
                     </td>
                     <td className="px-4 py-2.5">{c.agent_name || c.agent_id || '—'}</td>
                     <td className="px-4 py-2.5">

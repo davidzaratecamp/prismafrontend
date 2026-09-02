@@ -8,8 +8,7 @@ import {
 import { Badge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useRetellCall } from '@/hooks/retell'
-import { parseDbDate } from '@/lib/time'
-import { dur, usd } from './format'
+import { dur, fmtBogota, usd } from './format'
 
 function Row({ label, value }: { label: string; value: React.ReactNode }) {
   return (
@@ -50,8 +49,8 @@ export function CallDetailDialog({
               <Row label="Dirección" value={data.direction} />
               <Row label="Estado" value={data.call_status} />
               <Row
-                label="Inicio"
-                value={data.started_at ? parseDbDate(data.started_at as string).toLocaleString('es-CO') : '—'}
+                label="Inicio (Bogotá)"
+                value={fmtBogota(data.started_at as string, { dateStyle: 'medium', timeStyle: 'short' })}
               />
               <Row label="Duración" value={dur(data.duration_seconds as number)} />
               <Row label="Costo" value={usd(data.combined_cost_usd as number, 4)} />
