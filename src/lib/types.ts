@@ -373,6 +373,7 @@ export interface RetellMonthlyComparison {
     days_elapsed: number
     days_in_month: number
     projected_cost_usd: number
+    projection_reliable: boolean
   }
   previous_month: {
     label: string
@@ -381,6 +382,15 @@ export interface RetellMonthlyComparison {
     minutes: number
     successful: number
   }
+  previous_month_same_period: {
+    label: string
+    through_day: number
+    calls: number
+    cost_usd: number
+    minutes: number
+    successful: number
+  }
+  same_period_change_pct: number | null
   projected_vs_previous_pct: number | null
 }
 
