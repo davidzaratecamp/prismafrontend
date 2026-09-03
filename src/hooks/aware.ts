@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { api } from '@/lib/api'
 import type {
+  AwareAgentHangup,
   AwareByProject,
   AwareCall,
   AwareCallDetail,
@@ -9,12 +10,24 @@ import type {
   AwareCountRow,
   AwareDailyTrend,
   AwareDurationBucket,
+  AwareDurationByOutcome,
   AwareFilterOptions,
+  AwareFirstUtterance,
+  AwareFunnel,
   AwareHangupDay,
   AwareHeatCell,
+  AwareHourlyOp,
+  AwareLiveFeed,
+  AwareNotAttendedDay,
   AwareOverview,
+  AwareRepeatCallers,
+  AwareSentimentByOutcome,
+  AwareServiceGroup,
   AwareTransfersAttended,
+  AwareTurnBuckets,
+  AwareTurnsByOutcome,
   AwareVolumeDay,
+  AwareWeekdayOp,
 } from '@/lib/types'
 
 export interface AwareFilters {
@@ -85,6 +98,42 @@ export const useAwareTransfersAttended = (f?: AwareFilters) =>
   useAware<AwareTransfersAttended>('transfers-attended', 'analytics/transfers-attended', f)
 export const useAwareCalls = (f?: AwareFilters) =>
   useAware<AwareCallsPage>('calls', 'calls', f)
+
+// recorrido / embudo
+export const useAwareFunnel = (f?: AwareFilters) =>
+  useAware<AwareFunnel>('funnel', 'analytics/funnel', f)
+export const useAwareNotAttendedByDay = (f?: AwareFilters) =>
+  useAware<AwareNotAttendedDay[]>('not-attended-by-day', 'analytics/not-attended-by-day', f)
+export const useAwareRepeatCallers = (f?: AwareFilters) =>
+  useAware<AwareRepeatCallers>('repeat-callers', 'analytics/repeat-callers', f)
+
+// operación
+export const useAwareHourlyOps = (f?: AwareFilters) =>
+  useAware<AwareHourlyOp[]>('hourly-ops', 'analytics/hourly-ops', f)
+export const useAwareWeekdayOps = (f?: AwareFilters) =>
+  useAware<AwareWeekdayOp[]>('weekday-ops', 'analytics/weekday-ops', f)
+
+// conversación
+export const useAwareTurnBuckets = (f?: AwareFilters) =>
+  useAware<AwareTurnBuckets>('turn-buckets', 'analytics/turn-buckets', f)
+export const useAwareTurnsByOutcome = (f?: AwareFilters) =>
+  useAware<AwareTurnsByOutcome[]>('turns-by-outcome', 'analytics/turns-by-outcome', f)
+export const useAwareDurationByOutcome = (f?: AwareFilters) =>
+  useAware<AwareDurationByOutcome[]>('duration-by-outcome', 'analytics/duration-by-outcome', f)
+export const useAwareFirstUtterances = (f?: AwareFilters) =>
+  useAware<AwareFirstUtterance[]>('first-utterances', 'analytics/first-utterances', f)
+
+// cruces
+export const useAwareSentimentByOutcome = (f?: AwareFilters) =>
+  useAware<AwareSentimentByOutcome[]>('sentiment-by-outcome', 'analytics/sentiment-by-outcome', f)
+export const useAwareServiceGroups = (f?: AwareFilters) =>
+  useAware<AwareServiceGroup[]>('service-groups', 'analytics/service-groups', f)
+export const useAwareAgentHangup = (f?: AwareFilters) =>
+  useAware<AwareAgentHangup>('agent-hangup', 'analytics/agent-hangup', f)
+
+// en vivo (llamadas de hoy) — refresca cada 20 s
+export const useAwareLive = (f?: AwareFilters) =>
+  useAware<AwareLiveFeed>('live', 'live', f, 20_000)
 
 export function useAwareCall(callId: string | null) {
   return useQuery({

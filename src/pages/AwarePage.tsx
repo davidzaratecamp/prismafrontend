@@ -33,19 +33,37 @@ import { TransfersAttendedCard } from '@/components/aware/TransfersAttendedCard'
 import { ByProjectCompare } from '@/components/aware/ByProjectCompare'
 import { DurationHistogram } from '@/components/aware/DurationHistogram'
 import { CallsTable } from '@/components/aware/CallsTable'
+import { FunnelCard } from '@/components/aware/FunnelCard'
+import { HourlyOpsChart, WeekdayChart } from '@/components/aware/OpsCharts'
+import { TurnBucketsCard, DurationByOutcomeCard } from '@/components/aware/ConversationCards'
+import { SentimentOutcomeCard, ServiceGroupsCard, AgentHangupPanel } from '@/components/aware/CrossCards'
+import { NotAttendedChart, RepeatCallersCard } from '@/components/aware/SmallCards'
+import { LiveFeed } from '@/components/aware/LiveFeed'
 import { HANGUP_COLOR, HANGUP_LABEL, SENTIMENT_COLOR, SENTIMENT_LABEL } from '@/components/aware/labels'
 import {
+  useAwareAgentHangup,
   useAwareByProject,
   useAwareConfig,
   useAwareDailyTrend,
   useAwareDurationBuckets,
+  useAwareDurationByOutcome,
+  useAwareFirstUtterances,
+  useAwareFunnel,
   useAwareHangup,
   useAwareHeatmap,
+  useAwareHourlyOps,
+  useAwareNotAttendedByDay,
   useAwareOverview,
+  useAwareRepeatCallers,
   useAwareSentiment,
+  useAwareSentimentByOutcome,
+  useAwareServiceGroups,
   useAwareServiceTypes,
   useAwareTransfersAttended,
+  useAwareTurnBuckets,
+  useAwareTurnsByOutcome,
   useAwareVolumeByDay,
+  useAwareWeekdayOps,
   type AwareFilters,
 } from '@/hooks/aware'
 
@@ -84,7 +102,7 @@ function useRange(key: string): { from: string; to: string } {
     if (key.startsWith('month:')) {
       const [y, m] = key.slice(6).split('-').map(Number)
       const from = `${key.slice(6)}-01`
-      const to = new Date(Date.UTC(y, m, 0)).toISOString().slice(0, 10) // último día del mes
+      const to = new Date(Date.UTC(y, m, 0)).toISOString().slice(0, 10)
       return { from, to }
     }
     return { from: shift(today, -(Number(key) - 1)), to: today }
@@ -115,9 +133,7 @@ export default function AwarePage() {
               <Radio className="size-3.5 animate-pulse" /> en vivo · 60 s
             </span>
             <Select value={proyecto} onValueChange={(v) => setProyecto(v as typeof proyecto)}>
-              <SelectTrigger className="h-9 w-40">
-                <SelectValue />
-              </SelectTrigger>
+              <SelectTrigger className="h-9 w-40"><SelectValue /></SelectTrigger>
               <SelectContent>
                 <SelectGroup>
                   <SelectItem value="all">Ambas campañas</SelectItem>
@@ -127,24 +143,18 @@ export default function AwarePage() {
               </SelectContent>
             </Select>
             <Select value={rangeKey} onValueChange={setRangeKey}>
-              <SelectTrigger className="h-9 w-48">
-                <SelectValue />
-              </SelectTrigger>
+              <SelectTrigger className="h-9 w-48"><SelectValue /></SelectTrigger>
               <SelectContent>
                 <SelectGroup>
                   {RELATIVE.map((r) => (
-                    <SelectItem key={r.value} value={r.value}>
-                      {r.label}
-                    </SelectItem>
+                    <SelectItem key={r.value} value={r.value}>{r.label}</SelectItem>
                   ))}
                 </SelectGroup>
                 <SelectSeparator />
                 <SelectGroup>
                   <SelectLabel>Mes específico</SelectLabel>
                   {months.map((r) => (
-                    <SelectItem key={r.value} value={r.value}>
-                      {r.label}
-                    </SelectItem>
+                    <SelectItem key={r.value} value={r.value}>{r.label}</SelectItem>
                   ))}
                 </SelectGroup>
               </SelectContent>
@@ -171,24 +181,36 @@ export default function AwarePage() {
       )}
 
       <Tabs defaultValue="resumen">
-        <TabsList>
+        <TabsList className="flex-wrap">
           <TabsTrigger value="resumen">Resumen</TabsTrigger>
-          <TabsTrigger value="flujo">Flujo y transferencias</TabsTrigger>
-          <TabsTrigger value="actividad">Actividad</TabsTrigger>
+          <TabsTrigger value="recorrido">Recorrido</TabsTrigger>
+          <TabsTrigger value="operacion">Operación</TabsTrigger>
+          <TabsTrigger value="conversacion">Conversación</TabsTrigger>
+          <TabsTrigger value="cruces">Cruces</TabsTrigger>
           <TabsTrigger value="llamadas">Llamadas</TabsTrigger>
+          <TabsTrigger value="envivo">En vivo</TabsTrigger>
         </TabsList>
 
         <TabsContent value="resumen" className="pt-4">
           <ResumenTab filters={filters} single={proyecto !== 'all'} />
         </TabsContent>
-        <TabsContent value="flujo" className="pt-4">
-          <FlujoTab filters={filters} />
+        <TabsContent value="recorrido" className="pt-4">
+          <RecorridoTab filters={filters} />
         </TabsContent>
-        <TabsContent value="actividad" className="pt-4">
-          <ActividadTab filters={filters} />
+        <TabsContent value="operacion" className="pt-4">
+          <OperacionTab filters={filters} />
+        </TabsContent>
+        <TabsContent value="conversacion" className="pt-4">
+          <ConversacionTab filters={filters} />
+        </TabsContent>
+        <TabsContent value="cruces" className="pt-4">
+          <CrucesTab filters={filters} />
         </TabsContent>
         <TabsContent value="llamadas" className="pt-4">
           <CallsTable key={`${rangeKey}:${proyecto}`} base={filters} />
+        </TabsContent>
+        <TabsContent value="envivo" className="pt-4">
+          <LiveFeed filters={filters} />
         </TabsContent>
       </Tabs>
     </div>
@@ -199,6 +221,7 @@ export default function AwarePage() {
 
 function ResumenTab({ filters, single }: { filters: AwareFilters; single: boolean }) {
   const overview = useAwareOverview(filters)
+  const funnel = useAwareFunnel(filters)
   const volume = useAwareVolumeByDay(filters)
   const trend = useAwareDailyTrend(filters)
   const hangup = useAwareHangup(filters)
@@ -232,7 +255,10 @@ function ResumenTab({ filters, single }: { filters: AwareFilters; single: boolea
         <KpiCard label="Sentimiento positivo" value={pct(k.positive_rate)} hint={`negativo ${pct(k.negative_rate)}`} icon={Bot} tone="success" />
       </div>
 
-      <CallsByDayChart data={volume.data ?? []} single={single} />
+      <div className="grid gap-4 lg:grid-cols-2">
+        <FunnelCard data={funnel.data} />
+        <CallsByDayChart data={volume.data ?? []} single={single} />
+      </div>
       <TrendChart data={trend.data ?? []} />
 
       <div className="grid gap-4 lg:grid-cols-3">
@@ -255,52 +281,45 @@ function ResumenTab({ filters, single }: { filters: AwareFilters; single: boolea
         <MiniBarList
           title="Tipo de servicio (texto del bot, sin normalizar)"
           emptyLabel="Sin datos"
-          rows={(services.data ?? []).slice(0, 8).map<MiniBarRow>((r) => ({
-            label: r.tipo ?? '—',
-            value: r.calls,
-          }))}
+          rows={(services.data ?? []).slice(0, 8).map<MiniBarRow>((r) => ({ label: r.tipo ?? '—', value: r.calls }))}
         />
       </div>
     </div>
   )
 }
 
-/* ───────────────────────── Flujo y transferencias ───────────────────────── */
+/* ───────────────────────── Recorrido ───────────────────────── */
 
-function FlujoTab({ filters }: { filters: AwareFilters }) {
-  const hangup = useAwareHangup(filters)
+function RecorridoTab({ filters }: { filters: AwareFilters }) {
+  const funnel = useAwareFunnel(filters)
+  const notAttended = useAwareNotAttendedByDay(filters)
   const transfers = useAwareTransfersAttended(filters)
   const byProject = useAwareByProject(filters)
+  const repeat = useAwareRepeatCallers(filters)
 
   return (
     <div className="space-y-6">
       <div className="grid gap-4 lg:grid-cols-2">
-        <MiniBarList
-          title="Motivo de cierre de la llamada"
-          rows={(hangup.data ?? []).map<MiniBarRow>((r) => ({
-            label: HANGUP_LABEL[r.reason ?? ''] ?? r.reason ?? '—',
-            value: r.calls,
-            color: HANGUP_COLOR[r.reason ?? ''],
-          }))}
-        />
-        {transfers.isLoading ? (
-          <Skeleton className="h-64 rounded-xl" />
-        ) : (
-          <TransfersAttendedCard data={transfers.data} />
-        )}
+        <FunnelCard data={funnel.data} />
+        {transfers.isLoading ? <Skeleton className="h-64 rounded-xl" /> : <TransfersAttendedCard data={transfers.data} />}
       </div>
-      <ByProjectCompare rows={byProject.data ?? []} />
+      <NotAttendedChart data={notAttended.data ?? []} />
+      <div className="grid gap-4 lg:grid-cols-2">
+        <ByProjectCompare rows={byProject.data ?? []} />
+        <RepeatCallersCard data={repeat.data} />
+      </div>
     </div>
   )
 }
 
-/* ───────────────────────── Actividad ───────────────────────── */
+/* ───────────────────────── Operación ───────────────────────── */
 
-function ActividadTab({ filters }: { filters: AwareFilters }) {
+function OperacionTab({ filters }: { filters: AwareFilters }) {
+  const hourly = useAwareHourlyOps(filters)
+  const weekday = useAwareWeekdayOps(filters)
   const heatmap = useAwareHeatmap(filters)
-  const duration = useAwareDurationBuckets(filters)
 
-  if (heatmap.isLoading) {
+  if (hourly.isLoading) {
     return (
       <div className="space-y-4">
         <Skeleton className="h-72 rounded-xl" />
@@ -311,8 +330,54 @@ function ActividadTab({ filters }: { filters: AwareFilters }) {
 
   return (
     <div className="space-y-6">
+      <HourlyOpsChart data={hourly.data ?? []} />
+      <WeekdayChart data={weekday.data ?? []} />
       <HourHeatmap data={heatmap.data ?? []} />
-      <DurationHistogram data={duration.data ?? []} />
+    </div>
+  )
+}
+
+/* ───────────────────────── Conversación ───────────────────────── */
+
+function ConversacionTab({ filters }: { filters: AwareFilters }) {
+  const turns = useAwareTurnBuckets(filters)
+  const turnsByOutcome = useAwareTurnsByOutcome(filters)
+  const durByOutcome = useAwareDurationByOutcome(filters)
+  const durBuckets = useAwareDurationBuckets(filters)
+  const utterances = useAwareFirstUtterances(filters)
+
+  return (
+    <div className="space-y-6">
+      <div className="grid gap-4 lg:grid-cols-2">
+        <TurnBucketsCard data={turns.data} byOutcome={turnsByOutcome.data ?? []} />
+        <DurationByOutcomeCard rows={durByOutcome.data ?? []} />
+      </div>
+      <div className="grid gap-4 lg:grid-cols-2">
+        <DurationHistogram data={durBuckets.data ?? []} />
+        <MiniBarList
+          title="Primera frase del cliente (literal, ruidoso)"
+          emptyLabel="Sin transcripciones"
+          rows={(utterances.data ?? []).slice(0, 10).map<MiniBarRow>((u) => ({ label: u.frase, value: u.calls }))}
+        />
+      </div>
+    </div>
+  )
+}
+
+/* ───────────────────────── Cruces ───────────────────────── */
+
+function CrucesTab({ filters }: { filters: AwareFilters }) {
+  const sentimentOutcome = useAwareSentimentByOutcome(filters)
+  const serviceGroups = useAwareServiceGroups(filters)
+  const agentHangup = useAwareAgentHangup(filters)
+
+  return (
+    <div className="space-y-6">
+      <div className="grid gap-4 lg:grid-cols-2">
+        <SentimentOutcomeCard rows={sentimentOutcome.data ?? []} />
+        <ServiceGroupsCard rows={serviceGroups.data ?? []} />
+      </div>
+      <AgentHangupPanel data={agentHangup.data} />
     </div>
   )
 }

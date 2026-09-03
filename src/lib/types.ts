@@ -541,3 +541,108 @@ export interface AwareFilterOptions {
   max_date: string | null
   projects: { proyecto_id: number; name: string }[]
 }
+
+export interface AwareFunnel {
+  range: { from: string; to: string }
+  stages: { key: string; label: string; count: number; of_prev: number | null }[]
+  not_attended: number
+  not_attended_rate: number | null
+  approximate: boolean
+}
+
+export interface AwareNotAttendedDay {
+  day: string
+  transferidas: number
+  atendidas: number
+  no_atendidas: number
+  atendidas_rate: number | null
+}
+
+export interface AwareRepeatCallers {
+  numeros: number
+  repiten: number
+  repiten_rate: number | null
+  llamadas_de_repiten: number
+  top: { telefono: string; veces: number }[]
+}
+
+export interface AwareHourlyOp {
+  hour: number
+  calls: number
+  transfers: number
+  calls_per_day: number
+  transfers_per_day: number
+  transfer_rate: number | null
+}
+
+export interface AwareWeekdayOp {
+  weekday: number
+  label: string
+  calls: number
+  transfers: number
+  days: number
+  calls_per_day: number
+  transfers_per_day: number
+}
+
+export interface AwareTurnBuckets {
+  avg_turns: number
+  p50_turns: number
+  buckets: { bucket: string; calls: number }[]
+}
+
+export interface AwareTurnsByOutcome {
+  reason: string
+  calls: number
+  avg_turns: number
+}
+
+export interface AwareDurationByOutcome {
+  reason: string
+  calls: number
+  avg_seconds: number
+  p50_seconds: number
+  p90_seconds: number
+}
+
+export interface AwareFirstUtterance {
+  frase: string
+  calls: number
+}
+
+export interface AwareSentimentByOutcome {
+  sentiment: string
+  total: number
+  transfer: number
+  user_hangup: number
+  agent_hangup: number
+  inactivity: number
+}
+
+export interface AwareServiceGroup {
+  grupo: string
+  calls: number
+  transfer_rate: number | null
+  success_rate: number | null
+}
+
+export interface AwareAgentHangup {
+  by_project: { proyecto_id: number; name: string; calls: number; agent_hangup: number; rate: number | null }[]
+  by_hour: { hour: number; calls: number }[]
+  total: number
+  avg_seconds: number
+  avg_turns: number
+  sample: {
+    call_id: string
+    proyecto_name: string
+    fecha: string | null
+    hora: string | null
+    duration_seconds: number | null
+    call_summary: string | null
+  }[]
+}
+
+export interface AwareLiveFeed {
+  date: string
+  rows: AwareCall[]
+}

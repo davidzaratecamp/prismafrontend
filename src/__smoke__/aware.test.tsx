@@ -27,5 +27,6 @@ function wrap(node: React.ReactNode) {
 test('AwarePage monta con sus filtros y pestañas (Select bien formado)', () => {
   const { getByText, getAllByText } = render(wrap(<AwarePage />))
   expect(getByText('Analítica Aware · SOFIA inbound')).toBeTruthy()
-  expect(getAllByText('Flujo y transferencias').length).toBeGreaterThan(0)
+  expect(getAllByText('Recorrido').length).toBeGreaterThan(0)
+  expect(getAllByText('En vivo').length).toBeGreaterThan(0)
 })
