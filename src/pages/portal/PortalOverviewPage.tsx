@@ -1,6 +1,7 @@
 import { format, differenceInCalendarDays, parseISO } from 'date-fns'
 import { es } from 'date-fns/locale'
-import { Star } from 'lucide-react'
+import { Link } from 'react-router-dom'
+import { ClipboardList, Star } from 'lucide-react'
 import { useAreas, useProjects } from '@/hooks/queries'
 import { useAuthStore } from '@/stores/auth'
 import { PortalKpis } from '@/components/portal/PortalKpis'
@@ -46,6 +47,9 @@ export default function PortalOverviewPage() {
   }
 
   const watched = projects.filter((p) => p.is_watched)
+  const mySolicitudes = projects
+    .filter((p) => user && p.requesters?.some((r) => r.id === user.id))
+    .sort((a, b) => (b.last_activity_at || '').localeCompare(a.last_activity_at || ''))
   const active = projects.filter((p) => p.status !== 'completed' && p.status !== 'paused')
   const inProgress = active.length
   const avgProgress = avgOf(active)
@@ -71,6 +75,33 @@ export default function PortalOverviewPage() {
       </Card>
 
       <PortalKpis inProgress={inProgress} avgProgress={avgProgress} upcoming={upcoming} />
+
+      <section>
+        <div className="mb-3 flex items-center justify-between gap-2">
+          <h2 className="flex items-center gap-2 text-lg font-semibold">
+            <ClipboardList className="size-4 text-primary" />
+            Mis solicitudes
+          </h2>
+          {mySolicitudes.length > 3 && (
+            <Link to="/proyectos?requester=me" className="text-sm text-primary hover:underline">
+              Ver todas ({mySolicitudes.length})
+            </Link>
+          )}
+        </div>
+        {mySolicitudes.length === 0 ? (
+          <Card className="border-dashed p-6 text-center text-sm text-muted-foreground">
+            Aquí verás los proyectos en los que figuras como solicitante. Si registraste
+            una solicitud y no aparece, pídele al equipo de desarrollo que te agregue como
+            solicitante del proyecto.
+          </Card>
+        ) : (
+          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+            {mySolicitudes.slice(0, 3).map((p) => (
+              <PortalProjectCard key={p.id} project={p} />
+            ))}
+          </div>
+        )}
+      </section>
 
       <section>
         <h2 className="mb-3 flex items-center gap-2 text-lg font-semibold">

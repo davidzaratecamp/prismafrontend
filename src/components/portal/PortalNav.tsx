@@ -1,4 +1,4 @@
-import { NavLink, useNavigate } from 'react-router-dom'
+import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom'
 import { ChevronDown, LogOut, Moon, Shapes, Sun, User as UserIcon } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
@@ -15,9 +15,11 @@ import { useUiStore } from '@/stores/ui'
 import { useAreas } from '@/hooks/queries'
 import { cn } from '@/lib/utils'
 
-const links = [
+/** `search` distingue /proyectos de /proyectos?requester=me para marcar el activo. */
+const links: { to: string; label: string; end?: boolean; search?: string }[] = [
   { to: '/', label: 'Inicio', end: true },
-  { to: '/proyectos', label: 'Proyectos' },
+  { to: '/proyectos', label: 'Proyectos', search: '' },
+  { to: '/proyectos?requester=me', label: 'Mis solicitudes', search: '?requester=me' },
   { to: '/roadmap', label: 'Roadmap' },
 ]
 
@@ -34,7 +36,25 @@ export function PortalNav() {
   const { theme, toggleTheme } = useUiStore()
   const { data: areas } = useAreas()
   const navigate = useNavigate()
+  const location = useLocation()
   const isDark = theme === 'dark' || document.documentElement.classList.contains('dark')
+
+  const renderLink = (l: (typeof links)[number]) => {
+    if (l.search !== undefined) {
+      const path = l.to.split('?')[0]
+      const active = location.pathname === path && location.search === l.search
+      return (
+        <Link key={l.to} to={l.to} className={linkClass({ isActive: active })}>
+          {l.label}
+        </Link>
+      )
+    }
+    return (
+      <NavLink key={l.to} to={l.to} end={l.end} className={linkClass}>
+        {l.label}
+      </NavLink>
+    )
+  }
 
   return (
     <header className="sticky top-0 z-30 border-b bg-background/85 backdrop-blur">
@@ -50,11 +70,7 @@ export function PortalNav() {
         </NavLink>
 
         <nav className="ml-4 hidden items-center gap-1 md:flex">
-          {links.map((l) => (
-            <NavLink key={l.to} to={l.to} end={l.end} className={linkClass}>
-              {l.label}
-            </NavLink>
-          ))}
+          {links.map(renderLink)}
           <DropdownMenu>
             <DropdownMenuTrigger className="flex items-center gap-1 rounded-md px-3 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground">
               Áreas <ChevronDown className="size-3.5" />
@@ -101,11 +117,7 @@ export function PortalNav() {
 
       {/* nav compacta en móvil */}
       <nav className="flex items-center gap-1 overflow-x-auto border-t px-4 py-2 md:hidden">
-        {links.map((l) => (
-          <NavLink key={l.to} to={l.to} end={l.end} className={linkClass}>
-            {l.label}
-          </NavLink>
-        ))}
+        {links.map(renderLink)}
         <NavLink to="/areas" className={linkClass}>
           Áreas
         </NavLink>

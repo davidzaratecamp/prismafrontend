@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
-import { Search, Star } from 'lucide-react'
+import { ClipboardList, Search, Star } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import {
@@ -14,6 +14,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { EmptyState } from '@/components/common/EmptyState'
 import { PortalProjectCard } from '@/components/portal/PortalProjectCard'
 import { useAreas, useProjects } from '@/hooks/queries'
+import { useAuthStore } from '@/stores/auth'
 import { projectHealth, type HealthKey } from '@/lib/health'
 
 const HEALTH_FILTERS: { value: string; label: string; keys: HealthKey[] }[] = [
@@ -27,10 +28,12 @@ const HEALTH_FILTERS: { value: string; label: string; keys: HealthKey[] }[] = [
 export default function PortalProjectsPage() {
   const [params, setParams] = useSearchParams()
   const { data: areas } = useAreas()
+  const user = useAuthStore((s) => s.user)
   const [q, setQ] = useState('')
   const area = params.get('area') ?? 'all'
   const health = params.get('health') ?? 'all'
   const mine = params.get('mine') === '1'
+  const requester = params.get('requester') === 'me'
 
   const setParam = (key: string, value: string) => {
     const next = new URLSearchParams(params)
@@ -46,20 +49,30 @@ export default function PortalProjectsPage() {
   const filtered = useMemo(() => {
     if (!projects) return []
     const hf = HEALTH_FILTERS.find((f) => f.value === health)
-    return projects.filter((p) => {
+    const list = projects.filter((p) => {
+      if (requester && !(user && p.requesters?.some((r) => r.id === user.id))) return false
       if (mine && !p.is_watched) return false
       if (q.trim() && !p.name.toLowerCase().includes(q.trim().toLowerCase())) return false
       if (hf && hf.keys.length && !hf.keys.includes(projectHealth(p).key)) return false
       return true
     })
-  }, [projects, q, health, mine])
+    if (requester) {
+      // en "Mis solicitudes" manda la última actividad, la más reciente arriba
+      list.sort((a, b) => (b.last_activity_at || '').localeCompare(a.last_activity_at || ''))
+    }
+    return list
+  }, [projects, q, health, mine, requester, user])
 
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight">Proyectos</h1>
+        <h1 className="text-2xl font-semibold tracking-tight">
+          {requester ? 'Mis solicitudes' : 'Proyectos'}
+        </h1>
         <p className="mt-1 text-muted-foreground">
-          Todo lo que el equipo de desarrollo está construyendo.
+          {requester
+            ? 'Proyectos en los que figuras como solicitante, ordenados por actividad más reciente.'
+            : 'Todo lo que el equipo de desarrollo está construyendo.'}
         </p>
       </div>
 
@@ -92,6 +105,13 @@ export default function PortalProjectsPage() {
         </Select>
         <Button
           type="button"
+          variant={requester ? 'default' : 'outline'}
+          onClick={() => setParam('requester', requester ? 'all' : 'me')}
+        >
+          <ClipboardList className="size-4" /> Mis solicitudes
+        </Button>
+        <Button
+          type="button"
           variant={mine ? 'default' : 'outline'}
           onClick={() => setParam('mine', mine ? 'all' : '1')}
         >
@@ -106,7 +126,18 @@ export default function PortalProjectsPage() {
           ))}
         </div>
       ) : filtered.length === 0 ? (
-        <EmptyState title="No hay proyectos con estos filtros" />
+        <EmptyState
+          title={
+            requester
+              ? 'Aún no figuras como solicitante de ningún proyecto'
+              : 'No hay proyectos con estos filtros'
+          }
+          description={
+            requester
+              ? 'Si registraste una solicitud, pídele al equipo de desarrollo que te agregue como solicitante del proyecto.'
+              : undefined
+          }
+        />
       ) : (
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
           {filtered.map((p) => (
