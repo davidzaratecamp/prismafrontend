@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query'
 import { api } from '@/lib/api'
 import type {
   AwareAgentHangup,
+  AwareAgentRow,
   AwareByProject,
   AwareCall,
   AwareCallDetail,
@@ -17,10 +18,15 @@ import type {
   AwareHangupDay,
   AwareHeatCell,
   AwareHourlyOp,
+  AwareHumanFunnelDay,
+  AwareHumanOutcomes,
+  AwareKeyword,
   AwareLiveFeed,
   AwareNotAttendedDay,
   AwareOverview,
+  AwareQueueAbandon,
   AwareRepeatCallers,
+  AwareTalkRatio,
   AwareSentimentByOutcome,
   AwareServiceGroup,
   AwareTransfersAttended,
@@ -130,6 +136,28 @@ export const useAwareServiceGroups = (f?: AwareFilters) =>
   useAware<AwareServiceGroup[]>('service-groups', 'analytics/service-groups', f)
 export const useAwareAgentHangup = (f?: AwareFilters) =>
   useAware<AwareAgentHangup>('agent-hangup', 'analytics/agent-hangup', f)
+
+// pata del asesor humano
+export const useAwareHumanOutcomes = (f?: AwareFilters) =>
+  useAware<AwareHumanOutcomes>('human-outcomes', 'analytics/human-outcomes', f)
+export const useAwareHumanFunnelByDay = (f?: AwareFilters) =>
+  useAware<AwareHumanFunnelDay[]>('human-funnel-by-day', 'analytics/human-funnel-by-day', f)
+export const useAwareAgentRanking = (f?: AwareFilters) =>
+  useAware<AwareAgentRow[]>('agent-ranking', 'analytics/agent-ranking', f)
+export const useAwareQueueAbandon = (f?: AwareFilters) =>
+  useAware<AwareQueueAbandon>('queue-abandon', 'analytics/queue-abandon', f)
+
+// conversación profunda
+export const useAwareTalkRatio = (f?: AwareFilters) =>
+  useAware<AwareTalkRatio>('talk-ratio', 'analytics/talk-ratio', f)
+export const useAwareTransferTurnBuckets = (f?: AwareFilters) =>
+  useAware<{ avg_turns: number; buckets: { bucket: string; calls: number }[] }>(
+    'transfer-turn-buckets', 'analytics/transfer-turn-buckets', f,
+  )
+export const useAwareTopicKeywords = (f?: AwareFilters) =>
+  useAware<AwareKeyword[]>('topic-keywords', 'analytics/topic-keywords', f)
+export const useAwareFirstIntent = (f?: AwareFilters) =>
+  useAware<{ frase: string; calls: number }[]>('first-intent', 'analytics/first-intent', f)
 
 // en vivo (llamadas de hoy) — refresca cada 20 s
 export const useAwareLive = (f?: AwareFilters) =>

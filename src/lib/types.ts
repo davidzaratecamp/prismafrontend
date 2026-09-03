@@ -646,3 +646,61 @@ export interface AwareLiveFeed {
   date: string
   rows: AwareCall[]
 }
+
+/* ---------- Aware: pata del asesor humano + conversación profunda ---------- */
+
+export interface AwareHumanOutcomes {
+  range: { from: string; to: string }
+  transfers: number
+  atendidas: number
+  sin_atender: number
+  atendidas_rate: number | null
+  util_positivo: number
+  util_negativo: number
+  conversion_rate: number | null
+  efectivo_rate: number | null
+  tipificaciones: { cod: string; nombre: string; efectivo: string; calls: number }[]
+  approximate: boolean
+}
+
+export interface AwareHumanFunnelDay {
+  day: string
+  transferidas: number
+  atendidas: number
+  util_positivo: number
+  conversion_rate: number | null
+}
+
+export interface AwareAgentRow {
+  agente_id: string
+  calls: number
+  up: number
+  un: number
+  up_rate: number | null
+  efectivo_rate: number | null
+}
+
+export interface AwareQueueAbandon {
+  total: number
+  avg_espera_s: number
+  max_espera_s: number
+  by_day: { day: string; abandonos: number; avg_espera_s: number }[]
+  by_queue: { cola: string; abandonos: number }[]
+  note: string
+}
+
+export interface AwareTalkRatio {
+  agent_words: number
+  user_words: number
+  ratio: number | null
+  avg_agent_words: number
+  avg_user_words: number
+  calls: number
+  calls_con_audio_ininteligible: number
+  ininteligible_rate: number | null
+}
+
+export interface AwareKeyword {
+  palabra: string
+  calls: number
+}

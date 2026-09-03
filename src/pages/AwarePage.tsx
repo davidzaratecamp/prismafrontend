@@ -38,27 +38,41 @@ import { HourlyOpsChart, WeekdayChart } from '@/components/aware/OpsCharts'
 import { TurnBucketsCard, DurationByOutcomeCard } from '@/components/aware/ConversationCards'
 import { SentimentOutcomeCard, ServiceGroupsCard, AgentHangupPanel } from '@/components/aware/CrossCards'
 import { NotAttendedChart, RepeatCallersCard } from '@/components/aware/SmallCards'
+import {
+  AgentRankingTable,
+  ConversionTrendCard,
+  HumanOutcomesCard,
+  QueueAbandonCard,
+} from '@/components/aware/HumanCards'
+import { TalkRatioCard } from '@/components/aware/TalkRatioCard'
 import { LiveFeed } from '@/components/aware/LiveFeed'
 import { HANGUP_COLOR, HANGUP_LABEL, SENTIMENT_COLOR, SENTIMENT_LABEL } from '@/components/aware/labels'
 import {
   useAwareAgentHangup,
+  useAwareAgentRanking,
   useAwareByProject,
   useAwareConfig,
   useAwareDailyTrend,
   useAwareDurationBuckets,
   useAwareDurationByOutcome,
-  useAwareFirstUtterances,
+  useAwareFirstIntent,
   useAwareFunnel,
   useAwareHangup,
   useAwareHeatmap,
   useAwareHourlyOps,
+  useAwareHumanFunnelByDay,
+  useAwareHumanOutcomes,
   useAwareNotAttendedByDay,
   useAwareOverview,
+  useAwareQueueAbandon,
   useAwareRepeatCallers,
   useAwareSentiment,
   useAwareSentimentByOutcome,
   useAwareServiceGroups,
   useAwareServiceTypes,
+  useAwareTalkRatio,
+  useAwareTopicKeywords,
+  useAwareTransferTurnBuckets,
   useAwareTransfersAttended,
   useAwareTurnBuckets,
   useAwareTurnsByOutcome,
@@ -184,6 +198,7 @@ export default function AwarePage() {
         <TabsList className="flex-wrap">
           <TabsTrigger value="resumen">Resumen</TabsTrigger>
           <TabsTrigger value="recorrido">Recorrido</TabsTrigger>
+          <TabsTrigger value="asesor">Asesor humano</TabsTrigger>
           <TabsTrigger value="operacion">Operación</TabsTrigger>
           <TabsTrigger value="conversacion">Conversación</TabsTrigger>
           <TabsTrigger value="cruces">Cruces</TabsTrigger>
@@ -196,6 +211,9 @@ export default function AwarePage() {
         </TabsContent>
         <TabsContent value="recorrido" className="pt-4">
           <RecorridoTab filters={filters} />
+        </TabsContent>
+        <TabsContent value="asesor" className="pt-4">
+          <AsesorTab filters={filters} />
         </TabsContent>
         <TabsContent value="operacion" className="pt-4">
           <OperacionTab filters={filters} />
@@ -337,27 +355,67 @@ function OperacionTab({ filters }: { filters: AwareFilters }) {
   )
 }
 
-/* ───────────────────────── Conversación ───────────────────────── */
+/* ───────────────────────── Asesor humano ───────────────────────── */
 
-function ConversacionTab({ filters }: { filters: AwareFilters }) {
-  const turns = useAwareTurnBuckets(filters)
-  const turnsByOutcome = useAwareTurnsByOutcome(filters)
-  const durByOutcome = useAwareDurationByOutcome(filters)
-  const durBuckets = useAwareDurationBuckets(filters)
-  const utterances = useAwareFirstUtterances(filters)
+function AsesorTab({ filters }: { filters: AwareFilters }) {
+  const outcomes = useAwareHumanOutcomes(filters)
+  const byDay = useAwareHumanFunnelByDay(filters)
+  const ranking = useAwareAgentRanking(filters)
+  const abandon = useAwareQueueAbandon(filters)
+
+  if (outcomes.isLoading) {
+    return (
+      <div className="space-y-4">
+        <Skeleton className="h-72 rounded-xl" />
+        <Skeleton className="h-64 rounded-xl" />
+      </div>
+    )
+  }
 
   return (
     <div className="space-y-6">
       <div className="grid gap-4 lg:grid-cols-2">
+        <HumanOutcomesCard data={outcomes.data} />
+        <div className="space-y-4">
+          <ConversionTrendCard data={byDay.data ?? []} />
+          <QueueAbandonCard data={abandon.data} />
+        </div>
+      </div>
+      <AgentRankingTable rows={ranking.data ?? []} />
+    </div>
+  )
+}
+
+/* ───────────────────────── Conversación ───────────────────────── */
+
+function ConversacionTab({ filters }: { filters: AwareFilters }) {
+  const talk = useAwareTalkRatio(filters)
+  const transferTurns = useAwareTransferTurnBuckets(filters)
+  const turns = useAwareTurnBuckets(filters)
+  const turnsByOutcome = useAwareTurnsByOutcome(filters)
+  const durByOutcome = useAwareDurationByOutcome(filters)
+  const durBuckets = useAwareDurationBuckets(filters)
+  const keywords = useAwareTopicKeywords(filters)
+  const intent = useAwareFirstIntent(filters)
+
+  return (
+    <div className="space-y-6">
+      <TalkRatioCard data={talk.data} turns={transferTurns.data} />
+      <div className="grid gap-4 lg:grid-cols-2">
         <TurnBucketsCard data={turns.data} byOutcome={turnsByOutcome.data ?? []} />
         <DurationByOutcomeCard rows={durByOutcome.data ?? []} />
       </div>
-      <div className="grid gap-4 lg:grid-cols-2">
+      <div className="grid gap-4 lg:grid-cols-3">
         <DurationHistogram data={durBuckets.data ?? []} />
         <MiniBarList
-          title="Primera frase del cliente (literal, ruidoso)"
+          title="Palabras del cliente más frecuentes"
           emptyLabel="Sin transcripciones"
-          rows={(utterances.data ?? []).slice(0, 10).map<MiniBarRow>((u) => ({ label: u.frase, value: u.calls }))}
+          rows={(keywords.data ?? []).slice(0, 12).map<MiniBarRow>((k) => ({ label: k.palabra, value: k.calls }))}
+        />
+        <MiniBarList
+          title="Cómo abre el cliente la petición"
+          emptyLabel="Sin transcripciones"
+          rows={(intent.data ?? []).slice(0, 10).map<MiniBarRow>((u) => ({ label: u.frase, value: u.calls }))}
         />
       </div>
     </div>
