@@ -8,7 +8,6 @@ import {
   Shapes,
   Settings,
   Bot,
-  PhoneIncoming,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useAreas } from '@/hooks/queries'
@@ -99,12 +98,6 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
           <NavLink to="/admin/retell" className={itemClass} onClick={onNavigate}>
             <Bot className="size-4" />
             Retell IA
-          </NavLink>
-        )}
-        {isAdmin && (
-          <NavLink to="/admin/aware" className={itemClass} onClick={onNavigate}>
-            <PhoneIncoming className="size-4" />
-            Analítica Aware
           </NavLink>
         )}
         <NavLink to="/settings" className={itemClass} onClick={onNavigate}>
