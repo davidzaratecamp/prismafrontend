@@ -45,3 +45,4 @@ export const useCanWrite = () => {
   return role === 'admin' || role === 'developer'
 }
 export const useIsAdmin = () => useAuthStore((s) => s.user?.role === 'admin')
+export const useIsAnalyst = () => useAuthStore((s) => s.user?.role === 'analista')

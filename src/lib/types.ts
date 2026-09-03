@@ -1,4 +1,4 @@
-export type Role = 'admin' | 'developer' | 'viewer'
+export type Role = 'admin' | 'developer' | 'viewer' | 'analista'
 export type ProjectStatus =
   | 'planned'
   | 'in_progress'
@@ -403,4 +403,141 @@ export interface RetellDisconnectionBySuccess {
   failed: number
   success_rate: number | null
   avg_duration_seconds: number | null
+}
+
+/* ----------------------------- Aware / SOFIA ----------------------------- */
+
+export interface AwareConfig {
+  configured: boolean
+  min_date?: string | null
+  max_date?: string | null
+  projects?: { proyecto_id: number; name: string }[]
+  error?: string
+}
+
+export interface AwareOverview {
+  range: { from: string; to: string }
+  total_calls: number
+  transfers: number
+  transfer_rate: number | null
+  user_hangup: number
+  user_hangup_rate: number | null
+  agent_hangup: number
+  agent_hangup_rate: number | null
+  inactivity: number
+  inactivity_rate: number | null
+  avg_duration_seconds: number
+  p50_duration_seconds: number
+  p90_duration_seconds: number
+  positive: number
+  negative: number
+  neutral: number
+  positive_rate: number | null
+  negative_rate: number | null
+  successful: number
+  success_rate: number | null
+}
+
+export interface AwareVolumeDay {
+  day: string
+  calls: number
+  transfers: number
+  hogar: number
+  tyt: number
+}
+
+export interface AwareHangupDay {
+  day: string
+  transfer: number
+  user_hangup: number
+  agent_hangup: number
+  inactivity: number
+}
+
+export interface AwareDailyTrend {
+  day: string
+  calls: number
+  success_rate: number | null
+  positive_rate: number | null
+  negative_rate: number | null
+  neutral_rate: number | null
+}
+
+export interface AwareCountRow {
+  reason?: string
+  sentiment?: string
+  tipo?: string
+  calls: number
+}
+
+export interface AwareDurationBucket {
+  bucket: string
+  calls: number
+}
+
+export interface AwareHeatCell {
+  hour: number
+  weekday: number
+  calls: number
+}
+
+export interface AwareByProject {
+  proyecto_id: number
+  name: string
+  calls: number
+  transfer_rate: number | null
+  user_hangup_rate: number | null
+  agent_hangup_rate: number | null
+  inactivity_rate: number | null
+  avg_duration_seconds: number
+  success_rate: number | null
+  positive_rate: number | null
+}
+
+export interface AwareTransfersAttended {
+  range: { from: string; to: string }
+  total: { transfers: number; attended: number; not_attended: number; attended_rate: number | null }
+  by_project: {
+    proyecto_id: number
+    name: string
+    transfers: number
+    attended: number
+    not_attended: number
+    attended_rate: number | null
+  }[]
+  approximate: boolean
+}
+
+export interface AwareCall {
+  call_id: string
+  proyecto_id: number
+  proyecto_name: string
+  fecha: string | null
+  hora: string | null
+  hangup_reason: string | null
+  duration_seconds: number | null
+  telefono: string | null
+  user_sentiment: string | null
+  call_successful: boolean | null
+  call_summary: string | null
+  audio_url: string | null
+}
+
+export interface AwareCallsPage {
+  page: number
+  page_size: number
+  total: number
+  total_pages: number
+  rows: AwareCall[]
+}
+
+export interface AwareCallDetail extends AwareCall {
+  analysis: Record<string, unknown> | null
+  transcript: { role: string; content: string }[]
+}
+
+export interface AwareFilterOptions {
+  min_date: string | null
+  max_date: string | null
+  projects: { proyecto_id: number; name: string }[]
 }

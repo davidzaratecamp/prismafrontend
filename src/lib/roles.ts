@@ -4,6 +4,7 @@ export const ROLE_LABEL: Record<Role, string> = {
   admin: 'Administrador',
   developer: 'Desarrollador',
   viewer: 'Visor',
+  analista: 'Analista',
 }
 
 export const ROLE_OPTIONS = (Object.keys(ROLE_LABEL) as Role[]).map((value) => ({

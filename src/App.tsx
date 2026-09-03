@@ -4,6 +4,7 @@ import { Shapes } from 'lucide-react'
 import { useAuthStore } from '@/stores/auth'
 import { AppShell } from '@/components/layout/AppShell'
 import { PortalShell } from '@/components/portal/PortalShell'
+import { AnalystShell } from '@/components/layout/AnalystShell'
 import { AdminRoute, ProtectedRoute } from '@/routes/ProtectedRoute'
 import LoginPage from '@/pages/LoginPage'
 
@@ -17,6 +18,7 @@ const RoadmapPage = lazy(() => import('@/pages/RoadmapPage'))
 const TeamPage = lazy(() => import('@/pages/TeamPage'))
 const AreasAdminPage = lazy(() => import('@/pages/AreasAdminPage'))
 const RetellPage = lazy(() => import('@/pages/RetellPage'))
+const AwarePage = lazy(() => import('@/pages/AwarePage'))
 const SettingsPage = lazy(() => import('@/pages/SettingsPage'))
 
 // Portal (viewer)
@@ -44,13 +46,20 @@ export default function App() {
   }, [bootstrap])
 
   const isViewer = role === 'viewer'
+  const isAnalyst = role === 'analista'
 
   return (
     <Suspense fallback={<PageFallback />}>
       <Routes>
         <Route path="/login" element={<LoginPage />} />
         <Route element={<ProtectedRoute />}>
-          {isViewer ? (
+          {isAnalyst ? (
+            <Route element={<AnalystShell />}>
+              <Route path="/" element={<AwarePage />} />
+              <Route path="/ajustes" element={<SettingsPage />} />
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </Route>
+          ) : isViewer ? (
             <Route element={<PortalShell />}>
               <Route path="/" element={<PortalOverviewPage />} />
               <Route path="/areas" element={<PortalAreasPage />} />
@@ -74,6 +83,7 @@ export default function App() {
               <Route element={<AdminRoute />}>
                 <Route path="/admin/areas" element={<AreasAdminPage />} />
                 <Route path="/admin/retell" element={<RetellPage />} />
+                <Route path="/admin/aware" element={<AwarePage />} />
               </Route>
               <Route path="*" element={<Navigate to="/" replace />} />
             </Route>
