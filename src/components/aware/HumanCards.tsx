@@ -103,13 +103,19 @@ export function ConversionTrendCard({ data }: { data: AwareHumanFunnelDay[] }) {
   )
 }
 
-export function AgentRankingTable({ rows }: { rows: AwareAgentRow[] }) {
+export function AgentRankingTable({
+  rows,
+  nameById = {},
+}: {
+  rows: AwareAgentRow[]
+  nameById?: Record<string, string>
+}) {
   const sorted = [...rows].sort((a, b) => (b.up_rate ?? 0) - (a.up_rate ?? 0))
   return (
     <Card className="overflow-hidden">
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-base">
-          <Users className="size-4" /> Asesores (por ID — los nombres vienen de VoxPro)
+          <Users className="size-4" /> Asesores — resultado de negocio (tipificación)
         </CardTitle>
       </CardHeader>
       <CardContent className="p-0">
@@ -120,7 +126,7 @@ export function AgentRankingTable({ rows }: { rows: AwareAgentRow[] }) {
             <table className="w-full text-sm">
               <thead className="sticky top-0 bg-muted/95">
                 <tr className="border-b text-left text-xs uppercase tracking-wide text-muted-foreground">
-                  <th className="px-4 py-2.5 font-medium">Asesor (ID)</th>
+                  <th className="px-4 py-2.5 font-medium">Asesor</th>
                   <th className="px-4 py-2.5 text-right font-medium">Llamadas</th>
                   <th className="px-4 py-2.5 text-right font-medium">ÚTIL POS.</th>
                   <th className="px-4 py-2.5 text-right font-medium">% positivo</th>
@@ -130,7 +136,9 @@ export function AgentRankingTable({ rows }: { rows: AwareAgentRow[] }) {
               <tbody>
                 {sorted.map((a) => (
                   <tr key={a.agente_id} className="border-b last:border-0 hover:bg-muted/30">
-                    <td className="px-4 py-2 font-mono text-xs">{a.agente_id}</td>
+                    <td className="px-4 py-2">
+                      {nameById[a.agente_id] ?? <span className="font-mono text-xs text-muted-foreground">{a.agente_id}</span>}
+                    </td>
                     <td className="px-4 py-2 text-right tabular-nums">{a.calls}</td>
                     <td className="px-4 py-2 text-right tabular-nums">{a.up}</td>
                     <td className={cn('px-4 py-2 text-right tabular-nums font-medium', (a.up_rate ?? 0) >= 0.12 && 'text-emerald-600 dark:text-emerald-400')}>

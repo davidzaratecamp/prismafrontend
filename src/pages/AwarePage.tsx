@@ -45,6 +45,7 @@ import {
   QueueAbandonCard,
 } from '@/components/aware/HumanCards'
 import { TalkRatioCard } from '@/components/aware/TalkRatioCard'
+import { QualityTab } from '@/components/aware/QualityTab'
 import { LiveFeed } from '@/components/aware/LiveFeed'
 import { HANGUP_COLOR, HANGUP_LABEL, SENTIMENT_COLOR, SENTIMENT_LABEL } from '@/components/aware/labels'
 import {
@@ -75,6 +76,7 @@ import {
   useAwareTransferTurnBuckets,
   useAwareTransfersAttended,
   useAwareTurnBuckets,
+  useAwareVoxproQuality,
   useAwareTurnsByOutcome,
   useAwareVolumeByDay,
   useAwareWeekdayOps,
@@ -202,6 +204,7 @@ export default function AwarePage() {
           <TabsTrigger value="operacion">Operación</TabsTrigger>
           <TabsTrigger value="conversacion">Conversación</TabsTrigger>
           <TabsTrigger value="cruces">Cruces</TabsTrigger>
+          <TabsTrigger value="calidad">Calidad IA</TabsTrigger>
           <TabsTrigger value="llamadas">Llamadas</TabsTrigger>
           <TabsTrigger value="envivo">En vivo</TabsTrigger>
         </TabsList>
@@ -223,6 +226,9 @@ export default function AwarePage() {
         </TabsContent>
         <TabsContent value="cruces" className="pt-4">
           <CrucesTab filters={filters} />
+        </TabsContent>
+        <TabsContent value="calidad" className="pt-4">
+          <QualityTab />
         </TabsContent>
         <TabsContent value="llamadas" className="pt-4">
           <CallsTable key={`${rangeKey}:${proyecto}`} base={filters} />
@@ -362,6 +368,15 @@ function AsesorTab({ filters }: { filters: AwareFilters }) {
   const byDay = useAwareHumanFunnelByDay(filters)
   const ranking = useAwareAgentRanking(filters)
   const abandon = useAwareQueueAbandon(filters)
+  const quality = useAwareVoxproQuality()
+
+  const nameById = useMemo(() => {
+    const m: Record<string, string> = {}
+    for (const a of quality.data?.agents ?? []) {
+      if (a.agente_id && a.agente_nombre) m[a.agente_id] = a.agente_nombre
+    }
+    return m
+  }, [quality.data])
 
   if (outcomes.isLoading) {
     return (
@@ -381,7 +396,7 @@ function AsesorTab({ filters }: { filters: AwareFilters }) {
           <QueueAbandonCard data={abandon.data} />
         </div>
       </div>
-      <AgentRankingTable rows={ranking.data ?? []} />
+      <AgentRankingTable rows={ranking.data ?? []} nameById={nameById} />
     </div>
   )
 }

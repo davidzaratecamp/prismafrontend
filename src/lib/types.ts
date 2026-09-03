@@ -704,3 +704,44 @@ export interface AwareKeyword {
   palabra: string
   calls: number
 }
+
+export interface AwareVoxproQuality {
+  available: boolean
+  age_minutes?: number | null
+  generated_at?: string
+  range_days?: number
+  bot?: {
+    by_proyecto: {
+      proyecto_id: number
+      proyecto_name: string
+      total_calls: number
+      transferred: number
+      audited: number
+      avg_score: number | null
+      low: number
+      mid: number
+      high: number
+      missed_transfer: number
+    }[]
+    trend: { date: string; proyecto_id: number; avg_score: number; count: number }[]
+  }
+  human?: {
+    total: number
+    scored: number
+    not_found: number
+    not_found_rate: number | null
+    error: number
+    avg_score: number | null
+    distribution: { low: number; mid: number; high: number }
+    high_impact_failed: number
+    high_impact_failed_rate: number | null
+  }
+  missed_transfer_reasons?: string[]
+  agents?: {
+    agente_id: string | null
+    agente_nombre: string | null
+    audited: number
+    avg_score: number | null
+    high_impact_failed: number
+  }[]
+}

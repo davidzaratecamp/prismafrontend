@@ -159,6 +159,10 @@ export const useAwareTopicKeywords = (f?: AwareFilters) =>
 export const useAwareFirstIntent = (f?: AwareFilters) =>
   useAware<{ frase: string; calls: number }[]>('first-intent', 'analytics/first-intent', f)
 
+// calidad IA (snapshot que empuja VoxPro; no depende de los filtros de rango)
+export const useAwareVoxproQuality = () =>
+  useAware<import('@/lib/types').AwareVoxproQuality>('voxpro-quality', 'analytics/voxpro-quality', undefined, 120_000)
+
 // en vivo (llamadas de hoy) — refresca cada 20 s
 export const useAwareLive = (f?: AwareFilters) =>
   useAware<AwareLiveFeed>('live', 'live', f, 20_000)
