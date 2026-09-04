@@ -46,6 +46,7 @@ import {
 } from '@/components/aware/HumanCards'
 import { TalkRatioCard } from '@/components/aware/TalkRatioCard'
 import { QualityTab } from '@/components/aware/QualityTab'
+import { PeriodComparisonCard } from '@/components/aware/PeriodComparisonCard'
 import { LiveFeed } from '@/components/aware/LiveFeed'
 import { HANGUP_COLOR, HANGUP_LABEL, SENTIMENT_COLOR, SENTIMENT_LABEL } from '@/components/aware/labels'
 import {
@@ -65,6 +66,7 @@ import {
   useAwareHumanOutcomes,
   useAwareNotAttendedByDay,
   useAwareOverview,
+  useAwarePeriodComparison,
   useAwareQueueAbandon,
   useAwareRepeatCallers,
   useAwareSentiment,
@@ -245,6 +247,7 @@ export default function AwarePage() {
 
 function ResumenTab({ filters, single }: { filters: AwareFilters; single: boolean }) {
   const overview = useAwareOverview(filters)
+  const comparison = useAwarePeriodComparison(filters)
   const funnel = useAwareFunnel(filters)
   const volume = useAwareVolumeByDay(filters)
   const trend = useAwareDailyTrend(filters)
@@ -281,8 +284,9 @@ function ResumenTab({ filters, single }: { filters: AwareFilters; single: boolea
 
       <div className="grid gap-4 lg:grid-cols-2">
         <FunnelCard data={funnel.data} />
-        <CallsByDayChart data={volume.data ?? []} single={single} />
+        <PeriodComparisonCard data={comparison.data} />
       </div>
+      <CallsByDayChart data={volume.data ?? []} single={single} />
       <TrendChart data={trend.data ?? []} />
 
       <div className="grid gap-4 lg:grid-cols-3">

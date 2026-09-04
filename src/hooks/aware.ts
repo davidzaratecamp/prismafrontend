@@ -24,6 +24,7 @@ import type {
   AwareLiveFeed,
   AwareNotAttendedDay,
   AwareOverview,
+  AwarePeriodComparison,
   AwareQueueAbandon,
   AwareRepeatCallers,
   AwareTalkRatio,
@@ -80,6 +81,8 @@ export const useAwareFilters = () =>
 
 export const useAwareOverview = (f?: AwareFilters) =>
   useAware<AwareOverview>('overview', 'analytics/overview', f)
+export const useAwarePeriodComparison = (f?: AwareFilters) =>
+  useAware<AwarePeriodComparison>('period-comparison', 'analytics/period-comparison', f)
 export const useAwareVolumeByDay = (f?: AwareFilters) =>
   useAware<AwareVolumeDay[]>('volume-by-day', 'analytics/volume-by-day', f)
 export const useAwareVolumeByHour = (f?: AwareFilters) =>

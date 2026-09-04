@@ -705,6 +705,39 @@ export interface AwareKeyword {
   calls: number
 }
 
+export interface AwarePeriodStats {
+  from: string
+  to: string
+  total_calls: number
+  transfer_rate: number | null
+  user_hangup_rate: number | null
+  agent_hangup_rate: number | null
+  inactivity_rate: number | null
+  avg_duration_seconds: number
+  positive_rate: number | null
+  success_rate: number | null
+  transfers: number
+  atendidas: number
+  atendidas_rate: number | null
+  conversion_rate: number | null
+}
+
+export interface AwarePeriodComparison {
+  days: number
+  current: AwarePeriodStats
+  previous: AwarePeriodStats
+  deltas: {
+    total_calls_pct: number | null
+    transfer_rate_pp: number | null
+    user_hangup_rate_pp: number | null
+    agent_hangup_rate_pp: number | null
+    success_rate_pp: number | null
+    positive_rate_pp: number | null
+    conversion_rate_pp: number | null
+    atendidas_rate_pp: number | null
+  }
+}
+
 export interface AwareVoxproQuality {
   available: boolean
   age_minutes?: number | null
