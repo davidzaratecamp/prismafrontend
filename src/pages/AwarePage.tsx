@@ -209,7 +209,7 @@ export default function AwarePage() {
           <TabsTrigger value="cruces">Cruces</TabsTrigger>
           <TabsTrigger value="calidad">Calidad IA</TabsTrigger>
           <TabsTrigger value="llamadas">Llamadas</TabsTrigger>
-          <TabsTrigger value="entregable">Entregable</TabsTrigger>
+          <TabsTrigger value="entregable">Consolidado</TabsTrigger>
           <TabsTrigger value="envivo">En vivo</TabsTrigger>
         </TabsList>
 

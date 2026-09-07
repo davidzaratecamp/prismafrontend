@@ -228,7 +228,7 @@ export async function downloadDeliverable(format: 'csv' | 'json', f: AwareFilter
   const url = URL.createObjectURL(res.data as Blob)
   const a = document.createElement('a')
   a.href = url
-  a.download = `entregable_${f.from ?? ''}_${f.to ?? ''}.${format}`
+  a.download = `consolidado_llamadas_${f.from ?? ''}_${f.to ?? ''}.${format}`
   document.body.appendChild(a)
   a.click()
   a.remove()
