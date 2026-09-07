@@ -33,6 +33,7 @@ import { TransfersAttendedCard } from '@/components/aware/TransfersAttendedCard'
 import { ByProjectCompare } from '@/components/aware/ByProjectCompare'
 import { DurationHistogram } from '@/components/aware/DurationHistogram'
 import { CallsTable } from '@/components/aware/CallsTable'
+import { DeliverableTable } from '@/components/aware/DeliverableTable'
 import { FunnelCard } from '@/components/aware/FunnelCard'
 import { HourlyOpsChart, WeekdayChart } from '@/components/aware/OpsCharts'
 import { TurnBucketsCard, DurationByOutcomeCard } from '@/components/aware/ConversationCards'
@@ -208,6 +209,7 @@ export default function AwarePage() {
           <TabsTrigger value="cruces">Cruces</TabsTrigger>
           <TabsTrigger value="calidad">Calidad IA</TabsTrigger>
           <TabsTrigger value="llamadas">Llamadas</TabsTrigger>
+          <TabsTrigger value="entregable">Entregable</TabsTrigger>
           <TabsTrigger value="envivo">En vivo</TabsTrigger>
         </TabsList>
 
@@ -234,6 +236,9 @@ export default function AwarePage() {
         </TabsContent>
         <TabsContent value="llamadas" className="pt-4">
           <CallsTable key={`${rangeKey}:${proyecto}`} base={filters} />
+        </TabsContent>
+        <TabsContent value="entregable" className="pt-4">
+          <DeliverableTable key={`${rangeKey}:${proyecto}`} base={filters} />
         </TabsContent>
         <TabsContent value="envivo" className="pt-4">
           <LiveFeed filters={filters} />

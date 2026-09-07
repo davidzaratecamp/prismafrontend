@@ -29,4 +29,5 @@ test('AwarePage monta con sus filtros y pestañas (Select bien formado)', () => 
   expect(getByText('Analítica Aware · SOFIA inbound')).toBeTruthy()
   expect(getAllByText('Recorrido').length).toBeGreaterThan(0)
   expect(getAllByText('En vivo').length).toBeGreaterThan(0)
+  expect(getAllByText('Entregable').length).toBeGreaterThan(0)
 })

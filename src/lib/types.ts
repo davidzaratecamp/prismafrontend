@@ -778,3 +778,46 @@ export interface AwareVoxproQuality {
     high_impact_failed: number
   }[]
 }
+
+/* ---------- Aware: entregable por llamada (14 campos Claro) ---------- */
+
+export interface AwareDeliverableRow {
+  call_id: string
+  proyecto_id: number
+  proyecto_name: string
+  fecha: string | null
+  hora: string | null
+  asesor_nombre: string | null
+  duracion_ia_seg: number | null
+  duracion_asesor_seg: number | null
+  duracion_total_seg: number
+  did: string | null
+  segmento: string | null
+  estado: 'Transferido' | 'Abandonado' | 'Gestión IA'
+  venta: 'Sí' | 'No'
+  tipo_servicio: string | null
+  tipificacion_ia: string
+  tipificacion_asesor_codigo: string | null
+  tipificacion_asesor_nombre: string | null
+  tipificacion_asesor_grupo: string | null
+  transcripcion_ia_turnos: number
+  grabacion_ia_url: string | null
+  grabacion_asesor_url: string | null
+  asesor_uniqueid: string | null
+}
+
+export interface AwareDeliverablePage {
+  range: { from: string; to: string }
+  page: number
+  page_size: number
+  total: number
+  total_pages: number
+  approximate: boolean
+  rows: AwareDeliverableRow[]
+}
+
+export interface AwareDeliverableCall extends AwareDeliverableRow {
+  telefono: string | null
+  transcripcion_ia: { role: string; content: string }[]
+  analysis: Record<string, unknown> | null
+}

@@ -10,6 +10,8 @@ import type {
   AwareConfig,
   AwareCountRow,
   AwareDailyTrend,
+  AwareDeliverableCall,
+  AwareDeliverablePage,
   AwareDurationBucket,
   AwareDurationByOutcome,
   AwareFilterOptions,
@@ -45,6 +47,10 @@ export interface AwareFilters {
   phone?: string
   sentiment?: string
   callSuccessful?: 'true' | 'false'
+  // entregable por llamada
+  estado?: 'transferido' | 'abandonado' | 'ia'
+  venta?: 'si' | 'no'
+  tipificacion?: string
   page?: number
   pageSize?: number
 }
@@ -176,6 +182,35 @@ export function useAwareCall(callId: string | null) {
     queryFn: async () => (await api.get<AwareCallDetail>(`/aware/calls/${callId}`)).data,
     enabled: !!callId,
   })
+}
+
+/* ── entregable por llamada (14 campos Claro) ── */
+
+export const useAwareDeliverable = (f?: AwareFilters) =>
+  useAware<AwareDeliverablePage>('deliverable', 'deliverable', f, LIVE)
+
+export function useAwareDeliverableCall(callId: string | null) {
+  return useQuery({
+    queryKey: ['aware', 'deliverable-call', callId],
+    queryFn: async () => (await api.get<AwareDeliverableCall>(`/aware/deliverable/${callId}`)).data,
+    enabled: !!callId,
+  })
+}
+
+/** Descarga el entregable completo (CSV o JSON) respetando los filtros activos. */
+export async function downloadDeliverable(format: 'csv' | 'json', f: AwareFilters = {}) {
+  const res = await api.get(`/aware/deliverable.${format}`, {
+    params: clean(f),
+    responseType: 'blob',
+  })
+  const url = URL.createObjectURL(res.data as Blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = `entregable_${f.from ?? ''}_${f.to ?? ''}.${format}`
+  document.body.appendChild(a)
+  a.click()
+  a.remove()
+  URL.revokeObjectURL(url)
 }
 
 export type { AwareCall }
