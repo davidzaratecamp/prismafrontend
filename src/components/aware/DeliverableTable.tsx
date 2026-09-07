@@ -226,14 +226,32 @@ export function DeliverableTable({ base }: { base: AwareFilters }) {
                     <td className="px-3 py-2">
                       <div className="flex justify-center gap-2" onClick={(e) => e.stopPropagation()}>
                         {r.grabacion_ia_url ? (
-                          <a href={r.grabacion_ia_url} target="_blank" rel="noreferrer" title="Grabación IA" className="text-indigo-600 hover:underline dark:text-indigo-400">
-                            <Headphones className="size-4" />
-                          </a>
+                          <button
+                            type="button"
+                            title="Clic: copiar URL de la grabación IA"
+                            className="text-indigo-600 dark:text-indigo-400"
+                            onClick={() => {
+                              copyText(r.grabacion_ia_url!)
+                              setCopied(r.grabacion_ia_url!)
+                              setTimeout(() => setCopied((c) => (c === r.grabacion_ia_url ? null : c)), 1500)
+                            }}
+                          >
+                            {copied === r.grabacion_ia_url ? <Check className="size-4 text-emerald-500" /> : <Headphones className="size-4" />}
+                          </button>
                         ) : <span className="text-muted-foreground">—</span>}
                         {r.grabacion_asesor_url ? (
-                          <a href={r.grabacion_asesor_url} target="_blank" rel="noreferrer" title="Grabación asesor" className="text-emerald-600 hover:underline dark:text-emerald-400">
-                            <Headphones className="size-4" />
-                          </a>
+                          <button
+                            type="button"
+                            title="Clic: copiar URL de la grabación del asesor"
+                            className="text-emerald-600 dark:text-emerald-400"
+                            onClick={() => {
+                              copyText(r.grabacion_asesor_url!)
+                              setCopied(r.grabacion_asesor_url!)
+                              setTimeout(() => setCopied((c) => (c === r.grabacion_asesor_url ? null : c)), 1500)
+                            }}
+                          >
+                            {copied === r.grabacion_asesor_url ? <Check className="size-4 text-emerald-500" /> : <Headphones className="size-4" />}
+                          </button>
                         ) : null}
                       </div>
                     </td>
@@ -292,6 +310,7 @@ function AudioLeg({
   const [src, setSrc] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   const [err, setErr] = useState(false)
+  const [copied, setCopied] = useState(false)
 
   useEffect(() => () => { if (src) URL.revokeObjectURL(src) }, [src])
 
@@ -313,17 +332,31 @@ function AudioLeg({
 
   return (
     <div className="min-w-[240px] flex-1">
-      <p className="mb-1 flex items-center justify-between gap-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+      <div className="mb-1 flex items-center justify-between gap-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
         <span>{label}</span>
-        <a
-          href={rawUrl}
-          target="_blank"
-          rel="noreferrer"
-          className="inline-flex items-center gap-1 normal-case text-[11px] font-normal hover:underline"
-        >
-          <Download className="size-3" /> original
-        </a>
-      </p>
+        <span className="flex items-center gap-3 normal-case text-[11px] font-normal">
+          <button
+            type="button"
+            className="inline-flex items-center gap-1 hover:underline"
+            onClick={() => {
+              copyText(rawUrl)
+              setCopied(true)
+              setTimeout(() => setCopied(false), 1500)
+            }}
+          >
+            {copied ? <Check className="size-3 text-emerald-500" /> : <Copy className="size-3" />}
+            {copied ? 'copiada' : 'copiar URL'}
+          </button>
+          <a
+            href={rawUrl}
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex items-center gap-1 hover:underline"
+          >
+            <Download className="size-3" /> descargar
+          </a>
+        </span>
+      </div>
       {src ? (
         <audio controls autoPlay preload="auto" src={src} className="w-full">
           Tu navegador no soporta audio.
