@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { ChevronLeft, ChevronRight, Download, FileSpreadsheet, Headphones } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import { Check, ChevronLeft, ChevronRight, Copy, Download, FileSpreadsheet, Headphones, Play } from 'lucide-react'
 import {
   Select,
   SelectContent,
@@ -13,6 +13,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { EmptyState } from '@/components/common/EmptyState'
 import { cn } from '@/lib/utils'
+import { api } from '@/lib/api'
 import { dur } from '@/lib/analyticsFormat'
 import {
   downloadDeliverable,
@@ -21,6 +22,10 @@ import {
   type AwareFilters,
 } from '@/hooks/aware'
 import { ESTADO_BADGE } from './labels'
+
+function copyText(t: string) {
+  navigator.clipboard?.writeText(t).catch(() => {})
+}
 
 /** Códigos del árbol de tipificación (tabla tipo_contacto de Aware). */
 const TIP_CODES: [string, string][] = [
@@ -43,15 +48,15 @@ const TIP_CODES: [string, string][] = [
 ]
 
 const COLS: { key: string; label: string; help: string; align?: 'right' | 'center' }[] = [
-  { key: 'id', label: 'ID único', help: '1 · Identificador único de la llamada (correlaciona ambos tramos)' },
+  { key: 'id', label: 'ID único', help: '1 · Identificador único de la llamada (correlaciona ambos tramos). Clic para copiar' },
   { key: 'fecha', label: 'Fecha', help: '2 · Fecha de la interacción' },
   { key: 'hora', label: 'Hora', help: '3 · Hora de la interacción (Bogotá)' },
   { key: 'asesor', label: 'Asesor', help: '4 · Nombre del asesor que atendió la llamada' },
   { key: 'dia', label: 'Dur. IA (s)', help: '5 · Duración gestionada por la IA, en segundos', align: 'right' },
   { key: 'dase', label: 'Dur. asesor (s)', help: '6 · Duración gestionada por el asesor, en segundos', align: 'right' },
   { key: 'dtot', label: 'Dur. total (s)', help: '7 · Duración total (IA + asesor), en segundos', align: 'right' },
-  { key: 'did', label: 'DID', help: '8 · DID asociado al origen del tráfico' },
-  { key: 'seg', label: 'Segmento', help: '9 · Segmento de la llamada, según el DID configurado' },
+  { key: 'did', label: 'DID', help: '8 · DID: número/línea de entrada que marcó el cliente para llegar a SOFIA (573012 = Hogar, 573013 = TyT)' },
+  { key: 'seg', label: 'Segmento', help: '9 · Segmento de la llamada según el DID configurado (Claro Hogar / Claro TyT)' },
   { key: 'estado', label: 'Estado', help: '10 · Estado de la interacción: Transferido / Abandonado' },
   { key: 'venta', label: 'Venta', help: '11 · Venta: Sí / No', align: 'center' },
   { key: 'tip_ia', label: 'Tip. IA', help: '12 · Tipificación de SOFIA (cómo terminó su gestión)' },
@@ -66,6 +71,7 @@ export function DeliverableTable({ base }: { base: AwareFilters }) {
   const [tip, setTip] = useState('all')
   const [page, setPage] = useState(1)
   const [open, setOpen] = useState<string | null>(null)
+  const [copied, setCopied] = useState<string | null>(null)
   const [downloading, setDownloading] = useState<'csv' | 'json' | null>(null)
 
   const filters: AwareFilters = {
@@ -165,8 +171,22 @@ export function DeliverableTable({ base }: { base: AwareFilters }) {
                     onClick={() => setOpen(r.call_id)}
                     className="cursor-pointer border-b last:border-0 hover:bg-muted/30"
                   >
-                    <td className="whitespace-nowrap px-3 py-2 font-mono text-xs" title={r.call_id}>
-                      {r.call_id.slice(0, 14)}…
+                    <td
+                      className="whitespace-nowrap px-3 py-2 font-mono text-xs"
+                      title="Clic para copiar el ID"
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        copyText(r.call_id)
+                        setCopied(r.call_id)
+                        setTimeout(() => setCopied((c) => (c === r.call_id ? null : c)), 1500)
+                      }}
+                    >
+                      <span className="inline-flex items-center gap-1 hover:text-foreground">
+                        {copied === r.call_id
+                          ? <Check className="size-3 shrink-0 text-emerald-500" />
+                          : <Copy className="size-3 shrink-0 opacity-40" />}
+                        {r.call_id.slice(0, 14)}…
+                      </span>
                     </td>
                     <td className="whitespace-nowrap px-3 py-2 tabular-nums">{r.fecha ?? '—'}</td>
                     <td className="whitespace-nowrap px-3 py-2 tabular-nums">{r.hora ?? '—'}</td>
@@ -252,6 +272,76 @@ function Row({ label, value }: { label: string; value: React.ReactNode }) {
   )
 }
 
+/**
+ * Reproductor de un tramo de la grabación. La del asesor viene en WAV/GSM que
+ * el navegador no decodifica, así que se pide al backend transcodificada a MP3
+ * (blob, para no exponer el token en la URL). El enlace "original" descarga el
+ * WAV crudo del servidor de Aware.
+ */
+function AudioLeg({
+  callId,
+  leg,
+  label,
+  rawUrl,
+}: {
+  callId: string
+  leg: 'ia' | 'asesor'
+  label: string
+  rawUrl: string
+}) {
+  const [src, setSrc] = useState<string | null>(null)
+  const [loading, setLoading] = useState(false)
+  const [err, setErr] = useState(false)
+
+  useEffect(() => () => { if (src) URL.revokeObjectURL(src) }, [src])
+
+  async function load() {
+    setLoading(true)
+    setErr(false)
+    try {
+      const res = await api.get(`/aware/deliverable/${callId}/audio`, {
+        params: { leg },
+        responseType: 'blob',
+      })
+      setSrc(URL.createObjectURL(res.data as Blob))
+    } catch {
+      setErr(true)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  return (
+    <div className="min-w-[240px] flex-1">
+      <p className="mb-1 flex items-center justify-between gap-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+        <span>{label}</span>
+        <a
+          href={rawUrl}
+          target="_blank"
+          rel="noreferrer"
+          className="inline-flex items-center gap-1 normal-case text-[11px] font-normal hover:underline"
+        >
+          <Download className="size-3" /> original
+        </a>
+      </p>
+      {src ? (
+        <audio controls autoPlay preload="auto" src={src} className="w-full">
+          Tu navegador no soporta audio.
+        </audio>
+      ) : (
+        <Button variant="outline" size="sm" onClick={load} disabled={loading}>
+          <Play className="size-4" /> {loading ? 'Cargando…' : err ? 'Reintentar' : 'Reproducir'}
+        </Button>
+      )}
+      {err && (
+        <p className="mt-1 text-[11px] text-red-600 dark:text-red-400">
+          No se pudo cargar la grabación. Usa "original".
+        </p>
+      )}
+    </div>
+  )
+}
+
 function DeliverableCallDialog({ callId, onClose }: { callId: string | null; onClose: () => void }) {
   const { data, isLoading } = useAwareDeliverableCall(callId)
 
@@ -259,7 +349,14 @@ function DeliverableCallDialog({ callId, onClose }: { callId: string | null; onC
     <Dialog open={!!callId} onOpenChange={(v) => !v && onClose()}>
       <DialogContent className="max-w-2xl">
         <DialogHeader>
-          <DialogTitle className="font-mono text-xs">{callId}</DialogTitle>
+          <DialogTitle
+            className="flex cursor-pointer items-center gap-1.5 font-mono text-xs hover:text-foreground/80"
+            title="Clic para copiar el ID"
+            onClick={() => callId && copyText(callId)}
+          >
+            <Copy className="size-3 shrink-0 opacity-50" />
+            {callId}
+          </DialogTitle>
         </DialogHeader>
 
         {isLoading || !data ? (
@@ -297,20 +394,10 @@ function DeliverableCallDialog({ callId, onClose }: { callId: string | null; onC
 
             <div className="flex flex-wrap gap-3">
               {data.grabacion_ia_url && (
-                <div className="min-w-[240px] flex-1">
-                  <p className="mb-1 text-xs font-medium uppercase tracking-wide text-muted-foreground">Grabación IA</p>
-                  <audio controls preload="none" src={data.grabacion_ia_url} className="w-full">
-                    Tu navegador no soporta audio.
-                  </audio>
-                </div>
+                <AudioLeg callId={data.call_id} leg="ia" label="Grabación IA" rawUrl={data.grabacion_ia_url} />
               )}
               {data.grabacion_asesor_url && (
-                <div className="min-w-[240px] flex-1">
-                  <p className="mb-1 text-xs font-medium uppercase tracking-wide text-muted-foreground">Grabación asesor</p>
-                  <audio controls preload="none" src={data.grabacion_asesor_url} className="w-full">
-                    Tu navegador no soporta audio.
-                  </audio>
-                </div>
+                <AudioLeg callId={data.call_id} leg="asesor" label="Grabación asesor" rawUrl={data.grabacion_asesor_url} />
               )}
             </div>
 
