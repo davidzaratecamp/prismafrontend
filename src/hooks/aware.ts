@@ -51,6 +51,7 @@ export interface AwareFilters {
   estado?: 'transferido' | 'abandonado' | 'ia'
   venta?: 'si' | 'no'
   tipificacion?: string
+  tipificacionIa?: string
   page?: number
   pageSize?: number
 }

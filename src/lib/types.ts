@@ -796,7 +796,9 @@ export interface AwareDeliverableRow {
   estado: 'Transferido' | 'Abandonado' | 'Gestión IA'
   venta: 'Sí' | 'No'
   tipo_servicio: string | null
-  tipificacion_ia: string
+  gestion_ia: string
+  tipificacion_ia: string | null
+  tipificacion_ia_raw: string | null
   tipificacion_asesor_codigo: string | null
   tipificacion_asesor_nombre: string | null
   tipificacion_asesor_grupo: string | null

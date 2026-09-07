@@ -27,6 +27,18 @@ function copyText(t: string) {
   navigator.clipboard?.writeText(t).catch(() => {})
 }
 
+/** Los 8 valores oficiales de la tipificación IA de SOFIA (CODIGO_TIPIFICACIONIA). */
+const TIP_IA_OPTIONS = [
+  'COMPRA - TRANSFERENCIA ASESOR',
+  'FACTURACIÓN',
+  'SOPORTE / FALLAS',
+  'CANCELACIÓN',
+  'RECLAMO',
+  'TRASLADO',
+  'SAC GENERAL',
+  'CLIENTE CUELGA IA',
+]
+
 /** Códigos del árbol de tipificación (tabla tipo_contacto de Aware). */
 const TIP_CODES: [string, string][] = [
   ['UP', 'Útil positivo (venta)'],
@@ -59,8 +71,9 @@ const COLS: { key: string; label: string; help: string; align?: 'right' | 'cente
   { key: 'seg', label: 'Segmento', help: '9 · Segmento de la llamada según el DID configurado (Claro Hogar / Claro TyT)' },
   { key: 'estado', label: 'Estado', help: '10 · Estado de la interacción: Transferido / Abandonado' },
   { key: 'venta', label: 'Venta', help: '11 · Venta: Sí / No', align: 'center' },
-  { key: 'tip_ia', label: 'Tip. IA', help: '12 · Tipificación de SOFIA (cómo terminó su gestión)' },
-  { key: 'tip_ase', label: 'Tip. asesor', help: '12 · Tipificación final del asesor (árbol de tipificación), en continuidad con la de SOFIA' },
+  { key: 'gestion', label: 'Gestión IA', help: '12 · Cómo terminó la gestión de SOFIA (disposición; cobertura total)' },
+  { key: 'tip_ia', label: 'Tip. IA', help: '12 · Tipificación de SOFIA — CODIGO_TIPIFICACIONIA (8 valores oficiales; dato nuevo, cobertura parcial)' },
+  { key: 'tip_ase', label: 'Tip. asesor', help: '12 · Tipificación final del asesor (árbol tipo_contacto), en continuidad con la de SOFIA' },
   { key: 'trans', label: 'Transcr.', help: '13 · Transcripción completa SOFIA ↔ cliente (abrir la fila)', align: 'center' },
   { key: 'rec', label: 'Grabación', help: '14 · Enlace a la grabación (IA y asesor)', align: 'center' },
 ]
@@ -69,6 +82,7 @@ export function DeliverableTable({ base }: { base: AwareFilters }) {
   const [estado, setEstado] = useState('all')
   const [venta, setVenta] = useState('all')
   const [tip, setTip] = useState('all')
+  const [tipIa, setTipIa] = useState('all')
   const [page, setPage] = useState(1)
   const [open, setOpen] = useState<string | null>(null)
   const [copied, setCopied] = useState<string | null>(null)
@@ -79,6 +93,7 @@ export function DeliverableTable({ base }: { base: AwareFilters }) {
     estado: estado === 'all' ? undefined : (estado as AwareFilters['estado']),
     venta: venta === 'all' ? undefined : (venta as AwareFilters['venta']),
     tipificacion: tip === 'all' ? undefined : tip,
+    tipificacionIa: tipIa === 'all' ? undefined : tipIa,
     page,
     pageSize: 50,
   }
@@ -118,10 +133,20 @@ export function DeliverableTable({ base }: { base: AwareFilters }) {
             <SelectItem value="no">Venta: No</SelectItem>
           </SelectContent>
         </Select>
-        <Select value={tip} onValueChange={reset(setTip)}>
-          <SelectTrigger className="h-9 w-52"><SelectValue placeholder="Tipificación" /></SelectTrigger>
+        <Select value={tipIa} onValueChange={reset(setTipIa)}>
+          <SelectTrigger className="h-9 w-56"><SelectValue placeholder="Tip. IA (SOFIA)" /></SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">Toda tipificación</SelectItem>
+            <SelectItem value="all">Tip. IA: todas</SelectItem>
+            {TIP_IA_OPTIONS.map((v) => (
+              <SelectItem key={v} value={v}>{v}</SelectItem>
+            ))}
+            <SelectItem value="__none__">Sin clasificar (IA)</SelectItem>
+          </SelectContent>
+        </Select>
+        <Select value={tip} onValueChange={reset(setTip)}>
+          <SelectTrigger className="h-9 w-52"><SelectValue placeholder="Tip. asesor" /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Tip. asesor: todas</SelectItem>
             {TIP_CODES.map(([c, label]) => (
               <SelectItem key={c} value={c}>{c} · {label}</SelectItem>
             ))}
@@ -213,7 +238,15 @@ export function DeliverableTable({ base }: { base: AwareFilters }) {
                         : <span className="text-muted-foreground">No</span>}
                     </td>
                     <td className="whitespace-nowrap px-3 py-2 text-xs text-muted-foreground">
-                      {r.tipificacion_ia}
+                      {r.gestion_ia}
+                    </td>
+                    <td
+                      className="whitespace-nowrap px-3 py-2 text-xs"
+                      title={r.tipificacion_ia === 'SIN ESTANDARIZAR' ? `SOFIA escribió: ${r.tipificacion_ia_raw ?? ''}` : ''}
+                    >
+                      {r.tipificacion_ia
+                        ? <span className={cn(r.tipificacion_ia === 'SIN ESTANDARIZAR' && 'text-amber-600 dark:text-amber-400')}>{r.tipificacion_ia}</span>
+                        : <span className="text-muted-foreground">—</span>}
                     </td>
                     <td className="whitespace-nowrap px-3 py-2" title={r.tipificacion_asesor_nombre ?? ''}>
                       {r.tipificacion_asesor_codigo
@@ -414,12 +447,21 @@ function DeliverableCallDialog({ callId, onClose }: { callId: string | null; onC
                 />
                 <Row label="Tipo de servicio (SOFIA)" value={data.tipo_servicio} />
                 <Row label="Venta" value={data.venta} />
+                <Row label="Gestión IA (disposición)" value={data.gestion_ia} />
                 <Row
-                  label="Tipificación IA → asesor"
+                  label="Tipificación IA (SOFIA)"
+                  value={
+                    data.tipificacion_ia === 'SIN ESTANDARIZAR'
+                      ? `SIN ESTANDARIZAR — SOFIA escribió: "${data.tipificacion_ia_raw ?? ''}"`
+                      : data.tipificacion_ia
+                  }
+                />
+                <Row
+                  label="Tipificación asesor"
                   value={
                     data.tipificacion_asesor_codigo
-                      ? `${data.tipificacion_ia}  →  ${data.tipificacion_asesor_codigo} — ${data.tipificacion_asesor_nombre ?? ''}`
-                      : data.tipificacion_ia
+                      ? `${data.tipificacion_asesor_codigo} — ${data.tipificacion_asesor_nombre ?? ''}`
+                      : null
                   }
                 />
               </div>
