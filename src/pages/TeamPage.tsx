@@ -90,6 +90,11 @@ export default function TeamPage() {
                     <span className="rounded bg-secondary px-2 py-0.5 font-medium">
                       {ROLE_LABEL[u.role]}
                     </span>
+                    {u.role === 'analista' && u.aware_scope && (
+                      <span className="rounded bg-secondary px-2 py-0.5">
+                        {u.aware_scope === 12 ? 'Claro Hogar' : 'Claro TyT'}
+                      </span>
+                    )}
                     {u.is_active === false && (
                       <span className="rounded bg-destructive/10 px-2 py-0.5 text-destructive">Inactivo</span>
                     )}

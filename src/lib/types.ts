@@ -15,6 +15,8 @@ export interface User {
   email: string
   role: Role
   area_id: number | null
+  /** analista: 12 = solo Claro Hogar · 13 = solo Claro TyT · null = ambas */
+  aware_scope?: number | null
   avatar_color: string
   is_active?: boolean
   created_at?: string

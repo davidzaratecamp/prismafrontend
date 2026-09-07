@@ -36,7 +36,6 @@ import { CallsTable } from '@/components/aware/CallsTable'
 import { DeliverableTable } from '@/components/aware/DeliverableTable'
 import { FunnelCard } from '@/components/aware/FunnelCard'
 import { HourlyOpsChart, WeekdayChart } from '@/components/aware/OpsCharts'
-import { TurnBucketsCard, DurationByOutcomeCard } from '@/components/aware/ConversationCards'
 import { SentimentOutcomeCard, ServiceGroupsCard, AgentHangupPanel } from '@/components/aware/CrossCards'
 import { NotAttendedChart, RepeatCallersCard } from '@/components/aware/SmallCards'
 import {
@@ -57,7 +56,6 @@ import {
   useAwareConfig,
   useAwareDailyTrend,
   useAwareDurationBuckets,
-  useAwareDurationByOutcome,
   useAwareFirstIntent,
   useAwareFunnel,
   useAwareHangup,
@@ -78,13 +76,12 @@ import {
   useAwareTopicKeywords,
   useAwareTransferTurnBuckets,
   useAwareTransfersAttended,
-  useAwareTurnBuckets,
   useAwareVoxproQuality,
-  useAwareTurnsByOutcome,
   useAwareVolumeByDay,
   useAwareWeekdayOps,
   type AwareFilters,
 } from '@/hooks/aware'
+import { useAuthStore } from '@/stores/auth'
 
 /* ── rango de fechas (hora Colombia) ── */
 const OFFSET = -5 * 3600000
@@ -118,6 +115,10 @@ function useRange(key: string): { from: string; to: string } {
   return useMemo(() => {
     const today = todayCo()
     if (key === 'today') return { from: today, to: today }
+    if (key.startsWith('day:')) {
+      const d = key.slice(4)
+      return { from: d, to: d }
+    }
     if (key.startsWith('month:')) {
       const [y, m] = key.slice(6).split('-').map(Number)
       const from = `${key.slice(6)}-01`
@@ -130,9 +131,16 @@ function useRange(key: string): { from: string; to: string } {
 
 export default function AwarePage() {
   const [rangeKey, setRangeKey] = useState('30')
-  const [proyecto, setProyecto] = useState<'all' | '12' | '13'>('all')
+  const [proyectoSel, setProyectoSel] = useState<'all' | '12' | '13'>('all')
   const range = useRange(rangeKey)
   const months = useMemo(() => monthOptions(6), [])
+
+  // Un analista con alcance de campaña (aware_scope 12/13) queda fijado a esa campaña.
+  const scope = useAuthStore((s) => s.user?.aware_scope)
+  const locked = scope === 12 || scope === 13
+  const proyecto: 'all' | '12' | '13' = locked ? (String(scope) as '12' | '13') : proyectoSel
+
+  const dayValue = rangeKey.startsWith('day:') ? rangeKey.slice(4) : ''
 
   const filters: AwareFilters = useMemo(
     () => ({ ...range, proyecto: proyecto === 'all' ? undefined : proyecto }),
@@ -151,18 +159,24 @@ export default function AwarePage() {
             <span className="hidden items-center gap-1 text-xs text-emerald-600 dark:text-emerald-400 sm:flex">
               <Radio className="size-3.5 animate-pulse" /> en vivo · 60 s
             </span>
-            <Select value={proyecto} onValueChange={(v) => setProyecto(v as typeof proyecto)}>
-              <SelectTrigger className="h-9 w-40"><SelectValue /></SelectTrigger>
-              <SelectContent>
-                <SelectGroup>
-                  <SelectItem value="all">Ambas campañas</SelectItem>
-                  <SelectItem value="12">Claro Hogar</SelectItem>
-                  <SelectItem value="13">Claro TyT</SelectItem>
-                </SelectGroup>
-              </SelectContent>
-            </Select>
-            <Select value={rangeKey} onValueChange={setRangeKey}>
-              <SelectTrigger className="h-9 w-48"><SelectValue /></SelectTrigger>
+            {locked ? (
+              <span className="flex h-9 items-center rounded-md border px-3 text-sm font-medium">
+                {proyecto === '12' ? 'Claro Hogar' : 'Claro TyT'}
+              </span>
+            ) : (
+              <Select value={proyecto} onValueChange={(v) => setProyectoSel(v as typeof proyectoSel)}>
+                <SelectTrigger className="h-9 w-40"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectGroup>
+                    <SelectItem value="all">Ambas campañas</SelectItem>
+                    <SelectItem value="12">Claro Hogar</SelectItem>
+                    <SelectItem value="13">Claro TyT</SelectItem>
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
+            )}
+            <Select value={rangeKey.startsWith('day:') ? '' : rangeKey} onValueChange={setRangeKey}>
+              <SelectTrigger className="h-9 w-48"><SelectValue placeholder="Día específico →" /></SelectTrigger>
               <SelectContent>
                 <SelectGroup>
                   {RELATIVE.map((r) => (
@@ -178,6 +192,14 @@ export default function AwarePage() {
                 </SelectGroup>
               </SelectContent>
             </Select>
+            <input
+              type="date"
+              value={dayValue}
+              max={todayCo()}
+              onChange={(e) => setRangeKey(e.target.value ? `day:${e.target.value}` : '30')}
+              className="h-9 rounded-md border bg-transparent px-2 text-sm text-foreground [color-scheme:light] dark:[color-scheme:dark]"
+              title="Ver un día concreto"
+            />
           </div>
         }
       />
@@ -378,6 +400,9 @@ function AsesorTab({ filters }: { filters: AwareFilters }) {
   const ranking = useAwareAgentRanking(filters)
   const abandon = useAwareQueueAbandon(filters)
   const quality = useAwareVoxproQuality()
+  // El abandono en cola de Aware no está mapeado por campaña; se oculta si el
+  // analista está limitado a una sola (mostraría datos de ambas).
+  const scoped = useAuthStore((s) => s.user?.aware_scope === 12 || s.user?.aware_scope === 13)
 
   const nameById = useMemo(() => {
     const m: Record<string, string> = {}
@@ -402,7 +427,7 @@ function AsesorTab({ filters }: { filters: AwareFilters }) {
         <HumanOutcomesCard data={outcomes.data} />
         <div className="space-y-4">
           <ConversionTrendCard data={byDay.data ?? []} />
-          <QueueAbandonCard data={abandon.data} />
+          {!scoped && <QueueAbandonCard data={abandon.data} />}
         </div>
       </div>
       <AgentRankingTable rows={ranking.data ?? []} nameById={nameById} />
@@ -415,9 +440,6 @@ function AsesorTab({ filters }: { filters: AwareFilters }) {
 function ConversacionTab({ filters }: { filters: AwareFilters }) {
   const talk = useAwareTalkRatio(filters)
   const transferTurns = useAwareTransferTurnBuckets(filters)
-  const turns = useAwareTurnBuckets(filters)
-  const turnsByOutcome = useAwareTurnsByOutcome(filters)
-  const durByOutcome = useAwareDurationByOutcome(filters)
   const durBuckets = useAwareDurationBuckets(filters)
   const keywords = useAwareTopicKeywords(filters)
   const intent = useAwareFirstIntent(filters)
@@ -425,10 +447,6 @@ function ConversacionTab({ filters }: { filters: AwareFilters }) {
   return (
     <div className="space-y-6">
       <TalkRatioCard data={talk.data} turns={transferTurns.data} />
-      <div className="grid gap-4 lg:grid-cols-2">
-        <TurnBucketsCard data={turns.data} byOutcome={turnsByOutcome.data ?? []} />
-        <DurationByOutcomeCard rows={durByOutcome.data ?? []} />
-      </div>
       <div className="grid gap-4 lg:grid-cols-3">
         <DurationHistogram data={durBuckets.data ?? []} />
         <MiniBarList

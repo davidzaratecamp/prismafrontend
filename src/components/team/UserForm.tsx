@@ -40,6 +40,7 @@ export function UserForm({
     password: '',
     role: 'developer',
     area_id: '',
+    aware_scope: '', // '' = ambas · '12' Hogar · '13' TyT
   })
 
   useEffect(() => {
@@ -50,6 +51,7 @@ export function UserForm({
       password: '',
       role: user?.role ?? 'developer',
       area_id: user?.area_id ? String(user.area_id) : '',
+      aware_scope: user?.aware_scope ? String(user.aware_scope) : '',
     })
   }, [open, user])
 
@@ -63,6 +65,7 @@ export function UserForm({
       email: form.email.trim(),
       role: form.role,
       area_id: form.role === 'viewer' && form.area_id ? Number(form.area_id) : null,
+      aware_scope: form.role === 'analista' && form.aware_scope ? Number(form.aware_scope) : null,
     }
     try {
       if (editing) {
@@ -139,6 +142,22 @@ export function UserForm({
                     {areas?.map((a) => (
                       <SelectItem key={a.id} value={String(a.id)}>{a.name}</SelectItem>
                     ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+            {form.role === 'analista' && (
+              <div className="space-y-1.5">
+                <Label>Campaña (analista)</Label>
+                <Select
+                  value={form.aware_scope || 'all'}
+                  onValueChange={(v) => setForm({ ...form, aware_scope: v === 'all' ? '' : v })}
+                >
+                  <SelectTrigger><SelectValue placeholder="Ambas" /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Ambas campañas</SelectItem>
+                    <SelectItem value="12">Solo Claro Hogar</SelectItem>
+                    <SelectItem value="13">Solo Claro TyT</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
