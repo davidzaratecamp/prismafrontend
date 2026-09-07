@@ -177,6 +177,27 @@ export const useAwareVoxproQuality = () =>
 export const useAwareLive = (f?: AwareFilters) =>
   useAware<AwareLiveFeed>('live', 'live', f, 20_000)
 
+export interface AwareMonitor {
+  call_id: string
+  connected: boolean
+  ended: boolean
+  reason: string | null
+  error: string | null
+  started_at: number
+  transcripts: { id: string; role: string; content: string; time_sec: number | null }[]
+  pre_session: unknown[]
+}
+
+/** Transcripción en vivo de una llamada en curso (monitor-call de Retell). Polling 2 s. */
+export function useAwareMonitor(callId: string | null) {
+  return useQuery({
+    queryKey: ['aware', 'monitor', callId],
+    queryFn: async () => (await api.get<AwareMonitor>(`/aware/live/${callId}/monitor`)).data,
+    enabled: !!callId,
+    refetchInterval: (q) => (q.state.data?.ended ? false : 2000),
+  })
+}
+
 export function useAwareCall(callId: string | null) {
   return useQuery({
     queryKey: ['aware', 'call', callId],
