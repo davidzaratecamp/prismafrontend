@@ -789,11 +789,15 @@ export interface AwareDeliverableRow {
   proyecto_name: string
   fecha: string | null
   hora: string | null
+  telefono: string | null
+  numero_ivr: string | null
   asesor_nombre: string | null
   duracion_ia_seg: number | null
   duracion_asesor_seg: number | null
   duracion_total_seg: number
   did: string | null
+  did_cola: string | null
+  did_exacto: boolean
   segmento: string | null
   estado: 'Transferido' | 'Abandonado' | 'Gestión IA'
   venta: 'Sí' | 'No'
@@ -821,7 +825,6 @@ export interface AwareDeliverablePage {
 }
 
 export interface AwareDeliverableCall extends AwareDeliverableRow {
-  telefono: string | null
   transcripcion_ia: { role: string; content: string }[]
   analysis: Record<string, unknown> | null
 }

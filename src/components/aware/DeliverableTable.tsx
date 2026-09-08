@@ -63,12 +63,14 @@ const COLS: { key: string; label: string; help: string; align?: 'right' | 'cente
   { key: 'id', label: 'ID único', help: '1 · Identificador único de la llamada (correlaciona ambos tramos). Clic para copiar' },
   { key: 'fecha', label: 'Fecha', help: '2 · Fecha de la interacción' },
   { key: 'hora', label: 'Hora', help: '3 · Hora de la interacción (Bogotá)' },
+  { key: 'tel', label: 'Teléfono', help: 'Número del cliente en esta llamada' },
+  { key: 'ivr', label: 'N° Claro (IVR)', help: 'Número de origen que presenta la plataforma de Claro; casi siempre 3143000756' },
   { key: 'asesor', label: 'Asesor', help: '4 · Nombre del asesor que atendió la llamada' },
   { key: 'dia', label: 'Dur. IA (s)', help: '5 · Duración gestionada por la IA, en segundos', align: 'right' },
   { key: 'dase', label: 'Dur. asesor (s)', help: '6 · Duración gestionada por el asesor, en segundos', align: 'right' },
   { key: 'dtot', label: 'Dur. total (s)', help: '7 · Duración total (IA + asesor), en segundos', align: 'right' },
-  { key: 'did', label: 'DID', help: '8 · DID: número/línea de entrada que marcó el cliente para llegar a SOFIA (573012 = Hogar, 573013 = TyT)' },
-  { key: 'seg', label: 'Segmento', help: '9 · Segmento de la llamada según el DID configurado (Claro Hogar / Claro TyT)' },
+  { key: 'did', label: 'DID', help: '8 · DID real (número marcado): 6019196235/6019142515 Hogar · 6019184507/6019193216 TyT. Exacto si hubo transferencia; si no, la línea principal de la campaña' },
+  { key: 'seg', label: 'Segmento', help: '9 · Segmento de la llamada según el DID (Claro Hogar / Claro TyT)' },
   { key: 'estado', label: 'Estado', help: '10 · Estado de la interacción: Transferido / Abandonado' },
   { key: 'venta', label: 'Venta', help: '11 · Venta: Sí / No', align: 'center' },
   { key: 'gestion', label: 'Gestión IA', help: '12 · Cómo terminó la gestión de SOFIA (disposición; cobertura total)' },
@@ -215,6 +217,8 @@ export function DeliverableTable({ base }: { base: AwareFilters }) {
                     </td>
                     <td className="whitespace-nowrap px-3 py-2 tabular-nums">{r.fecha ?? '—'}</td>
                     <td className="whitespace-nowrap px-3 py-2 tabular-nums">{r.hora ?? '—'}</td>
+                    <td className="whitespace-nowrap px-3 py-2 tabular-nums">{r.telefono ?? '—'}</td>
+                    <td className="whitespace-nowrap px-3 py-2 tabular-nums text-muted-foreground">{r.numero_ivr ?? '—'}</td>
                     <td className="whitespace-nowrap px-3 py-2">{r.asesor_nombre ?? '—'}</td>
                     <td className="px-3 py-2 text-right tabular-nums" title={dur(r.duracion_ia_seg)}>
                       {r.duracion_ia_seg ?? '—'}
@@ -225,7 +229,13 @@ export function DeliverableTable({ base }: { base: AwareFilters }) {
                     <td className="px-3 py-2 text-right tabular-nums font-medium" title={dur(r.duracion_total_seg)}>
                       {r.duracion_total_seg}
                     </td>
-                    <td className="whitespace-nowrap px-3 py-2 tabular-nums">{r.did ?? '—'}</td>
+                    <td
+                      className="whitespace-nowrap px-3 py-2 tabular-nums"
+                      title={r.did_cola ? `${r.did_cola}${r.did_exacto ? '' : ' (línea principal — aproximado)'}` : ''}
+                    >
+                      {r.did ?? '—'}
+                      {r.did && !r.did_exacto && <span className="ml-1 text-muted-foreground">~</span>}
+                    </td>
                     <td className="whitespace-nowrap px-3 py-2">{r.segmento ?? '—'}</td>
                     <td className="px-3 py-2">
                       <span className={cn('rounded px-1.5 py-0.5 text-xs font-medium', ESTADO_BADGE[r.estado])}>
@@ -437,8 +447,16 @@ function DeliverableCallDialog({ callId, onClose }: { callId: string | null; onC
               <div className="pb-2">
                 <Row label="Campaña / Segmento" value={`${data.proyecto_name} · ${data.segmento ?? '—'}`} />
                 <Row label="Fecha / Hora" value={`${data.fecha ?? '—'} ${data.hora ?? ''}`} />
-                <Row label="DID" value={data.did} />
-                <Row label="Teléfono" value={data.telefono} />
+                <Row label="Teléfono del cliente" value={data.telefono} />
+                <Row label="N° de Claro (IVR)" value={data.numero_ivr} />
+                <Row
+                  label="DID (número marcado)"
+                  value={
+                    data.did
+                      ? `${data.did}${data.did_cola ? ` — ${data.did_cola}` : ''}${data.did_exacto ? '' : ' (línea principal, aprox.)'}`
+                      : null
+                  }
+                />
                 <Row label="Estado" value={data.estado} />
                 <Row label="Asesor" value={data.asesor_nombre} />
                 <Row
