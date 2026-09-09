@@ -17,6 +17,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { Checkbox } from '@/components/ui/checkbox'
 import { useAreas, useUserMutations } from '@/hooks/queries'
 import { ROLE_OPTIONS } from '@/lib/roles'
 import { apiErrorMessage } from '@/lib/api'
@@ -41,6 +42,7 @@ export function UserForm({
     role: 'developer',
     area_id: '',
     aware_scope: '', // '' = ambas · '12' Hogar · '13' TyT
+    aware_quality: false,
   })
 
   useEffect(() => {
@@ -52,6 +54,7 @@ export function UserForm({
       role: user?.role ?? 'developer',
       area_id: user?.area_id ? String(user.area_id) : '',
       aware_scope: user?.aware_scope ? String(user.aware_scope) : '',
+      aware_quality: !!user?.aware_quality,
     })
   }, [open, user])
 
@@ -66,6 +69,7 @@ export function UserForm({
       role: form.role,
       area_id: form.role === 'viewer' && form.area_id ? Number(form.area_id) : null,
       aware_scope: form.role === 'analista' && form.aware_scope ? Number(form.aware_scope) : null,
+      aware_quality: form.role === 'analista' ? form.aware_quality : false,
     }
     try {
       if (editing) {
@@ -163,6 +167,15 @@ export function UserForm({
               </div>
             )}
           </div>
+          {form.role === 'analista' && (
+            <label className="flex items-center gap-2 text-sm">
+              <Checkbox
+                checked={form.aware_quality}
+                onCheckedChange={(v) => setForm({ ...form, aware_quality: v === true })}
+              />
+              Acceso a la pestaña <strong>Calidad IA</strong> (interno — no dar a analistas de Claro)
+            </label>
+          )}
           <DialogFooter>
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={busy}>
               Cancelar

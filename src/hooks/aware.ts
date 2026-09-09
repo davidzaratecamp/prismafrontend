@@ -169,9 +169,15 @@ export const useAwareTopicKeywords = (f?: AwareFilters) =>
 export const useAwareFirstIntent = (f?: AwareFilters) =>
   useAware<{ frase: string; calls: number }[]>('first-intent', 'analytics/first-intent', f)
 
-// calidad IA (snapshot que empuja VoxPro; no depende de los filtros de rango)
-export const useAwareVoxproQuality = () =>
-  useAware<import('@/lib/types').AwareVoxproQuality>('voxpro-quality', 'analytics/voxpro-quality', undefined, 120_000)
+// calidad IA (snapshot que empuja VoxPro; solo analistas internos con aware_quality)
+export const useAwareVoxproQuality = (enabled = true) =>
+  useQuery({
+    queryKey: ['aware', 'voxpro-quality'],
+    queryFn: async () =>
+      (await api.get<import('@/lib/types').AwareVoxproQuality>('/aware/analytics/voxpro-quality')).data,
+    enabled,
+    refetchInterval: 120_000,
+  })
 
 // en vivo (llamadas de hoy) — refresca cada 20 s
 export const useAwareLive = (f?: AwareFilters) =>

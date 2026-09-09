@@ -137,6 +137,7 @@ export default function AwarePage() {
 
   // Un analista con alcance de campaña (aware_scope 12/13) queda fijado a esa campaña.
   const scope = useAuthStore((s) => s.user?.aware_scope)
+  const canQuality = useAuthStore((s) => !!s.user?.aware_quality)
   const locked = scope === 12 || scope === 13
   const proyecto: 'all' | '12' | '13' = locked ? (String(scope) as '12' | '13') : proyectoSel
 
@@ -229,7 +230,7 @@ export default function AwarePage() {
           <TabsTrigger value="operacion">Operación</TabsTrigger>
           <TabsTrigger value="conversacion">Conversación</TabsTrigger>
           <TabsTrigger value="cruces">Cruces</TabsTrigger>
-          <TabsTrigger value="calidad">Calidad IA</TabsTrigger>
+          {canQuality && <TabsTrigger value="calidad">Calidad IA</TabsTrigger>}
           <TabsTrigger value="llamadas">Llamadas</TabsTrigger>
           <TabsTrigger value="entregable">Consolidado</TabsTrigger>
           <TabsTrigger value="envivo">En vivo</TabsTrigger>
@@ -253,9 +254,11 @@ export default function AwarePage() {
         <TabsContent value="cruces" className="pt-4">
           <CrucesTab filters={filters} />
         </TabsContent>
-        <TabsContent value="calidad" className="pt-4">
-          <QualityTab />
-        </TabsContent>
+        {canQuality && (
+          <TabsContent value="calidad" className="pt-4">
+            <QualityTab />
+          </TabsContent>
+        )}
         <TabsContent value="llamadas" className="pt-4">
           <CallsTable key={`${rangeKey}:${proyecto}`} base={filters} />
         </TabsContent>
@@ -399,10 +402,13 @@ function AsesorTab({ filters }: { filters: AwareFilters }) {
   const byDay = useAwareHumanFunnelByDay(filters)
   const ranking = useAwareAgentRanking(filters)
   const abandon = useAwareQueueAbandon(filters)
-  const quality = useAwareVoxproQuality()
   // El abandono en cola de Aware no está mapeado por campaña; se oculta si el
   // analista está limitado a una sola (mostraría datos de ambas).
   const scoped = useAuthStore((s) => s.user?.aware_scope === 12 || s.user?.aware_scope === 13)
+  // Los nombres de asesor salen del snapshot de Calidad IA (interno); si el
+  // analista no tiene acceso, el ranking muestra el id.
+  const canQuality = useAuthStore((s) => !!s.user?.aware_quality)
+  const quality = useAwareVoxproQuality(canQuality)
 
   const nameById = useMemo(() => {
     const m: Record<string, string> = {}

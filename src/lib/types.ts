@@ -17,6 +17,8 @@ export interface User {
   area_id: number | null
   /** analista: 12 = solo Claro Hogar · 13 = solo Claro TyT · null = ambas */
   aware_scope?: number | null
+  /** analista: acceso a la pestaña Calidad IA (interno) */
+  aware_quality?: boolean
   avatar_color: string
   is_active?: boolean
   created_at?: string

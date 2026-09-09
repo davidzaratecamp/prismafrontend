@@ -95,6 +95,9 @@ export default function TeamPage() {
                         {u.aware_scope === 12 ? 'Claro Hogar' : 'Claro TyT'}
                       </span>
                     )}
+                    {u.role === 'analista' && u.aware_quality && (
+                      <span className="rounded bg-secondary px-2 py-0.5">Calidad IA</span>
+                    )}
                     {u.is_active === false && (
                       <span className="rounded bg-destructive/10 px-2 py-0.5 text-destructive">Inactivo</span>
                     )}
