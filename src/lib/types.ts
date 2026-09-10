@@ -19,6 +19,8 @@ export interface User {
   aware_scope?: number | null
   /** analista: acceso a la pestaña Calidad IA (interno) */
   aware_quality?: boolean
+  /** analista: 'full' = todas las pestañas · 'basico' = solo Resumen + Consolidado */
+  aware_view?: 'full' | 'basico'
   avatar_color: string
   is_active?: boolean
   created_at?: string

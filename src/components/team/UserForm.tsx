@@ -43,6 +43,7 @@ export function UserForm({
     area_id: '',
     aware_scope: '', // '' = ambas · '12' Hogar · '13' TyT
     aware_quality: false,
+    aware_view: 'full', // 'full' | 'basico'
   })
 
   useEffect(() => {
@@ -55,6 +56,7 @@ export function UserForm({
       area_id: user?.area_id ? String(user.area_id) : '',
       aware_scope: user?.aware_scope ? String(user.aware_scope) : '',
       aware_quality: !!user?.aware_quality,
+      aware_view: user?.aware_view ?? 'full',
     })
   }, [open, user])
 
@@ -70,6 +72,7 @@ export function UserForm({
       area_id: form.role === 'viewer' && form.area_id ? Number(form.area_id) : null,
       aware_scope: form.role === 'analista' && form.aware_scope ? Number(form.aware_scope) : null,
       aware_quality: form.role === 'analista' ? form.aware_quality : false,
+      aware_view: form.role === 'analista' ? form.aware_view : 'full',
     }
     try {
       if (editing) {
@@ -162,6 +165,21 @@ export function UserForm({
                     <SelectItem value="all">Ambas campañas</SelectItem>
                     <SelectItem value="12">Solo Claro Hogar</SelectItem>
                     <SelectItem value="13">Solo Claro TyT</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+            {form.role === 'analista' && (
+              <div className="space-y-1.5">
+                <Label>Vista del panel</Label>
+                <Select
+                  value={form.aware_view}
+                  onValueChange={(v) => setForm({ ...form, aware_view: v })}
+                >
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="full">Completa (todas las pestañas)</SelectItem>
+                    <SelectItem value="basico">Solo Resumen + Consolidado</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

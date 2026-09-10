@@ -138,6 +138,7 @@ export default function AwarePage() {
   // Un analista con alcance de campaña (aware_scope 12/13) queda fijado a esa campaña.
   const scope = useAuthStore((s) => s.user?.aware_scope)
   const canQuality = useAuthStore((s) => !!s.user?.aware_quality)
+  const basico = useAuthStore((s) => s.user?.aware_view === 'basico')
   const locked = scope === 12 || scope === 13
   const proyecto: 'all' | '12' | '13' = locked ? (String(scope) as '12' | '13') : proyectoSel
 
@@ -225,49 +226,54 @@ export default function AwarePage() {
       <Tabs defaultValue="resumen">
         <TabsList className="flex-wrap">
           <TabsTrigger value="resumen">Resumen</TabsTrigger>
-          <TabsTrigger value="recorrido">Recorrido</TabsTrigger>
-          <TabsTrigger value="asesor">Asesor humano</TabsTrigger>
-          <TabsTrigger value="operacion">Operación</TabsTrigger>
-          <TabsTrigger value="conversacion">Conversación</TabsTrigger>
-          <TabsTrigger value="cruces">Cruces</TabsTrigger>
-          {canQuality && <TabsTrigger value="calidad">Calidad IA</TabsTrigger>}
-          <TabsTrigger value="llamadas">Llamadas</TabsTrigger>
+          {!basico && <TabsTrigger value="recorrido">Recorrido</TabsTrigger>}
+          {!basico && <TabsTrigger value="asesor">Asesor humano</TabsTrigger>}
+          {!basico && <TabsTrigger value="operacion">Operación</TabsTrigger>}
+          {!basico && <TabsTrigger value="conversacion">Conversación</TabsTrigger>}
+          {!basico && <TabsTrigger value="cruces">Cruces</TabsTrigger>}
+          {!basico && canQuality && <TabsTrigger value="calidad">Calidad IA</TabsTrigger>}
+          {!basico && <TabsTrigger value="llamadas">Llamadas</TabsTrigger>}
           <TabsTrigger value="entregable">Consolidado</TabsTrigger>
-          <TabsTrigger value="envivo">En vivo</TabsTrigger>
+          {!basico && <TabsTrigger value="envivo">En vivo</TabsTrigger>}
         </TabsList>
 
         <TabsContent value="resumen" className="pt-4">
           <ResumenTab filters={filters} single={proyecto !== 'all'} />
         </TabsContent>
-        <TabsContent value="recorrido" className="pt-4">
-          <RecorridoTab filters={filters} />
-        </TabsContent>
-        <TabsContent value="asesor" className="pt-4">
-          <AsesorTab filters={filters} />
-        </TabsContent>
-        <TabsContent value="operacion" className="pt-4">
-          <OperacionTab filters={filters} />
-        </TabsContent>
-        <TabsContent value="conversacion" className="pt-4">
-          <ConversacionTab filters={filters} />
-        </TabsContent>
-        <TabsContent value="cruces" className="pt-4">
-          <CrucesTab filters={filters} />
-        </TabsContent>
-        {canQuality && (
-          <TabsContent value="calidad" className="pt-4">
-            <QualityTab />
-          </TabsContent>
-        )}
-        <TabsContent value="llamadas" className="pt-4">
-          <CallsTable key={`${rangeKey}:${proyecto}`} base={filters} />
-        </TabsContent>
         <TabsContent value="entregable" className="pt-4">
           <DeliverableTable key={`${rangeKey}:${proyecto}`} base={filters} />
         </TabsContent>
-        <TabsContent value="envivo" className="pt-4">
-          <LiveFeed filters={filters} />
-        </TabsContent>
+
+        {!basico && (
+          <>
+            <TabsContent value="recorrido" className="pt-4">
+              <RecorridoTab filters={filters} />
+            </TabsContent>
+            <TabsContent value="asesor" className="pt-4">
+              <AsesorTab filters={filters} />
+            </TabsContent>
+            <TabsContent value="operacion" className="pt-4">
+              <OperacionTab filters={filters} />
+            </TabsContent>
+            <TabsContent value="conversacion" className="pt-4">
+              <ConversacionTab filters={filters} />
+            </TabsContent>
+            <TabsContent value="cruces" className="pt-4">
+              <CrucesTab filters={filters} />
+            </TabsContent>
+            {canQuality && (
+              <TabsContent value="calidad" className="pt-4">
+                <QualityTab />
+              </TabsContent>
+            )}
+            <TabsContent value="llamadas" className="pt-4">
+              <CallsTable key={`${rangeKey}:${proyecto}`} base={filters} />
+            </TabsContent>
+            <TabsContent value="envivo" className="pt-4">
+              <LiveFeed filters={filters} />
+            </TabsContent>
+          </>
+        )}
       </Tabs>
     </div>
   )
