@@ -199,6 +199,26 @@ export function DeliverableTable({ base }: { base: AwareFilters }) {
                     className="cursor-pointer border-b last:border-0 hover:bg-muted/30"
                   >
                     <td
+                      className="whitespace-nowrap px-3 py-2 font-mono text-xs tabular-nums"
+                      title="Clic para copiar"
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        const v = r.telefono ?? ''
+                        copyText(v)
+                        setCopied(v)
+                        setTimeout(() => setCopied((c) => (c === v ? null : c)), 1500)
+                      }}
+                    >
+                      <span className="inline-flex items-center gap-1 hover:text-foreground">
+                        {copied === r.telefono && r.telefono
+                          ? <Check className="size-3 shrink-0 text-emerald-500" />
+                          : <Copy className="size-3 shrink-0 opacity-40" />}
+                        {r.telefono ?? '—'}
+                      </span>
+                    </td>
+                    <td className="whitespace-nowrap px-3 py-2 tabular-nums">{r.fecha ?? '—'}</td>
+                    <td className="whitespace-nowrap px-3 py-2 tabular-nums">{r.hora ?? '—'}</td>
+                    <td
                       className="whitespace-nowrap px-3 py-2 font-mono text-xs"
                       title="Clic para copiar el ID"
                       onClick={(e) => {
@@ -215,9 +235,6 @@ export function DeliverableTable({ base }: { base: AwareFilters }) {
                         {r.call_id.slice(0, 14)}…
                       </span>
                     </td>
-                    <td className="whitespace-nowrap px-3 py-2 tabular-nums">{r.fecha ?? '—'}</td>
-                    <td className="whitespace-nowrap px-3 py-2 tabular-nums">{r.hora ?? '—'}</td>
-                    <td className="whitespace-nowrap px-3 py-2 tabular-nums">{r.telefono ?? '—'}</td>
                     <td className="whitespace-nowrap px-3 py-2 tabular-nums text-muted-foreground">{r.numero_ivr ?? '—'}</td>
                     <td className="whitespace-nowrap px-3 py-2">{r.asesor_nombre ?? '—'}</td>
                     <td className="px-3 py-2 text-right tabular-nums" title={dur(r.duracion_ia_seg)}>
@@ -427,11 +444,11 @@ function DeliverableCallDialog({ callId, onClose }: { callId: string | null; onC
         <DialogHeader>
           <DialogTitle
             className="flex cursor-pointer items-center gap-1.5 font-mono text-xs hover:text-foreground/80"
-            title="Clic para copiar el ID"
-            onClick={() => callId && copyText(callId)}
+            title="Clic para copiar"
+            onClick={() => data?.telefono && copyText(data.telefono)}
           >
             <Copy className="size-3 shrink-0 opacity-50" />
-            {callId}
+            {data?.telefono ?? callId}
           </DialogTitle>
         </DialogHeader>
 
@@ -447,7 +464,7 @@ function DeliverableCallDialog({ callId, onClose }: { callId: string | null; onC
               <div className="pb-2">
                 <Row label="Campaña / Segmento" value={`${data.proyecto_name} · ${data.segmento ?? '—'}`} />
                 <Row label="Fecha / Hora" value={`${data.fecha ?? '—'} ${data.hora ?? ''}`} />
-                <Row label="Teléfono del cliente" value={data.telefono} />
+                <Row label="Teléfono del cliente" value={data.call_id} />
                 <Row label="N° de Claro (IVR)" value={data.numero_ivr} />
                 <Row
                   label="DID (número marcado)"
