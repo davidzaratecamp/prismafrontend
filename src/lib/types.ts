@@ -690,8 +690,10 @@ export interface AwareQueueAbandon {
   total: number
   avg_espera_s: number
   max_espera_s: number
+  match_rate: number | null
   by_day: { day: string; abandonos: number; avg_espera_s: number }[]
   by_queue: { cola: string; abandonos: number }[]
+  approximate?: boolean
   note: string
 }
 

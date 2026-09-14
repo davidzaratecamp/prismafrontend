@@ -263,7 +263,7 @@ export default function AwarePage() {
             </TabsContent>
             {canQuality && (
               <TabsContent value="calidad" className="pt-4">
-                <QualityTab />
+                <QualityTab filters={filters} />
               </TabsContent>
             )}
             <TabsContent value="llamadas" className="pt-4">
@@ -408,13 +408,10 @@ function AsesorTab({ filters }: { filters: AwareFilters }) {
   const byDay = useAwareHumanFunnelByDay(filters)
   const ranking = useAwareAgentRanking(filters)
   const abandon = useAwareQueueAbandon(filters)
-  // El abandono en cola de Aware no está mapeado por campaña; se oculta si el
-  // analista está limitado a una sola (mostraría datos de ambas).
-  const scoped = useAuthStore((s) => s.user?.aware_scope === 12 || s.user?.aware_scope === 13)
   // Los nombres de asesor salen del snapshot de Calidad IA (interno); si el
   // analista no tiene acceso, el ranking muestra el id.
   const canQuality = useAuthStore((s) => s.user?.role === 'admin' || !!s.user?.aware_quality)
-  const quality = useAwareVoxproQuality(canQuality)
+  const quality = useAwareVoxproQuality(filters, canQuality)
 
   const nameById = useMemo(() => {
     const m: Record<string, string> = {}
@@ -439,7 +436,7 @@ function AsesorTab({ filters }: { filters: AwareFilters }) {
         <HumanOutcomesCard data={outcomes.data} />
         <div className="space-y-4">
           <ConversionTrendCard data={byDay.data ?? []} />
-          {!scoped && <QueueAbandonCard data={abandon.data} />}
+          <QueueAbandonCard data={abandon.data} />
         </div>
       </div>
       <AgentRankingTable rows={ranking.data ?? []} nameById={nameById} />

@@ -4,6 +4,7 @@ import { KpiCard } from '@/components/dashboard/KpiCard'
 import { EmptyState } from '@/components/common/EmptyState'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useAwareVoxproQuality } from '@/hooks/aware'
+import type { AwareFilters } from '@/hooks/aware'
 import { num, pct } from '@/lib/analyticsFormat'
 import { cn } from '@/lib/utils'
 
@@ -18,8 +19,8 @@ function DistBar({ low, mid, high }: { low: number; mid: number; high: number })
   )
 }
 
-export function QualityTab() {
-  const { data, isLoading } = useAwareVoxproQuality()
+export function QualityTab({ filters }: { filters: AwareFilters }) {
+  const { data, isLoading } = useAwareVoxproQuality(filters)
 
   if (isLoading) return <Skeleton className="h-96 rounded-xl" />
 

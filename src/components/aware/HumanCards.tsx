@@ -191,7 +191,10 @@ export function QueueAbandonCard({ data }: { data?: AwareQueueAbandon }) {
             </LineChart>
           </ResponsiveContainer>
         )}
-        <p className="text-[11px] text-muted-foreground">{data.note}</p>
+        <p className="text-[11px] text-muted-foreground">
+          {data.match_rate != null && `${pct(data.match_rate)} atribuido a esta campaña · `}
+          {data.note}
+        </p>
       </CardContent>
     </Card>
   )
