@@ -137,7 +137,7 @@ export default function AwarePage() {
 
   // Un analista con alcance de campaña (aware_scope 12/13) queda fijado a esa campaña.
   const scope = useAuthStore((s) => s.user?.aware_scope)
-  const canQuality = useAuthStore((s) => !!s.user?.aware_quality)
+  const canQuality = useAuthStore((s) => s.user?.role === 'admin' || !!s.user?.aware_quality)
   const basico = useAuthStore((s) => s.user?.aware_view === 'basico')
   const locked = scope === 12 || scope === 13
   const proyecto: 'all' | '12' | '13' = locked ? (String(scope) as '12' | '13') : proyectoSel
@@ -413,7 +413,7 @@ function AsesorTab({ filters }: { filters: AwareFilters }) {
   const scoped = useAuthStore((s) => s.user?.aware_scope === 12 || s.user?.aware_scope === 13)
   // Los nombres de asesor salen del snapshot de Calidad IA (interno); si el
   // analista no tiene acceso, el ranking muestra el id.
-  const canQuality = useAuthStore((s) => !!s.user?.aware_quality)
+  const canQuality = useAuthStore((s) => s.user?.role === 'admin' || !!s.user?.aware_quality)
   const quality = useAwareVoxproQuality(canQuality)
 
   const nameById = useMemo(() => {

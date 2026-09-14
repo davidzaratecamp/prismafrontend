@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 import { api, TOKEN_KEY } from '@/lib/api'
+import { queryClient } from '@/lib/queryClient'
 import type { User } from '@/lib/types'
 
 interface AuthState {
@@ -15,11 +16,15 @@ export const useAuthStore = create<AuthState>((set) => ({
   user: null,
   status: 'loading',
   login: async (email, password) => {
+    // Por si quedó caché de una sesión anterior en el mismo navegador (otro
+    // usuario, otro alcance de campaña): nunca debe sobrevivir a un login.
+    queryClient.clear()
     const { data } = await api.post('/auth/login', { email, password })
     localStorage.setItem(TOKEN_KEY, data.token)
     set({ user: data.user, status: 'authenticated' })
   },
   logout: () => {
+    queryClient.clear()
     localStorage.removeItem(TOKEN_KEY)
     set({ user: null, status: 'unauthenticated' })
   },
@@ -33,6 +38,7 @@ export const useAuthStore = create<AuthState>((set) => ({
       const { data } = await api.get('/auth/me')
       set({ user: data.user, status: 'authenticated' })
     } catch {
+      queryClient.clear()
       localStorage.removeItem(TOKEN_KEY)
       set({ user: null, status: 'unauthenticated' })
     }

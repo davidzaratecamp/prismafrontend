@@ -83,6 +83,7 @@ export default function App() {
               <Route element={<AdminRoute />}>
                 <Route path="/admin/areas" element={<AreasAdminPage />} />
                 <Route path="/admin/retell" element={<RetellPage />} />
+                <Route path="/admin/aware" element={<AwarePage />} />
               </Route>
               <Route path="*" element={<Navigate to="/" replace />} />
             </Route>
