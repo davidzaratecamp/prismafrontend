@@ -6,7 +6,6 @@ import {
   PhoneCall,
   PhoneOff,
   Radio,
-  Timer,
 } from 'lucide-react'
 import { PageHeader } from '@/components/common/PageHeader'
 import { Card } from '@/components/ui/card'
@@ -26,7 +25,7 @@ import { KpiCard } from '@/components/dashboard/KpiCard'
 import { EmptyState } from '@/components/common/EmptyState'
 import { MiniBarList, type MiniBarRow } from '@/components/common/MiniBarList'
 import { HourHeatmap } from '@/components/common/HourHeatmap'
-import { dur, num, pct } from '@/lib/analyticsFormat'
+import { num, pct } from '@/lib/analyticsFormat'
 import { CallsByDayChart } from '@/components/aware/CallsByDayChart'
 import { TrendChart } from '@/components/aware/TrendChart'
 import { TransfersAttendedCard } from '@/components/aware/TransfersAttendedCard'
@@ -345,6 +344,9 @@ function ResumenTab({ filters, single, isHogar }: { filters: AwareFilters; singl
   // El desglose por DID solo tiene sentido con una campaña a la vez (Hogar y
   // TyT tienen DID distintos) — se pide igual, TanStack solo lo usa si single.
   const didBreakdown = useAwareDidBreakdown(filters)
+  // Mismo dato que la tarjeta "Abandono en cola de asesor" de Asesor humano,
+  // aquí solo la cantidad.
+  const abandon = useAwareQueueAbandon(filters)
 
   const k = overview.data
   if (overview.isLoading || !k) {
@@ -400,7 +402,13 @@ function ResumenTab({ filters, single, isHogar }: { filters: AwareFilters; singl
         <KpiCard label="Colgó el cliente" value={pct(k.user_hangup_rate)} hint={`${num(k.user_hangup)} llamadas`} icon={PhoneOff} tone="danger" />
         <KpiCard label="Colgó el bot" value={pct(k.agent_hangup_rate)} hint={`${num(k.agent_hangup)} llamadas`} icon={Bot} tone="warning" />
         <KpiCard label="Cerró por inactividad" value={pct(k.inactivity_rate)} hint={`${num(k.inactivity)} llamadas`} icon={PhoneOff} tone="warning" />
-        <KpiCard label="Duración media" value={dur(k.avg_duration_seconds)} hint={`P50 ${dur(k.p50_duration_seconds)} · P90 ${dur(k.p90_duration_seconds)}`} icon={Timer} />
+        <KpiCard
+          label="Abandono en cola"
+          value={abandon.data ? num(abandon.data.total) : '—'}
+          hint="mismo dato que Asesor humano · aproximado"
+          icon={PhoneOff}
+          tone="warning"
+        />
         <KpiCard label="Éxito del bot" value={pct(k.success_rate)} hint="según análisis del propio bot" icon={Bot} tone={k.success_rate != null && k.success_rate < 0.5 ? 'warning' : 'success'} />
         <KpiCard label="Sentimiento positivo" value={pct(k.positive_rate)} hint={`negativo ${pct(k.negative_rate)}`} icon={Bot} tone="success" />
       </div>
