@@ -500,6 +500,19 @@ export interface AwareByProject {
   positive_rate: number | null
 }
 
+export interface AwareDidBreakdown {
+  by_did: {
+    did: string
+    cola: string
+    calls: number
+    transfers: number
+    call_share: number | null
+    transfer_rate: number | null
+  }[]
+  approximate: boolean
+  note: string
+}
+
 export interface AwareTransfersAttended {
   range: { from: string; to: string }
   total: { transfers: number; attended: number; not_attended: number; attended_rate: number | null }

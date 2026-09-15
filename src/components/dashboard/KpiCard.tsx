@@ -1,4 +1,4 @@
-import type { ComponentType } from 'react'
+import type { ComponentType, ReactNode } from 'react'
 import { Card } from '@/components/ui/card'
 import { cn } from '@/lib/utils'
 
@@ -8,12 +8,14 @@ export function KpiCard({
   hint,
   icon: Icon,
   tone = 'default',
+  extra,
 }: {
   label: string
   value: string | number
   hint?: string
   icon: ComponentType<{ className?: string }>
   tone?: 'default' | 'warning' | 'danger' | 'success'
+  extra?: ReactNode
 }) {
   const toneClass = {
     default: 'bg-primary/10 text-primary',
@@ -29,6 +31,7 @@ export function KpiCard({
           <p className="text-sm text-muted-foreground">{label}</p>
           <p className="mt-2 text-3xl font-semibold tabular-nums">{value}</p>
           {hint && <p className="mt-1 text-xs text-muted-foreground">{hint}</p>}
+          {extra && <div className="mt-2 space-y-0.5 text-xs text-muted-foreground">{extra}</div>}
         </div>
         <div className={cn('flex size-10 items-center justify-center rounded-lg', toneClass)}>
           <Icon className="size-5" />

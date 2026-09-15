@@ -54,6 +54,7 @@ import {
   useAwareAgentRanking,
   useAwareByProject,
   useAwareConfig,
+  useAwareDidBreakdown,
   useAwareDailyTrend,
   useAwareDurationBuckets,
   useAwareFirstIntent,
@@ -90,6 +91,13 @@ const shift = (ymd: string, days: number) => {
   const d = new Date(`${ymd}T00:00:00Z`)
   d.setUTCDate(d.getUTCDate() + days)
   return d.toISOString().slice(0, 10)
+}
+
+// Nombre de negocio de cada DID (línea marcada) — el resto usa el nombre de
+// la cola de Aware como respaldo (ver aware.db.js DID_BY_QUEUE).
+const DID_LABELS: Record<string, string> = {
+  '6019196235': 'tráfico general',
+  '6019142515': 'tráfico 3112000000',
 }
 
 const RELATIVE = [
@@ -333,6 +341,9 @@ function ResumenTab({ filters, single }: { filters: AwareFilters; single: boolea
   const hangup = useAwareHangup(filters)
   const sentiment = useAwareSentiment(filters)
   const services = useAwareServiceTypes(filters)
+  // El desglose por DID solo tiene sentido con una campaña a la vez (Hogar y
+  // TyT tienen DID distintos) — se pide igual, TanStack solo lo usa si single.
+  const didBreakdown = useAwareDidBreakdown(filters)
 
   const k = overview.data
   if (overview.isLoading || !k) {
@@ -351,8 +362,40 @@ function ResumenTab({ filters, single }: { filters: AwareFilters; single: boolea
   return (
     <div className="space-y-6">
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <KpiCard label="Llamadas entrantes" value={num(k.total_calls)} hint={`${filters.from} → ${filters.to}`} icon={PhoneCall} />
-        <KpiCard label="Transferidas a asesor" value={pct(k.transfer_rate)} hint={`${num(k.transfers)} llamadas`} icon={ArrowRightLeft} />
+        <KpiCard
+          label="Llamadas entrantes"
+          value={num(k.total_calls)}
+          hint={`${filters.from} → ${filters.to}`}
+          icon={PhoneCall}
+          extra={
+            single && didBreakdown.data && (
+              <>
+                {didBreakdown.data.by_did.map((d) => (
+                  <p key={d.did}>
+                    {d.did} ({DID_LABELS[d.did] ?? d.cola}): <span className="tabular-nums">{num(d.calls)}</span>
+                  </p>
+                ))}
+              </>
+            )
+          }
+        />
+        <KpiCard
+          label="Transferidas a asesor"
+          value={pct(k.transfer_rate)}
+          hint={`${num(k.transfers)} llamadas`}
+          icon={ArrowRightLeft}
+          extra={
+            single && didBreakdown.data && (
+              <>
+                {didBreakdown.data.by_did.map((d) => (
+                  <p key={d.did}>
+                    {d.did} ({DID_LABELS[d.did] ?? d.cola}): <span className="tabular-nums">{pct(d.transfer_rate)}</span>
+                  </p>
+                ))}
+              </>
+            )
+          }
+        />
         <KpiCard label="Colgó el cliente" value={pct(k.user_hangup_rate)} hint={`${num(k.user_hangup)} llamadas`} icon={PhoneOff} tone="danger" />
         <KpiCard label="Colgó el bot" value={pct(k.agent_hangup_rate)} hint={`${num(k.agent_hangup)} llamadas`} icon={Bot} tone="warning" />
         <KpiCard label="Cerró por inactividad" value={pct(k.inactivity_rate)} hint={`${num(k.inactivity)} llamadas`} icon={PhoneOff} tone="warning" />

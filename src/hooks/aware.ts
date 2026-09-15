@@ -4,6 +4,7 @@ import type {
   AwareAgentHangup,
   AwareAgentRow,
   AwareByProject,
+  AwareDidBreakdown,
   AwareCall,
   AwareCallDetail,
   AwareCallsPage,
@@ -110,6 +111,8 @@ export const useAwareDurationBuckets = (f?: AwareFilters) =>
   useAware<AwareDurationBucket[]>('duration-buckets', 'analytics/duration-buckets', f)
 export const useAwareByProject = (f?: AwareFilters) =>
   useAware<AwareByProject[]>('by-project', 'analytics/by-project', f)
+export const useAwareDidBreakdown = (f?: AwareFilters) =>
+  useAware<AwareDidBreakdown>('did-breakdown', 'analytics/did-breakdown', f)
 export const useAwareTransfersAttended = (f?: AwareFilters) =>
   useAware<AwareTransfersAttended>('transfers-attended', 'analytics/transfers-attended', f)
 export const useAwareCalls = (f?: AwareFilters) =>
