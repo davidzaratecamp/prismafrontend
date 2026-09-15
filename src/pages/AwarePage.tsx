@@ -387,10 +387,9 @@ function ResumenTab({ filters, single, isHogar }: { filters: AwareFilters; singl
           extra={
             isHogar && didBreakdown.data && (
               <>
-                <p className="text-[10px] uppercase tracking-wide text-muted-foreground/70">% de las transferidas, por línea</p>
                 {didBreakdown.data.by_did.map((d) => (
                   <p key={d.did}>
-                    {d.did} ({DID_LABELS[d.did] ?? d.cola}): <span className="tabular-nums">{pct(d.transfer_share)}</span>
+                    {d.did} ({DID_LABELS[d.did] ?? d.cola}): <span className="tabular-nums">{num(d.transfers)}</span>
                   </p>
                 ))}
               </>
