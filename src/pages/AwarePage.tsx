@@ -289,7 +289,7 @@ export default function AwarePage() {
         </TabsList>
 
         <TabsContent value="resumen" className="pt-4">
-          <ResumenTab filters={filters} single={proyecto !== 'all'} />
+          <ResumenTab filters={filters} single={proyecto !== 'all'} isHogar={proyecto === '12'} />
         </TabsContent>
         <TabsContent value="entregable" className="pt-4">
           <DeliverableTable key={`${rangeKey}:${proyecto}`} base={filters} />
@@ -332,7 +332,7 @@ export default function AwarePage() {
 
 /* ───────────────────────── Resumen ───────────────────────── */
 
-function ResumenTab({ filters, single }: { filters: AwareFilters; single: boolean }) {
+function ResumenTab({ filters, single, isHogar }: { filters: AwareFilters; single: boolean; isHogar: boolean }) {
   const overview = useAwareOverview(filters)
   const comparison = useAwarePeriodComparison(filters)
   const funnel = useAwareFunnel(filters)
@@ -368,7 +368,7 @@ function ResumenTab({ filters, single }: { filters: AwareFilters; single: boolea
           hint={`${filters.from} → ${filters.to}`}
           icon={PhoneCall}
           extra={
-            single && didBreakdown.data && (
+            isHogar && didBreakdown.data && (
               <>
                 {didBreakdown.data.by_did.map((d) => (
                   <p key={d.did}>
@@ -385,7 +385,7 @@ function ResumenTab({ filters, single }: { filters: AwareFilters; single: boolea
           hint={`${num(k.transfers)} llamadas`}
           icon={ArrowRightLeft}
           extra={
-            single && didBreakdown.data && (
+            isHogar && didBreakdown.data && (
               <>
                 {didBreakdown.data.by_did.map((d) => (
                   <p key={d.did}>
