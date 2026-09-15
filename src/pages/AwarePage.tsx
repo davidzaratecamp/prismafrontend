@@ -71,6 +71,7 @@ import {
   useAwareRepeatCallers,
   useAwareSentiment,
   useAwareSentimentByOutcome,
+  useAwareSofiaTipificacion,
   useAwareServiceGroups,
   useAwareServiceTypes,
   useAwareTalkRatio,
@@ -335,7 +336,7 @@ export default function AwarePage() {
 function ResumenTab({ filters, single, isHogar }: { filters: AwareFilters; single: boolean; isHogar: boolean }) {
   const overview = useAwareOverview(filters)
   const comparison = useAwarePeriodComparison(filters)
-  const funnel = useAwareFunnel(filters)
+  const tipificacion = useAwareSofiaTipificacion(filters)
   const volume = useAwareVolumeByDay(filters)
   const trend = useAwareDailyTrend(filters)
   const hangup = useAwareHangup(filters)
@@ -405,7 +406,15 @@ function ResumenTab({ filters, single, isHogar }: { filters: AwareFilters; singl
       </div>
 
       <div className="grid gap-4 lg:grid-cols-2">
-        <FunnelCard data={funnel.data} />
+        <MiniBarList
+          title="Tipificación IA de SOFIA"
+          emptyLabel="Sin datos"
+          rows={(tipificacion.data?.rows ?? []).map<MiniBarRow>((r) => ({
+            label: r.tipificacion,
+            value: r.calls,
+            display: `${num(r.calls)} (${pct(r.rate)})`,
+          }))}
+        />
         <PeriodComparisonCard data={comparison.data} />
       </div>
       <CallsByDayChart data={volume.data ?? []} single={single} />

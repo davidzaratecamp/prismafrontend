@@ -500,6 +500,11 @@ export interface AwareByProject {
   positive_rate: number | null
 }
 
+export interface AwareSofiaTipificacion {
+  total: number
+  rows: { tipificacion: string; calls: number; rate: number | null }[]
+}
+
 export interface AwareDidBreakdown {
   by_did: {
     did: string
