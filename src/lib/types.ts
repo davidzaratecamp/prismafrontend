@@ -507,7 +507,7 @@ export interface AwareDidBreakdown {
     calls: number
     transfers: number
     call_share: number | null
-    transfer_rate: number | null
+    transfer_share: number | null
   }[]
   approximate: boolean
   note: string
