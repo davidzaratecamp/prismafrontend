@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Check, ChevronLeft, ChevronRight, Copy, Download, FileSpreadsheet, Headphones, Play } from 'lucide-react'
+import { Check, ChevronLeft, ChevronRight, Copy, Download, FileSpreadsheet, Headphones, Play, Search } from 'lucide-react'
 import {
   Select,
   SelectContent,
@@ -8,6 +8,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 import { Card } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
@@ -81,6 +82,7 @@ const COLS: { key: string; label: string; help: string; align?: 'right' | 'cente
 ]
 
 export function DeliverableTable({ base }: { base: AwareFilters }) {
+  const [idUnico, setIdUnico] = useState('')
   const [estado, setEstado] = useState('all')
   const [venta, setVenta] = useState('all')
   const [tip, setTip] = useState('all')
@@ -92,6 +94,7 @@ export function DeliverableTable({ base }: { base: AwareFilters }) {
 
   const filters: AwareFilters = {
     ...base,
+    phone: idUnico.trim() || undefined,
     estado: estado === 'all' ? undefined : (estado as AwareFilters['estado']),
     venta: venta === 'all' ? undefined : (venta as AwareFilters['venta']),
     tipificacion: tip === 'all' ? undefined : tip,
@@ -118,6 +121,15 @@ export function DeliverableTable({ base }: { base: AwareFilters }) {
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center gap-2">
+        <div className="relative">
+          <Search className="absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            className="h-9 w-44 pl-8"
+            placeholder="ID único…"
+            value={idUnico}
+            onChange={(e) => reset(setIdUnico)(e.target.value)}
+          />
+        </div>
         <Select value={estado} onValueChange={reset(setEstado)}>
           <SelectTrigger className="h-9 w-44"><SelectValue placeholder="Estado" /></SelectTrigger>
           <SelectContent>
