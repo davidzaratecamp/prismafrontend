@@ -122,11 +122,7 @@ function useRange(key: string): { from: string; to: string } {
     if (key.startsWith('month:')) {
       const [y, m] = key.slice(6).split('-').map(Number)
       const from = `${key.slice(6)}-01`
-      const lastDay = new Date(Date.UTC(y, m, 0)).toISOString().slice(0, 10)
-      // Si es el mes en curso, el último día del mes cae en el futuro (o es
-      // hoy, con datos aún incompletos) — se limita a ayer.
-      const yesterday = shift(today, -1)
-      const to = lastDay > yesterday ? (yesterday < from ? from : yesterday) : lastDay
+      const to = new Date(Date.UTC(y, m, 0)).toISOString().slice(0, 10)
       return { from, to }
     }
     if (key.startsWith('range:')) {
