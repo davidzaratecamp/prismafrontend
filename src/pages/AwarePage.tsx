@@ -125,6 +125,10 @@ function useRange(key: string): { from: string; to: string } {
       const to = new Date(Date.UTC(y, m, 0)).toISOString().slice(0, 10)
       return { from, to }
     }
+    if (key.startsWith('range:')) {
+      const [, from, to] = key.split(':')
+      return { from, to }
+    }
     return { from: shift(today, -(Number(key) - 1)), to: today }
   }, [key])
 }
@@ -143,6 +147,16 @@ export default function AwarePage() {
   const proyecto: 'all' | '12' | '13' = locked ? (String(scope) as '12' | '13') : proyectoSel
 
   const dayValue = rangeKey.startsWith('day:') ? rangeKey.slice(4) : ''
+
+  // Rango personalizado (fecha inicio / fecha fin), independiente de los
+  // presets relativos y del mes/día específico.
+  const [customFrom, setCustomFrom] = useState('')
+  const [customTo, setCustomTo] = useState('')
+  function applyCustomRange(from: string, to: string) {
+    if (!from || !to) return
+    const [a, b] = from <= to ? [from, to] : [to, from]
+    setRangeKey(`range:${a}:${b}`)
+  }
 
   const filters: AwareFilters = useMemo(
     () => ({ ...range, proyecto: proyecto === 'all' ? undefined : proyecto }),
@@ -177,7 +191,10 @@ export default function AwarePage() {
                 </SelectContent>
               </Select>
             )}
-            <Select value={rangeKey.startsWith('day:') ? '' : rangeKey} onValueChange={setRangeKey}>
+            <Select
+              value={rangeKey.startsWith('day:') || rangeKey.startsWith('range:') ? '' : rangeKey}
+              onValueChange={setRangeKey}
+            >
               <SelectTrigger className="h-9 w-48"><SelectValue placeholder="Día específico →" /></SelectTrigger>
               <SelectContent>
                 <SelectGroup>
@@ -202,6 +219,32 @@ export default function AwarePage() {
               className="h-9 rounded-md border bg-transparent px-2 text-sm text-foreground [color-scheme:light] dark:[color-scheme:dark]"
               title="Ver un día concreto"
             />
+            <div className="flex h-9 items-center gap-1 rounded-md border px-2">
+              <input
+                type="date"
+                value={customFrom}
+                max={customTo || todayCo()}
+                onChange={(e) => {
+                  setCustomFrom(e.target.value)
+                  applyCustomRange(e.target.value, customTo)
+                }}
+                className="w-[124px] bg-transparent text-sm text-foreground [color-scheme:light] dark:[color-scheme:dark]"
+                title="Fecha inicio"
+              />
+              <span className="text-xs text-muted-foreground">→</span>
+              <input
+                type="date"
+                value={customTo}
+                min={customFrom || undefined}
+                max={todayCo()}
+                onChange={(e) => {
+                  setCustomTo(e.target.value)
+                  applyCustomRange(customFrom, e.target.value)
+                }}
+                className="w-[124px] bg-transparent text-sm text-foreground [color-scheme:light] dark:[color-scheme:dark]"
+                title="Fecha fin"
+              />
+            </div>
           </div>
         }
       />
