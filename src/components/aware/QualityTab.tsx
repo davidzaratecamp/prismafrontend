@@ -40,12 +40,22 @@ export function QualityTab({ filters }: { filters: AwareFilters }) {
 
   return (
     <div className="space-y-6">
-      <p className={cn('flex items-center gap-1.5 text-xs', stale ? 'text-amber-600 dark:text-amber-400' : 'text-muted-foreground')}>
-        <Clock className="size-3.5" />
-        Snapshot de VoxPro · actualizado hace {data.age_minutes ?? '—'} min
-        {stale && ' · desactualizado, revisar el job de VoxPro'}
-        {data.range_days ? ` · ventana ${data.range_days} días` : ''}
-      </p>
+      <Card className="flex items-start gap-3 border-amber-500/40 bg-amber-500/5 p-4 text-sm">
+        <AlertTriangle className="mt-0.5 size-4 shrink-0 text-amber-600 dark:text-amber-400" />
+        <div>
+          <p className="font-medium">Esta pestaña no usa el filtro de fecha de arriba</p>
+          <p className="text-muted-foreground">
+            Siempre muestra los últimos {data.range_days ?? 30} días — VoxPro empuja este snapshot cada 20 min y no
+            puede recalcularlo al vuelo según el rango que elijas. Elegir un día o mes específico arriba no cambia
+            estos números.
+          </p>
+          <p className={cn('mt-1 flex items-center gap-1.5 text-xs', stale ? 'text-amber-600 dark:text-amber-400' : 'text-muted-foreground')}>
+            <Clock className="size-3.5" />
+            Actualizado hace {data.age_minutes ?? '—'} min
+            {stale && ' · desactualizado, revisar el job de VoxPro'}
+          </p>
+        </div>
+      </Card>
 
       {/* Score del bot */}
       <Card>
