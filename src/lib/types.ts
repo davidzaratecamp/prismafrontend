@@ -766,9 +766,14 @@ export interface AwarePeriodComparison {
 
 export interface AwareVoxproQuality {
   available: boolean
+  // true = se pidió en vivo a VoxPro con el rango exacto elegido (día/mes/
+  // rango); false = respaldo, el snapshot fijo de 30 días que empuja VoxPro
+  // cada 20 min (VoxPro no respondió a tiempo).
+  live?: boolean
   age_minutes?: number | null
   generated_at?: string
   range_days?: number
+  range?: { from: string; to: string }
   bot?: {
     by_proyecto: {
       proyecto_id: number

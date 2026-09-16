@@ -40,22 +40,35 @@ export function QualityTab({ filters }: { filters: AwareFilters }) {
 
   return (
     <div className="space-y-6">
-      <Card className="flex items-start gap-3 border-amber-500/40 bg-amber-500/5 p-4 text-sm">
-        <AlertTriangle className="mt-0.5 size-4 shrink-0 text-amber-600 dark:text-amber-400" />
-        <div>
-          <p className="font-medium">Esta pestaña no usa el filtro de fecha de arriba</p>
-          <p className="text-muted-foreground">
-            Siempre muestra los últimos {data.range_days ?? 30} días — VoxPro empuja este snapshot cada 20 min y no
-            puede recalcularlo al vuelo según el rango que elijas. Elegir un día o mes específico arriba no cambia
-            estos números.
-          </p>
-          <p className={cn('mt-1 flex items-center gap-1.5 text-xs', stale ? 'text-amber-600 dark:text-amber-400' : 'text-muted-foreground')}>
-            <Clock className="size-3.5" />
-            Actualizado hace {data.age_minutes ?? '—'} min
-            {stale && ' · desactualizado, revisar el job de VoxPro'}
-          </p>
-        </div>
-      </Card>
+      {data.live ? (
+        <Card className="flex items-start gap-3 border-emerald-500/40 bg-emerald-500/5 p-4 text-sm">
+          <Clock className="mt-0.5 size-4 shrink-0 text-emerald-600 dark:text-emerald-400" />
+          <div>
+            <p className="font-medium">Datos en vivo de VoxPro para el rango elegido</p>
+            <p className="text-muted-foreground">
+              {data.range ? `${data.range.from} → ${data.range.to}` : `últimos ${data.range_days ?? 30} días`} · pedido
+              al momento, no un snapshot fijo.
+            </p>
+          </div>
+        </Card>
+      ) : (
+        <Card className="flex items-start gap-3 border-amber-500/40 bg-amber-500/5 p-4 text-sm">
+          <AlertTriangle className="mt-0.5 size-4 shrink-0 text-amber-600 dark:text-amber-400" />
+          <div>
+            <p className="font-medium">Respaldo: no se pudo pedir en vivo a VoxPro</p>
+            <p className="text-muted-foreground">
+              Mostrando el snapshot fijo de los últimos {data.range_days ?? 30} días (VoxPro empuja esto cada 20 min) —
+              no respeta el filtro de fecha de arriba. Puede ser que VoxPro esté caído o no responda a tiempo;
+              reintenta en un momento.
+            </p>
+            <p className={cn('mt-1 flex items-center gap-1.5 text-xs', stale ? 'text-amber-600 dark:text-amber-400' : 'text-muted-foreground')}>
+              <Clock className="size-3.5" />
+              Actualizado hace {data.age_minutes ?? '—'} min
+              {stale && ' · desactualizado, revisar el job de VoxPro'}
+            </p>
+          </div>
+        </Card>
+      )}
 
       {/* Score del bot */}
       <Card>
