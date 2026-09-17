@@ -77,6 +77,7 @@ const COLS: { key: string; label: string; help: string; align?: 'right' | 'cente
   { key: 'gestion', label: 'Gestión IA', help: '12 · Cómo terminó la gestión de SOFIA (disposición; cobertura total)' },
   { key: 'tip_ia', label: 'Tip. IA', help: '12 · Tipificación de SOFIA — CODIGO_TIPIFICACIONIA (8 valores oficiales; dato nuevo, cobertura parcial)' },
   { key: 'tip_ase', label: 'Tip. asesor', help: '12 · Tipificación final del asesor (árbol tipo_contacto), en continuidad con la de SOFIA' },
+  { key: 'motivo', label: 'Motivo rechazo', help: 'Detalle detrás de la tipificación UN (Útil Negativo) — soporte técnico, sin cobertura, facturación, etc. Solo existe cuando la tipificación del asesor es UN' },
   { key: 'trans', label: 'Transcr.', help: '13 · Transcripción completa SOFIA ↔ cliente (abrir la fila)', align: 'center' },
   { key: 'rec', label: 'Grabación', help: '14 · Enlace a la grabación (IA y asesor)', align: 'center' },
 ]
@@ -291,6 +292,9 @@ export function DeliverableTable({ base }: { base: AwareFilters }) {
                       {r.tipificacion_asesor_codigo
                         ? <span title={r.tipificacion_asesor_nombre ?? ''}>{r.tipificacion_asesor_codigo}</span>
                         : <span className="text-muted-foreground">—</span>}
+                    </td>
+                    <td className="max-w-[220px] truncate px-3 py-2" title={r.motivo_rechazo ?? ''}>
+                      {r.motivo_rechazo ?? <span className="text-muted-foreground">—</span>}
                     </td>
                     <td className="px-3 py-2 text-center tabular-nums text-muted-foreground">
                       {r.transcripcion_ia_turnos || '—'}
@@ -511,6 +515,7 @@ function DeliverableCallDialog({ callId, onClose }: { callId: string | null; onC
                       : null
                   }
                 />
+                <Row label="Motivo rechazo" value={data.motivo_rechazo} />
               </div>
             </div>
 
