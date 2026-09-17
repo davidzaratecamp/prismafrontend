@@ -838,6 +838,9 @@ export interface AwareDeliverableRow {
   tipificacion_asesor_nombre: string | null
   tipificacion_asesor_grupo: string | null
   motivo_rechazo: string | null
+  accesos: 'Sí' | null
+  tv_voz: 'Sí' | null
+  adicionales: 'Sí' | null
   transcripcion_ia_turnos: number
   grabacion_ia_url: string | null
   grabacion_asesor_url: string | null

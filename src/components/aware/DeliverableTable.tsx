@@ -78,6 +78,9 @@ const COLS: { key: string; label: string; help: string; align?: 'right' | 'cente
   { key: 'tip_ia', label: 'Tip. IA', help: '12 · Tipificación de SOFIA — CODIGO_TIPIFICACIONIA (8 valores oficiales; dato nuevo, cobertura parcial)' },
   { key: 'tip_ase', label: 'Tip. asesor', help: '12 · Tipificación final del asesor (árbol tipo_contacto), en continuidad con la de SOFIA' },
   { key: 'motivo', label: 'Motivo rechazo', help: 'Detalle detrás de la tipificación UN (Útil Negativo) — soporte técnico, sin cobertura, facturación, etc. Solo existe cuando la tipificación del asesor es UN' },
+  { key: 'accesos', label: 'Accesos', help: 'Detalle de la venta (solo existe cuando la tipificación del asesor es UP): accesos triple/doble/sencillo con @', align: 'center' },
+  { key: 'tv_voz', label: 'TV/Voz', help: 'Detalle de la venta (solo UP): TV y/o voz', align: 'center' },
+  { key: 'adicionales', label: 'Adicionales', help: 'Detalle de la venta (solo UP): productos adicionales', align: 'center' },
   { key: 'trans', label: 'Transcr.', help: '13 · Transcripción completa SOFIA ↔ cliente (abrir la fila)', align: 'center' },
   { key: 'rec', label: 'Grabación', help: '14 · Enlace a la grabación (IA y asesor)', align: 'center' },
 ]
@@ -296,6 +299,9 @@ export function DeliverableTable({ base }: { base: AwareFilters }) {
                     <td className="max-w-[220px] truncate px-3 py-2" title={r.motivo_rechazo ?? ''}>
                       {r.motivo_rechazo ?? <span className="text-muted-foreground">—</span>}
                     </td>
+                    <td className="px-3 py-2 text-center">{r.accesos ?? <span className="text-muted-foreground">—</span>}</td>
+                    <td className="px-3 py-2 text-center">{r.tv_voz ?? <span className="text-muted-foreground">—</span>}</td>
+                    <td className="px-3 py-2 text-center">{r.adicionales ?? <span className="text-muted-foreground">—</span>}</td>
                     <td className="px-3 py-2 text-center tabular-nums text-muted-foreground">
                       {r.transcripcion_ia_turnos || '—'}
                     </td>
@@ -516,6 +522,9 @@ function DeliverableCallDialog({ callId, onClose }: { callId: string | null; onC
                   }
                 />
                 <Row label="Motivo rechazo" value={data.motivo_rechazo} />
+                <Row label="Accesos" value={data.accesos} />
+                <Row label="TV y/o Voz" value={data.tv_voz} />
+                <Row label="Adicionales" value={data.adicionales} />
               </div>
             </div>
 
