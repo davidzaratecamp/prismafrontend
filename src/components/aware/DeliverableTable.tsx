@@ -70,7 +70,7 @@ const COLS: { key: string; label: string; help: string; align?: 'right' | 'cente
   { key: 'dia', label: 'Dur. IA (s)', help: '5 · Duración gestionada por la IA, en segundos', align: 'right' },
   { key: 'dase', label: 'Dur. asesor (s)', help: '6 · Duración gestionada por el asesor, en segundos', align: 'right' },
   { key: 'dtot', label: 'Dur. total (s)', help: '7 · Duración total (IA + asesor), en segundos', align: 'right' },
-  { key: 'did', label: 'DID', help: '8 · DID real (número marcado): 6019196235/6019142515 Hogar · 6019184507/6019193216 TyT. Exacto si hubo transferencia; si no, la línea principal de la campaña' },
+  { key: 'did', label: 'DID', help: '8 · DID real (número marcado) + origen del tráfico entre paréntesis cuando tiene nombre (hoy solo Hogar: 6019196235 Tráfico general, 6019142515 Tráfico 3112000000). TyT sale sin nombre. Exacto si hubo transferencia; si no, la línea principal de la campaña' },
   { key: 'seg', label: 'Segmento', help: '9 · Segmento de la llamada según el DID (Claro Hogar / Claro TyT)' },
   { key: 'estado', label: 'Estado', help: '10 · Estado de la interacción: Transferido / Abandonado' },
   { key: 'venta', label: 'Venta', help: '11 · Venta: Sí / No', align: 'center' },
