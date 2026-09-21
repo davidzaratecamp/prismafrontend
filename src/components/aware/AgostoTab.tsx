@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { AlertTriangle, ChevronLeft, ChevronRight, ClipboardCheck, Search } from 'lucide-react'
+import { ChevronLeft, ChevronRight, ClipboardCheck, Search } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -180,17 +180,6 @@ function TablaAgosto() {
 export function AgostoTab() {
   return (
     <div className="space-y-6">
-      <Card className="flex items-start gap-3 border-amber-500/40 bg-amber-500/5 p-4 text-sm">
-        <AlertTriangle className="mt-0.5 size-4 shrink-0 text-amber-600 dark:text-amber-400" />
-        <div>
-          <p className="font-medium">Corrección manual de agosto 2026 — solo Claro Hogar</p>
-          <p className="text-muted-foreground">
-            Dataset fijo e independiente del resto del panel: no usa el filtro de fecha de arriba (siempre es agosto
-            completo) y no se sincroniza con Aware. Corrige 3.659 llamadas que no tenían motivo de rechazo, 1.673 con
-            motivo mal cargado y 424 marcadas como venta que en realidad no lo eran.
-          </p>
-        </div>
-      </Card>
       <ResumenAgosto />
       <TablaAgosto />
     </div>
