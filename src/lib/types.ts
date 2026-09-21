@@ -684,12 +684,21 @@ export interface AwareHumanOutcomes {
   conversion_rate: number | null
   efectivo_rate: number | null
   tipificaciones: { cod: string; nombre: string; efectivo: string; calls: number }[]
-  // Subconjuntos de "venta exitosa" (Accesos/TV y Voz/Adicionales) — no suman
-  // aparte del total de venta exitosa, el % ya es sobre ese total. Vacío en TyT.
+  // Códigos de tipo_contacto fuera del árbol oficial de Claro (FER/CFA/VLL/
+  // etc.) — mismos objetos que en `tipificaciones`, sin UP/UN.
+  otros_resultados: { cod: string; nombre: string; efectivo: string; calls: number }[]
+  // Subconjuntos de "venta exitosa" (Accesos/TV y Voz/Adicionales, árbol de
+  // Claro TIP-001/002/003) — no suman aparte del total de venta exitosa, el
+  // % ya es sobre ese total. Vacío en TyT.
   venta_detalle: { label: string; calls: number; rate: number | null }[]
-  // Motivo de rechazo (Aware) entre las "no venta" — top 12 + "OTROS" con el
-  // resto, % sobre el total de no venta (no sobre atendidas).
-  no_venta_detalle: { label: string; calls: number; rate: number | null }[]
+  // Árbol oficial de "no venta" (Claro, TIP-004..TIP-020): 3 categorías con
+  // sus ítems + lo que no matcheó ningún código conocido. % sobre el total
+  // de no venta (no sobre atendidas); las 3 categorías + sin_clasificar
+  // suman ~100% de util_negativo.
+  no_venta_arbol: {
+    categorias: { categoria: string; items: { tip: string; label: string; calls: number; rate: number | null }[] }[]
+    sin_clasificar: { calls: number; rate: number | null } | null
+  }
   approximate: boolean
 }
 

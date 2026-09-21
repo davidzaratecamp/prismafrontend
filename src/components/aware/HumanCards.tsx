@@ -13,9 +13,19 @@ import { cn } from '@/lib/utils'
 
 const axis = { fontSize: 11, fill: 'var(--color-muted-foreground)' }
 
-const EFECT_COLOR: Record<string, string> = {
-  UP: '#10b981',
-  UN: '#f59e0b',
+function BarRow({ label, calls, rate, color }: { label: string; calls: number; rate: number | null; color: string }) {
+  const w = (rate ?? 0) * 100
+  return (
+    <li className="space-y-1">
+      <div className="flex justify-between gap-2 text-sm">
+        <span className="text-muted-foreground">{label}</span>
+        <span className="shrink-0 tabular-nums">{num(calls)} · {pct(rate)}</span>
+      </div>
+      <div className="h-1.5 overflow-hidden rounded-full bg-muted">
+        <div className="h-full rounded-full" style={{ width: `${w}%`, background: color }} />
+      </div>
+    </li>
+  )
 }
 
 export function HumanOutcomesCard({ data }: { data?: AwareHumanOutcomes }) {
@@ -43,72 +53,55 @@ export function HumanOutcomesCard({ data }: { data?: AwareHumanOutcomes }) {
           </div>
         </div>
 
-        <div>
-          <p className="mb-1 text-xs font-medium uppercase tracking-wide text-muted-foreground">
-            Tipificación de las llamadas atendidas
-          </p>
-          <ul className="space-y-1.5">
-            {data.tipificaciones.map((t) => {
-              const w = data.atendidas ? (t.calls / data.atendidas) * 100 : 0
-              return (
-                <li key={t.cod} className="space-y-1">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">{t.nombre}</span>
-                    <span className="tabular-nums">{num(t.calls)} · {Math.round(w)}%</span>
-                  </div>
-                  <div className="h-1.5 overflow-hidden rounded-full bg-muted">
-                    <div className="h-full rounded-full" style={{ width: `${w}%`, background: EFECT_COLOR[t.cod] ?? '#94a3b8' }} />
-                  </div>
-                </li>
-              )
-            })}
-          </ul>
-        </div>
-
         {data.venta_detalle.length > 0 && (
           <div>
             <p className="mb-1 text-xs font-medium uppercase tracking-wide text-muted-foreground">
-              Detalle de venta exitosa (% sobre el total de ventas, no sobre atendidas)
+              Venta exitosa — árbol de Claro (% sobre el total de ventas, no sobre atendidas)
             </p>
             <ul className="space-y-1.5">
-              {data.venta_detalle.map((d) => {
-                const w = (d.rate ?? 0) * 100
-                return (
-                  <li key={d.label} className="space-y-1">
-                    <div className="flex justify-between gap-2 text-sm">
-                      <span className="text-muted-foreground">Venta exitosa: {d.label}</span>
-                      <span className="shrink-0 tabular-nums">{num(d.calls)} · {pct(d.rate)}</span>
-                    </div>
-                    <div className="h-1.5 overflow-hidden rounded-full bg-muted">
-                      <div className="h-full rounded-full bg-emerald-500" style={{ width: `${w}%` }} />
-                    </div>
-                  </li>
-                )
-              })}
+              {data.venta_detalle.map((d) => (
+                <BarRow key={d.label} label={d.label} calls={d.calls} rate={d.rate} color="#10b981" />
+              ))}
             </ul>
           </div>
         )}
 
-        {data.no_venta_detalle.length > 0 && (
-          <div>
+        {data.no_venta_arbol.categorias.map((cat) => (
+          <div key={cat.categoria}>
             <p className="mb-1 text-xs font-medium uppercase tracking-wide text-muted-foreground">
-              Detalle de no venta — motivo de rechazo (% sobre el total de no venta, no sobre atendidas)
+              No venta — {cat.categoria} (% sobre el total de no venta, no sobre atendidas)
             </p>
             <ul className="space-y-1.5">
-              {data.no_venta_detalle.map((d) => {
-                const w = (d.rate ?? 0) * 100
-                return (
-                  <li key={d.label} className="space-y-1">
-                    <div className="flex justify-between gap-2 text-sm">
-                      <span className="text-muted-foreground">No venta: {d.label}</span>
-                      <span className="shrink-0 tabular-nums">{num(d.calls)} · {pct(d.rate)}</span>
-                    </div>
-                    <div className="h-1.5 overflow-hidden rounded-full bg-muted">
-                      <div className="h-full rounded-full bg-amber-500" style={{ width: `${w}%` }} />
-                    </div>
-                  </li>
-                )
-              })}
+              {cat.items.map((it) => (
+                <BarRow key={it.tip} label={it.label} calls={it.calls} rate={it.rate} color="#f59e0b" />
+              ))}
+            </ul>
+          </div>
+        ))}
+
+        {data.no_venta_arbol.sin_clasificar && (
+          <p className="text-[11px] text-muted-foreground">
+            {num(data.no_venta_arbol.sin_clasificar.calls)} no venta ({pct(data.no_venta_arbol.sin_clasificar.rate)}) sin
+            motivo reconocido en el árbol de Claro — texto libre de Aware que no matchea ninguno de los 20 códigos, o
+            llamadas sin motivo registrado.
+          </p>
+        )}
+
+        {data.otros_resultados.length > 0 && (
+          <div>
+            <p className="mb-1 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+              Otros resultados — fuera del árbol de Claro (no hubo contacto real: número equivocado, no contesta, etc.)
+            </p>
+            <ul className="space-y-1.5">
+              {data.otros_resultados.map((t) => (
+                <BarRow
+                  key={t.cod}
+                  label={t.nombre}
+                  calls={t.calls}
+                  rate={data.atendidas ? t.calls / data.atendidas : 0}
+                  color="#94a3b8"
+                />
+              ))}
             </ul>
           </div>
         )}
