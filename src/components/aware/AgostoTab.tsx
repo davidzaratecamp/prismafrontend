@@ -32,11 +32,7 @@ function ResumenAgosto() {
 
   return (
     <div className="space-y-6">
-      <div className="grid gap-4 sm:grid-cols-3">
-        <Card className="p-4 text-center">
-          <p className="text-2xl font-semibold tabular-nums">{num(data.total)}</p>
-          <p className="text-xs text-muted-foreground">llamadas corregidas (agosto)</p>
-        </Card>
+      <div className="grid gap-4 sm:grid-cols-2">
         <Card className="border-emerald-500/30 bg-emerald-500/5 p-4 text-center">
           <p className="text-2xl font-semibold tabular-nums text-emerald-600 dark:text-emerald-400">{num(venta?.calls ?? 0)}</p>
           <p className="text-xs text-muted-foreground">VENTA EXITOSA · {pct(venta?.rate ?? null)}</p>
