@@ -33,6 +33,7 @@ import { ByProjectCompare } from '@/components/aware/ByProjectCompare'
 import { DurationHistogram } from '@/components/aware/DurationHistogram'
 import { CallsTable } from '@/components/aware/CallsTable'
 import { DeliverableTable } from '@/components/aware/DeliverableTable'
+import { AgostoTab } from '@/components/aware/AgostoTab'
 import { FunnelCard } from '@/components/aware/FunnelCard'
 import { HourlyOpsChart, WeekdayChart } from '@/components/aware/OpsCharts'
 import { SentimentOutcomeCard, ServiceGroupsCard, AgentHangupPanel } from '@/components/aware/CrossCards'
@@ -151,6 +152,9 @@ export default function AwarePage() {
   const scope = useAuthStore((s) => s.user?.aware_scope)
   const canQuality = useAuthStore((s) => s.user?.role === 'admin' || !!s.user?.aware_quality)
   const basico = useAuthStore((s) => s.user?.aware_view === 'basico')
+  // Pestaña "Agosto" (corrección manual, solo Claro Hogar) — oculta si el
+  // analista está fijado a TyT (el backend igual devolvería 403).
+  const canAgosto = scope !== 13
   const locked = scope === 12 || scope === 13
   const proyecto: 'all' | '12' | '13' = locked ? (String(scope) as '12' | '13') : proyectoSel
 
@@ -285,6 +289,7 @@ export default function AwarePage() {
           {!basico && canQuality && <TabsTrigger value="calidad">Calidad IA</TabsTrigger>}
           {!basico && <TabsTrigger value="llamadas">Llamadas</TabsTrigger>}
           <TabsTrigger value="entregable">Consolidado</TabsTrigger>
+          {canAgosto && <TabsTrigger value="agosto">Agosto</TabsTrigger>}
           {!basico && <TabsTrigger value="envivo">En vivo</TabsTrigger>}
         </TabsList>
 
@@ -294,6 +299,11 @@ export default function AwarePage() {
         <TabsContent value="entregable" className="pt-4">
           <DeliverableTable key={`${rangeKey}:${proyecto}`} base={filters} />
         </TabsContent>
+        {canAgosto && (
+          <TabsContent value="agosto" className="pt-4">
+            <AgostoTab />
+          </TabsContent>
+        )}
 
         {!basico && (
           <>

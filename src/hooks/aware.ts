@@ -3,6 +3,8 @@ import { api } from '@/lib/api'
 import type {
   AwareAgentHangup,
   AwareAgentRow,
+  AwareAgostoResumen,
+  AwareAgostoPage,
   AwareByProject,
   AwareDidBreakdown,
   AwareSofiaTipificacion,
@@ -252,3 +254,42 @@ export async function downloadDeliverable(format: 'csv' | 'json', f: AwareFilter
 }
 
 export type { AwareCall }
+
+/* ── pestaña "Agosto" (corrección manual 2026-08, solo Claro Hogar) ──
+   Dataset estático propio: no usa AwareFilters (sin rango de fecha, no
+   respeta el filtro de campaña de arriba porque solo existe para Hogar). */
+
+export interface AwareAgostoFilters {
+  phone?: string
+  tipificacion?: 'venta' | 'no_venta'
+  motivo?: string
+  page?: number
+  pageSize?: number
+}
+
+function cleanAgosto(f: AwareAgostoFilters = {}): Record<string, string | number> {
+  const out: Record<string, string | number> = {}
+  for (const [k, v] of Object.entries(f)) {
+    if (v === undefined || v === null || v === '' || v === 'all') continue
+    out[k] = v as string | number
+  }
+  return out
+}
+
+export const useAwareAgostoResumen = () =>
+  useQuery({
+    queryKey: ['aware', 'agosto', 'resumen'],
+    queryFn: async () => (await api.get<AwareAgostoResumen>('/aware/agosto/resumen')).data,
+  })
+
+export const useAwareAgostoCalls = (f: AwareAgostoFilters) =>
+  useQuery({
+    queryKey: ['aware', 'agosto', 'calls', cleanAgosto(f)],
+    queryFn: async () => (await api.get<AwareAgostoPage>('/aware/agosto/calls', { params: cleanAgosto(f) })).data,
+  })
+
+export const useAwareAgostoMotivos = () =>
+  useQuery({
+    queryKey: ['aware', 'agosto', 'motivos'],
+    queryFn: async () => (await api.get<string[]>('/aware/agosto/motivos')).data,
+  })

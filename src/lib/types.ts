@@ -876,3 +876,37 @@ export interface AwareDeliverableCall extends AwareDeliverableRow {
   transcripcion_ia: { role: string; content: string }[]
   analysis: Record<string, unknown> | null
 }
+
+/* ---------- Aware: pestaña "Agosto" (corrección manual 2026-08, solo Hogar) ---------- */
+
+export interface AwareAgostoResumen {
+  total: number
+  por_tipificacion: { tipificacion: string; calls: number; rate: number | null }[]
+  por_linea: { linea: string; calls: number; rate: number | null }[]
+  no_venta_arbol: {
+    categorias: { categoria: string; items: { tip: string; label: string; calls: number; rate: number | null }[] }[]
+    sin_clasificar: { calls: number; rate: number | null } | null
+  }
+}
+
+export interface AwareAgostoRow {
+  id: number
+  telefono: string | null
+  fecha: string
+  hora: string | null
+  linea: string | null
+  tipificacion: string
+  motivo_rechazo: string | null
+  agente_id: string | null
+  agente_nombre: string | null
+  duracion_ia_seg: number | null
+  duracion_asesor_seg: number | null
+}
+
+export interface AwareAgostoPage {
+  page: number
+  page_size: number
+  total: number
+  total_pages: number
+  rows: AwareAgostoRow[]
+}

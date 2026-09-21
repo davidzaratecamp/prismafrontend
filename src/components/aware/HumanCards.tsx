@@ -13,7 +13,7 @@ import { cn } from '@/lib/utils'
 
 const axis = { fontSize: 11, fill: 'var(--color-muted-foreground)' }
 
-function BarRow({ label, calls, rate, color }: { label: string; calls: number; rate: number | null; color: string }) {
+export function BarRow({ label, calls, rate, color }: { label: string; calls: number; rate: number | null; color: string }) {
   const w = (rate ?? 0) * 100
   return (
     <li className="space-y-1">
