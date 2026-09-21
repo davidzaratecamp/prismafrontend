@@ -9,7 +9,7 @@ const ROWS: { key: keyof AwarePeriodComparison['deltas']; label: string; goodUp:
   { key: 'total_calls_pct', label: 'Llamadas', goodUp: true, isPct: true },
   { key: 'transfer_rate_pp', label: 'Tasa de transferencia', goodUp: true },
   { key: 'atendidas_rate_pp', label: 'Transferencias atendidas', goodUp: true },
-  { key: 'conversion_rate_pp', label: 'Conversión a ÚTIL POSITIVO', goodUp: true },
+  { key: 'conversion_rate_pp', label: 'Conversión a venta exitosa', goodUp: true },
   { key: 'success_rate_pp', label: 'Éxito del bot', goodUp: true },
   { key: 'user_hangup_rate_pp', label: 'Colgó el cliente', goodUp: false },
   { key: 'agent_hangup_rate_pp', label: 'Colgó el bot', goodUp: false },

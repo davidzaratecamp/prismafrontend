@@ -684,6 +684,9 @@ export interface AwareHumanOutcomes {
   conversion_rate: number | null
   efectivo_rate: number | null
   tipificaciones: { cod: string; nombre: string; efectivo: string; calls: number }[]
+  // Subconjuntos de "venta exitosa" (Accesos/TV y Voz/Adicionales) — no suman
+  // aparte del total de venta exitosa, el % ya es sobre ese total. Vacío en TyT.
+  venta_detalle: { label: string; calls: number; rate: number | null }[]
   approximate: boolean
 }
 

@@ -35,11 +35,11 @@ export function HumanOutcomesCard({ data }: { data?: AwareHumanOutcomes }) {
           </div>
           <div className="rounded-lg border border-emerald-500/30 bg-emerald-500/5 p-3">
             <p className="text-2xl font-semibold tabular-nums text-emerald-600 dark:text-emerald-400">{num(data.util_positivo)}</p>
-            <p className="text-xs text-muted-foreground">ÚTIL POSITIVO · conversión {pct(data.conversion_rate)}</p>
+            <p className="text-xs text-muted-foreground">VENTA EXITOSA · conversión {pct(data.conversion_rate)}</p>
           </div>
           <div className="rounded-lg border p-3">
             <p className="text-2xl font-semibold tabular-nums">{num(data.util_negativo)}</p>
-            <p className="text-xs text-muted-foreground">ÚTIL NEGATIVO</p>
+            <p className="text-xs text-muted-foreground">NO VENTA</p>
           </div>
         </div>
 
@@ -65,6 +65,30 @@ export function HumanOutcomesCard({ data }: { data?: AwareHumanOutcomes }) {
           </ul>
         </div>
 
+        {data.venta_detalle.length > 0 && (
+          <div>
+            <p className="mb-1 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+              Detalle de venta exitosa (% sobre el total de ventas, no sobre atendidas)
+            </p>
+            <ul className="space-y-1.5">
+              {data.venta_detalle.map((d) => {
+                const w = (d.rate ?? 0) * 100
+                return (
+                  <li key={d.label} className="space-y-1">
+                    <div className="flex justify-between text-sm">
+                      <span className="text-muted-foreground">Venta exitosa: {d.label}</span>
+                      <span className="tabular-nums">{num(d.calls)} · {pct(d.rate)}</span>
+                    </div>
+                    <div className="h-1.5 overflow-hidden rounded-full bg-muted">
+                      <div className="h-full rounded-full bg-emerald-500" style={{ width: `${w}%` }} />
+                    </div>
+                  </li>
+                )
+              })}
+            </ul>
+          </div>
+        )}
+
         <p className="text-[11px] text-muted-foreground">
           {num(data.sin_atender)} transferencias no llegaron a un asesor. El emparejamiento bot→asesor es
           aproximado (teléfono + fecha + hora).
@@ -79,7 +103,7 @@ export function ConversionTrendCard({ data }: { data: AwareHumanFunnelDay[] }) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-base">Conversión a ÚTIL POSITIVO por día (%)</CardTitle>
+        <CardTitle className="text-base">Conversión a venta exitosa por día (%)</CardTitle>
       </CardHeader>
       <CardContent>
         {rows.length === 0 ? (
@@ -128,8 +152,8 @@ export function AgentRankingTable({
                 <tr className="border-b text-left text-xs uppercase tracking-wide text-muted-foreground">
                   <th className="px-4 py-2.5 font-medium">Asesor</th>
                   <th className="px-4 py-2.5 text-right font-medium">Llamadas</th>
-                  <th className="px-4 py-2.5 text-right font-medium">ÚTIL POS.</th>
-                  <th className="px-4 py-2.5 text-right font-medium">% positivo</th>
+                  <th className="px-4 py-2.5 text-right font-medium">VENTAS</th>
+                  <th className="px-4 py-2.5 text-right font-medium">% venta</th>
                   <th className="px-4 py-2.5 text-right font-medium">% efectivo</th>
                 </tr>
               </thead>

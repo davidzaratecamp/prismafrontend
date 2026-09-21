@@ -42,8 +42,8 @@ const TIP_IA_OPTIONS = [
 
 /** Códigos del árbol de tipificación (tabla tipo_contacto de Aware). */
 const TIP_CODES: [string, string][] = [
-  ['UP', 'Útil positivo (venta)'],
-  ['UN', 'Útil negativo'],
+  ['UP', 'Venta exitosa'],
+  ['UN', 'No venta'],
   ['VLL', 'Manifiesta interés'],
   ['DME', 'Volver a llamar'],
   ['EO', 'Cliente no disponible/ocupado'],
@@ -77,10 +77,10 @@ const COLS: { key: string; label: string; help: string; align?: 'right' | 'cente
   { key: 'gestion', label: 'Gestión IA', help: '12 · Cómo terminó la gestión de SOFIA (disposición; cobertura total)' },
   { key: 'tip_ia', label: 'Tip. IA', help: '12 · Tipificación de SOFIA — CODIGO_TIPIFICACIONIA (8 valores oficiales; dato nuevo, cobertura parcial)' },
   { key: 'tip_ase', label: 'Tip. asesor', help: '12 · Tipificación final del asesor (árbol tipo_contacto), en continuidad con la de SOFIA' },
-  { key: 'motivo', label: 'Motivo rechazo', help: 'Detalle detrás de la tipificación UN (Útil Negativo) — soporte técnico, sin cobertura, facturación, etc. Solo existe cuando la tipificación del asesor es UN' },
-  { key: 'accesos', label: 'Accesos', help: 'Detalle de la venta (solo existe cuando la tipificación del asesor es UP): accesos triple/doble/sencillo con @', align: 'center' },
-  { key: 'tv_voz', label: 'TV/Voz', help: 'Detalle de la venta (solo UP): TV y/o voz', align: 'center' },
-  { key: 'adicionales', label: 'Adicionales', help: 'Detalle de la venta (solo UP): productos adicionales', align: 'center' },
+  { key: 'motivo', label: 'Motivo rechazo', help: 'Detalle detrás de la tipificación "No venta" — soporte técnico, sin cobertura, facturación, etc. Solo existe cuando la tipificación del asesor es "No venta"' },
+  { key: 'accesos', label: 'Accesos', help: 'Detalle de la venta (solo existe cuando la tipificación del asesor es "Venta exitosa"): accesos triple/doble/sencillo con @', align: 'center' },
+  { key: 'tv_voz', label: 'TV/Voz', help: 'Detalle de la venta (solo "Venta exitosa"): TV y/o voz', align: 'center' },
+  { key: 'adicionales', label: 'Adicionales', help: 'Detalle de la venta (solo "Venta exitosa"): productos adicionales', align: 'center' },
   { key: 'trans', label: 'Transcr.', help: '13 · Transcripción completa SOFIA ↔ cliente (abrir la fila)', align: 'center' },
   { key: 'rec', label: 'Grabación', help: '14 · Enlace a la grabación (IA y asesor)', align: 'center' },
 ]
@@ -166,7 +166,7 @@ export function DeliverableTable({ base }: { base: AwareFilters }) {
           <SelectContent>
             <SelectItem value="all">Tip. asesor: todas</SelectItem>
             {TIP_CODES.map(([c, label]) => (
-              <SelectItem key={c} value={c}>{c} · {label}</SelectItem>
+              <SelectItem key={c} value={c}>{c === 'UP' || c === 'UN' ? label : `${c} · ${label}`}</SelectItem>
             ))}
           </SelectContent>
         </Select>
@@ -293,7 +293,11 @@ export function DeliverableTable({ base }: { base: AwareFilters }) {
                     </td>
                     <td className="whitespace-nowrap px-3 py-2" title={r.tipificacion_asesor_nombre ?? ''}>
                       {r.tipificacion_asesor_codigo
-                        ? <span title={r.tipificacion_asesor_nombre ?? ''}>{r.tipificacion_asesor_codigo}</span>
+                        ? <span title={r.tipificacion_asesor_nombre ?? ''}>
+                            {r.tipificacion_asesor_codigo === 'UP' || r.tipificacion_asesor_codigo === 'UN'
+                              ? r.tipificacion_asesor_nombre
+                              : r.tipificacion_asesor_codigo}
+                          </span>
                         : <span className="text-muted-foreground">—</span>}
                     </td>
                     <td className="max-w-[220px] truncate px-3 py-2" title={r.motivo_rechazo ?? ''}>
@@ -517,7 +521,9 @@ function DeliverableCallDialog({ callId, onClose }: { callId: string | null; onC
                   label="Tipificación asesor"
                   value={
                     data.tipificacion_asesor_codigo
-                      ? `${data.tipificacion_asesor_codigo} — ${data.tipificacion_asesor_nombre ?? ''}`
+                      ? data.tipificacion_asesor_codigo === 'UP' || data.tipificacion_asesor_codigo === 'UN'
+                        ? data.tipificacion_asesor_nombre
+                        : `${data.tipificacion_asesor_codigo} — ${data.tipificacion_asesor_nombre ?? ''}`
                       : null
                   }
                 />
