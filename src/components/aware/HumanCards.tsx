@@ -75,12 +75,36 @@ export function HumanOutcomesCard({ data }: { data?: AwareHumanOutcomes }) {
                 const w = (d.rate ?? 0) * 100
                 return (
                   <li key={d.label} className="space-y-1">
-                    <div className="flex justify-between text-sm">
+                    <div className="flex justify-between gap-2 text-sm">
                       <span className="text-muted-foreground">Venta exitosa: {d.label}</span>
-                      <span className="tabular-nums">{num(d.calls)} · {pct(d.rate)}</span>
+                      <span className="shrink-0 tabular-nums">{num(d.calls)} · {pct(d.rate)}</span>
                     </div>
                     <div className="h-1.5 overflow-hidden rounded-full bg-muted">
                       <div className="h-full rounded-full bg-emerald-500" style={{ width: `${w}%` }} />
+                    </div>
+                  </li>
+                )
+              })}
+            </ul>
+          </div>
+        )}
+
+        {data.no_venta_detalle.length > 0 && (
+          <div>
+            <p className="mb-1 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+              Detalle de no venta — motivo de rechazo (% sobre el total de no venta, no sobre atendidas)
+            </p>
+            <ul className="space-y-1.5">
+              {data.no_venta_detalle.map((d) => {
+                const w = (d.rate ?? 0) * 100
+                return (
+                  <li key={d.label} className="space-y-1">
+                    <div className="flex justify-between gap-2 text-sm">
+                      <span className="text-muted-foreground">No venta: {d.label}</span>
+                      <span className="shrink-0 tabular-nums">{num(d.calls)} · {pct(d.rate)}</span>
+                    </div>
+                    <div className="h-1.5 overflow-hidden rounded-full bg-muted">
+                      <div className="h-full rounded-full bg-amber-500" style={{ width: `${w}%` }} />
                     </div>
                   </li>
                 )

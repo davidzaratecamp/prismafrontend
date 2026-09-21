@@ -687,6 +687,9 @@ export interface AwareHumanOutcomes {
   // Subconjuntos de "venta exitosa" (Accesos/TV y Voz/Adicionales) — no suman
   // aparte del total de venta exitosa, el % ya es sobre ese total. Vacío en TyT.
   venta_detalle: { label: string; calls: number; rate: number | null }[]
+  // Motivo de rechazo (Aware) entre las "no venta" — top 12 + "OTROS" con el
+  // resto, % sobre el total de no venta (no sobre atendidas).
+  no_venta_detalle: { label: string; calls: number; rate: number | null }[]
   approximate: boolean
 }
 
