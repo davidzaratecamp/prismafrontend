@@ -11,11 +11,10 @@ import { ConfirmDialog } from '@/components/common/ConfirmDialog'
 import { UserForm } from '@/components/team/UserForm'
 import { useDashboard, useUserMutations, useUsers } from '@/hooks/queries'
 import { ROLE_LABEL } from '@/lib/roles'
-import { useIsAdmin, useCanCreateAdminResource } from '@/stores/auth'
+import { useCanCreateAdminResource } from '@/stores/auth'
 import type { User } from '@/lib/types'
 
 export default function TeamPage() {
-  const isAdmin = useIsAdmin()
   const canCreate = useCanCreateAdminResource()
   const { data: users, isLoading } = useUsers()
   const { data: dash } = useDashboard()
@@ -69,7 +68,7 @@ export default function TeamPage() {
                         <p className="text-xs text-muted-foreground">{u.email}</p>
                       </div>
                     </div>
-                    {isAdmin && u.is_active !== false && (
+                    {canCreate && u.is_active !== false && (
                       <div className="flex gap-1">
                         <button
                           onClick={() => setEditUser(u)}

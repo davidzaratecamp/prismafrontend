@@ -46,21 +46,19 @@ export const useAuthStore = create<AuthState>((set) => ({
   setUser: (user) => set({ user }),
 }))
 
+/** Developer, o admin sin `admin_no_create` (ver UserForm) — crear/editar/eliminar
+ *  en Proyectos, Tablero y Roadmap. Un admin de alcance limitado (caso: David
+ *  Acero, TyT) queda de solo lectura ahí, igual que el backend (canWrite +
+ *  blockRestrictedWrite en projects/tasks/milestones .routes.js). */
 export const useCanWrite = () => {
-  const role = useAuthStore((s) => s.user?.role)
-  return role === 'admin' || role === 'developer'
+  const user = useAuthStore((s) => s.user)
+  if (!user) return false
+  if (user.role === 'developer') return true
+  return user.role === 'admin' && !user.admin_no_create
 }
 export const useIsAdmin = () => useAuthStore((s) => s.user?.role === 'admin')
 export const useIsAnalyst = () => useAuthStore((s) => s.user?.role === 'analista')
 
-/** Admin sin `admin_no_create` (ver UserForm) — crear usuarios/áreas (admin-only). */
+/** Admin sin `admin_no_create` — crear/editar/eliminar en Usuarios/Áreas (admin-only). */
 export const useCanCreateAdminResource = () =>
   useAuthStore((s) => s.user?.role === 'admin' && !s.user?.admin_no_create)
-/** Developer, o admin sin `admin_no_create` — crear proyectos (canWrite del backend). */
-export const useCanCreateProject = () =>
-  useAuthStore((s) => {
-    const u = s.user
-    if (!u) return false
-    if (u.role === 'developer') return true
-    return u.role === 'admin' && !u.admin_no_create
-  })

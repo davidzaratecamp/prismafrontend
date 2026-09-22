@@ -54,21 +54,25 @@ export default function AreasAdminPage() {
                     <p className="text-xs text-muted-foreground">/{a.slug}</p>
                   </div>
                 </div>
-                <button
-                  onClick={() => setToDelete(a)}
-                  className="rounded p-1.5 text-muted-foreground hover:bg-accent hover:text-destructive"
-                >
-                  <Trash2 className="size-4" />
-                </button>
+                {canCreate && (
+                  <button
+                    onClick={() => setToDelete(a)}
+                    className="rounded p-1.5 text-muted-foreground hover:bg-accent hover:text-destructive"
+                  >
+                    <Trash2 className="size-4" />
+                  </button>
+                )}
               </div>
               {a.description && (
                 <p className="mt-2 text-sm text-muted-foreground">{a.description}</p>
               )}
               <div className="mt-4 flex items-center justify-between text-xs text-muted-foreground">
                 <span>{a.project_count ?? 0} proyectos · {a.active_count ?? 0} activos</span>
-                <button className="text-primary hover:underline" onClick={() => setFormArea(a)}>
-                  Editar
-                </button>
+                {canCreate && (
+                  <button className="text-primary hover:underline" onClick={() => setFormArea(a)}>
+                    Editar
+                  </button>
+                )}
               </div>
             </CardContent>
           </Card>
