@@ -22,8 +22,11 @@ import {
 } from '@/hooks/aware'
 import { num, pct } from '@/lib/analyticsFormat'
 
-function ResumenAgosto() {
-  const { data, isLoading } = useAwareAgostoResumen()
+const AGOSTO_MIN = '2026-08-01'
+const AGOSTO_MAX = '2026-08-31'
+
+function ResumenAgosto({ from, to }: { from: string; to: string }) {
+  const { data, isLoading } = useAwareAgostoResumen({ from, to })
   if (isLoading) return <Skeleton className="h-72 rounded-xl" />
   if (!data || !data.total) return <EmptyState icon={ClipboardCheck} title="Sin datos de agosto" />
 
@@ -73,7 +76,17 @@ function ResumenAgosto() {
   )
 }
 
-function TablaAgosto() {
+function TablaAgosto({
+  from,
+  to,
+  onFromChange,
+  onToChange,
+}: {
+  from: string
+  to: string
+  onFromChange: (v: string) => void
+  onToChange: (v: string) => void
+}) {
   const [phone, setPhone] = useState('')
   const [tipificacion, setTipificacion] = useState('all')
   const [motivo, setMotivo] = useState('all')
@@ -81,6 +94,8 @@ function TablaAgosto() {
   const { data: motivos } = useAwareAgostoMotivos()
 
   const filters: AwareAgostoFilters = {
+    from,
+    to,
     phone: phone.trim() || undefined,
     tipificacion: tipificacion === 'all' ? undefined : (tipificacion as 'venta' | 'no_venta'),
     motivo: motivo === 'all' ? undefined : motivo,
@@ -118,6 +133,27 @@ function TablaAgosto() {
             ))}
           </SelectContent>
         </Select>
+        <div className="flex h-9 items-center gap-1 rounded-md border px-2">
+          <input
+            type="date"
+            value={from}
+            min={AGOSTO_MIN}
+            max={to || AGOSTO_MAX}
+            onChange={(e) => reset(onFromChange)(e.target.value)}
+            className="w-[124px] bg-transparent text-sm text-foreground [color-scheme:light] dark:[color-scheme:dark]"
+            title="Desde"
+          />
+          <span className="text-xs text-muted-foreground">→</span>
+          <input
+            type="date"
+            value={to}
+            min={from || AGOSTO_MIN}
+            max={AGOSTO_MAX}
+            onChange={(e) => reset(onToChange)(e.target.value)}
+            className="w-[124px] bg-transparent text-sm text-foreground [color-scheme:light] dark:[color-scheme:dark]"
+            title="Hasta"
+          />
+        </div>
       </div>
 
       {isLoading ? (
@@ -174,10 +210,12 @@ function TablaAgosto() {
 }
 
 export function AgostoTab() {
+  const [from, setFrom] = useState(AGOSTO_MIN)
+  const [to, setTo] = useState(AGOSTO_MAX)
   return (
     <div className="space-y-6">
-      <ResumenAgosto />
-      <TablaAgosto />
+      <ResumenAgosto from={from} to={to} />
+      <TablaAgosto from={from} to={to} onFromChange={setFrom} onToChange={setTo} />
     </div>
   )
 }

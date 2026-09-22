@@ -256,10 +256,13 @@ export async function downloadDeliverable(format: 'csv' | 'json', f: AwareFilter
 export type { AwareCall }
 
 /* ── pestaña "Agosto" (corrección manual 2026-08, solo Claro Hogar) ──
-   Dataset estático propio: no usa AwareFilters (sin rango de fecha, no
-   respeta el filtro de campaña de arriba porque solo existe para Hogar). */
+   Dataset estático propio: no usa AwareFilters del panel (no respeta el
+   filtro de campaña de arriba porque solo existe para Hogar), pero sí tiene
+   su propio filtro de día/rango — acotado siempre dentro de agosto. */
 
 export interface AwareAgostoFilters {
+  from?: string // 'YYYY-MM-DD', acotado a agosto 2026 en el backend
+  to?: string
   phone?: string
   tipificacion?: 'venta' | 'no_venta'
   motivo?: string
@@ -276,10 +279,10 @@ function cleanAgosto(f: AwareAgostoFilters = {}): Record<string, string | number
   return out
 }
 
-export const useAwareAgostoResumen = () =>
+export const useAwareAgostoResumen = (f?: Pick<AwareAgostoFilters, 'from' | 'to'>) =>
   useQuery({
-    queryKey: ['aware', 'agosto', 'resumen'],
-    queryFn: async () => (await api.get<AwareAgostoResumen>('/aware/agosto/resumen')).data,
+    queryKey: ['aware', 'agosto', 'resumen', cleanAgosto(f)],
+    queryFn: async () => (await api.get<AwareAgostoResumen>('/aware/agosto/resumen', { params: cleanAgosto(f) })).data,
   })
 
 export const useAwareAgostoCalls = (f: AwareAgostoFilters) =>
