@@ -82,7 +82,7 @@ export function HumanOutcomesCard({ data }: { data?: AwareHumanOutcomes }) {
         {data.no_venta_arbol.sin_clasificar && (
           <p className="text-[11px] text-muted-foreground">
             {num(data.no_venta_arbol.sin_clasificar.calls)} no venta ({pct(data.no_venta_arbol.sin_clasificar.rate)}) sin
-            motivo reconocido en el árbol de Claro — texto libre de Aware que no matchea ninguno de los 20 códigos, o
+            motivo reconocido en el árbol de Claro — texto libre de Aware que no matchea ningún código del árbol, o
             llamadas sin motivo registrado.
           </p>
         )}
