@@ -16,6 +16,7 @@ import {
 import { ConfirmDialog } from '@/components/common/ConfirmDialog'
 import { useAreaMutations, useAreas } from '@/hooks/queries'
 import { apiErrorMessage } from '@/lib/api'
+import { useCanCreateAdminResource } from '@/stores/auth'
 import type { Area } from '@/lib/types'
 
 const SWATCHES = ['#e11d48', '#f97316', '#f59e0b', '#10b981', '#0ea5e9', '#6366f1', '#8b5cf6', '#ec4899']
@@ -23,6 +24,7 @@ const SWATCHES = ['#e11d48', '#f97316', '#f59e0b', '#10b981', '#0ea5e9', '#6366f
 export default function AreasAdminPage() {
   const { data: areas } = useAreas()
   const { create, update, remove } = useAreaMutations()
+  const canCreate = useCanCreateAdminResource()
   const [formArea, setFormArea] = useState<Area | 'new' | null>(null)
   const [toDelete, setToDelete] = useState<Area | null>(null)
 
@@ -32,9 +34,11 @@ export default function AreasAdminPage() {
         title="Áreas"
         description="Las áreas de negocio que solicitan desarrollos."
         actions={
-          <Button onClick={() => setFormArea('new')}>
-            <Plus className="size-4" /> Nueva área
-          </Button>
+          canCreate && (
+            <Button onClick={() => setFormArea('new')}>
+              <Plus className="size-4" /> Nueva área
+            </Button>
+          )
         }
       />
 

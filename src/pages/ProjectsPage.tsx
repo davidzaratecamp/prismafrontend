@@ -17,11 +17,11 @@ import { ProjectCard } from '@/components/projects/ProjectCard'
 import { ProjectForm } from '@/components/projects/ProjectForm'
 import { useAreas, useProjects, useUsers } from '@/hooks/queries'
 import { PROJECT_STATUS_OPTIONS } from '@/lib/status'
-import { useAuthStore, useCanWrite } from '@/stores/auth'
+import { useAuthStore, useCanCreateProject } from '@/stores/auth'
 
 export default function ProjectsPage() {
   const [params, setParams] = useSearchParams()
-  const canWrite = useCanWrite()
+  const canWrite = useCanCreateProject()
   const currentUser = useAuthStore((s) => s.user)
   const { data: areas } = useAreas()
   const { data: users } = useUsers()

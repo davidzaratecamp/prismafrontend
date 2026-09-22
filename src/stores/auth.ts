@@ -52,3 +52,15 @@ export const useCanWrite = () => {
 }
 export const useIsAdmin = () => useAuthStore((s) => s.user?.role === 'admin')
 export const useIsAnalyst = () => useAuthStore((s) => s.user?.role === 'analista')
+
+/** Admin sin `admin_no_create` (ver UserForm) — crear usuarios/áreas (admin-only). */
+export const useCanCreateAdminResource = () =>
+  useAuthStore((s) => s.user?.role === 'admin' && !s.user?.admin_no_create)
+/** Developer, o admin sin `admin_no_create` — crear proyectos (canWrite del backend). */
+export const useCanCreateProject = () =>
+  useAuthStore((s) => {
+    const u = s.user
+    if (!u) return false
+    if (u.role === 'developer') return true
+    return u.role === 'admin' && !u.admin_no_create
+  })

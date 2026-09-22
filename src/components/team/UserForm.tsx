@@ -44,6 +44,7 @@ export function UserForm({
     aware_scope: '', // '' = ambas · '12' Hogar · '13' TyT
     aware_quality: false,
     aware_view: 'full', // 'full' | 'basico'
+    admin_no_create: false,
   })
 
   useEffect(() => {
@@ -57,6 +58,7 @@ export function UserForm({
       aware_scope: user?.aware_scope ? String(user.aware_scope) : '',
       aware_quality: !!user?.aware_quality,
       aware_view: user?.aware_view ?? 'full',
+      admin_no_create: !!user?.admin_no_create,
     })
   }, [open, user])
 
@@ -65,14 +67,16 @@ export function UserForm({
     if (!form.name.trim() || !form.email.trim()) return toast.error('Nombre y correo obligatorios')
     if (!editing && form.password.length < 8) return toast.error('La contraseña debe tener 8+ caracteres')
 
+    const awareScoped = form.role === 'analista' || form.role === 'admin'
     const base: Record<string, unknown> = {
       name: form.name.trim(),
       email: form.email.trim(),
       role: form.role,
       area_id: form.role === 'viewer' && form.area_id ? Number(form.area_id) : null,
-      aware_scope: form.role === 'analista' && form.aware_scope ? Number(form.aware_scope) : null,
-      aware_quality: form.role === 'analista' ? form.aware_quality : false,
-      aware_view: form.role === 'analista' ? form.aware_view : 'full',
+      aware_scope: awareScoped && form.aware_scope ? Number(form.aware_scope) : null,
+      aware_quality: awareScoped ? form.aware_quality : false,
+      aware_view: awareScoped ? form.aware_view : 'full',
+      admin_no_create: form.role === 'admin' ? form.admin_no_create : false,
     }
     try {
       if (editing) {
@@ -153,9 +157,9 @@ export function UserForm({
                 </Select>
               </div>
             )}
-            {form.role === 'analista' && (
+            {(form.role === 'analista' || form.role === 'admin') && (
               <div className="space-y-1.5">
-                <Label>Campaña (analista)</Label>
+                <Label>Campaña en Aware/Retell{form.role === 'admin' ? ' (opcional)' : ''}</Label>
                 <Select
                   value={form.aware_scope || 'all'}
                   onValueChange={(v) => setForm({ ...form, aware_scope: v === 'all' ? '' : v })}
@@ -169,9 +173,9 @@ export function UserForm({
                 </Select>
               </div>
             )}
-            {form.role === 'analista' && (
+            {(form.role === 'analista' || form.role === 'admin') && (
               <div className="space-y-1.5">
-                <Label>Vista del panel</Label>
+                <Label>Vista del panel Aware</Label>
                 <Select
                   value={form.aware_view}
                   onValueChange={(v) => setForm({ ...form, aware_view: v })}
@@ -185,13 +189,22 @@ export function UserForm({
               </div>
             )}
           </div>
-          {form.role === 'analista' && (
+          {(form.role === 'analista' || form.role === 'admin') && (
             <label className="flex items-center gap-2 text-sm">
               <Checkbox
                 checked={form.aware_quality}
                 onCheckedChange={(v) => setForm({ ...form, aware_quality: v === true })}
               />
               Acceso a la pestaña <strong>Calidad IA</strong> (interno — no dar a analistas de Claro)
+            </label>
+          )}
+          {form.role === 'admin' && (
+            <label className="flex items-center gap-2 text-sm">
+              <Checkbox
+                checked={form.admin_no_create}
+                onCheckedChange={(v) => setForm({ ...form, admin_no_create: v === true })}
+              />
+              Admin de alcance limitado: <strong>sin permiso para crear</strong> usuarios, proyectos ni áreas
             </label>
           )}
           <DialogFooter>

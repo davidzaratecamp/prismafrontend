@@ -11,11 +11,12 @@ import { ConfirmDialog } from '@/components/common/ConfirmDialog'
 import { UserForm } from '@/components/team/UserForm'
 import { useDashboard, useUserMutations, useUsers } from '@/hooks/queries'
 import { ROLE_LABEL } from '@/lib/roles'
-import { useIsAdmin } from '@/stores/auth'
+import { useIsAdmin, useCanCreateAdminResource } from '@/stores/auth'
 import type { User } from '@/lib/types'
 
 export default function TeamPage() {
   const isAdmin = useIsAdmin()
+  const canCreate = useCanCreateAdminResource()
   const { data: users, isLoading } = useUsers()
   const { data: dash } = useDashboard()
   const { remove } = useUserMutations()
@@ -36,7 +37,7 @@ export default function TeamPage() {
         title="Equipo"
         description="Desarrolladores, roles y carga de trabajo actual."
         actions={
-          isAdmin && (
+          canCreate && (
             <Button onClick={() => setFormOpen(true)}>
               <Plus className="size-4" /> Nuevo usuario
             </Button>

@@ -15,12 +15,14 @@ export interface User {
   email: string
   role: Role
   area_id: number | null
-  /** analista: 12 = solo Claro Hogar · 13 = solo Claro TyT · null = ambas */
+  /** analista y admin: 12 = solo Claro Hogar · 13 = solo Claro TyT · null = ambas (también fija el agente en Retell) */
   aware_scope?: number | null
-  /** analista: acceso a la pestaña Calidad IA (interno) */
+  /** analista y admin: acceso a la pestaña Calidad IA (interno) */
   aware_quality?: boolean
-  /** analista: 'full' = todas las pestañas · 'basico' = solo Resumen + Consolidado */
+  /** analista y admin: 'full' = todas las pestañas · 'basico' = solo Resumen + Consolidado */
   aware_view?: 'full' | 'basico'
+  /** admin: sin permiso para crear usuarios/proyectos/áreas (resto de Prisma) */
+  admin_no_create?: boolean
   avatar_color: string
   is_active?: boolean
   created_at?: string
