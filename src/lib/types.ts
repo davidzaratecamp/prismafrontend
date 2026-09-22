@@ -856,6 +856,9 @@ export interface AwareDeliverableRow {
   accesos: 'Sí' | null
   tv_voz: 'Sí' | null
   adicionales: 'Sí' | null
+  terminales: 'Sí' | null
+  tecnologia: 'Sí' | null
+  claro_up: 'Sí' | null
   transcripcion_ia_turnos: number
   grabacion_ia_url: string | null
   grabacion_asesor_url: string | null
