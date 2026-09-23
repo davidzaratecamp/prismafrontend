@@ -98,7 +98,7 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
         {isAdmin && (
           <NavLink to="/admin/retell" className={itemClass} onClick={onNavigate}>
             <Bot className="size-4" />
-            Retell IA
+            IA
           </NavLink>
         )}
         {isAdmin && (

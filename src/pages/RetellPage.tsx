@@ -177,7 +177,7 @@ export default function RetellPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Retell IA"
+        title="IA"
         description="Costos, agentes virtuales y llamadas del proveedor de IA (Retell)."
         actions={
           <div className="flex flex-wrap items-center gap-2">
