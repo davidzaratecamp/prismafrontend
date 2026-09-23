@@ -45,6 +45,7 @@ export function UserForm({
     aware_quality: false,
     aware_view: 'full', // 'full' | 'basico'
     admin_no_create: false,
+    retell_scope: '', // '' = ambos agentes · '12' Hogar · '13' TyT (solo admin)
   })
 
   useEffect(() => {
@@ -59,6 +60,7 @@ export function UserForm({
       aware_quality: !!user?.aware_quality,
       aware_view: user?.aware_view ?? 'full',
       admin_no_create: !!user?.admin_no_create,
+      retell_scope: user?.retell_scope ? String(user.retell_scope) : '',
     })
   }, [open, user])
 
@@ -77,6 +79,7 @@ export function UserForm({
       aware_quality: awareScoped ? form.aware_quality : false,
       aware_view: awareScoped ? form.aware_view : 'full',
       admin_no_create: form.role === 'admin' ? form.admin_no_create : false,
+      retell_scope: form.role === 'admin' && form.retell_scope ? Number(form.retell_scope) : null,
     }
     try {
       if (editing) {
@@ -159,7 +162,7 @@ export function UserForm({
             )}
             {(form.role === 'analista' || form.role === 'admin') && (
               <div className="space-y-1.5">
-                <Label>Campaña en Aware/Retell{form.role === 'admin' ? ' (opcional)' : ''}</Label>
+                <Label>Campaña en Aware{form.role === 'admin' ? ' (opcional)' : ''}</Label>
                 <Select
                   value={form.aware_scope || 'all'}
                   onValueChange={(v) => setForm({ ...form, aware_scope: v === 'all' ? '' : v })}
@@ -169,6 +172,22 @@ export function UserForm({
                     <SelectItem value="all">Ambas campañas</SelectItem>
                     <SelectItem value="12">Solo Claro Hogar</SelectItem>
                     <SelectItem value="13">Solo Claro TyT</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+            {form.role === 'admin' && (
+              <div className="space-y-1.5">
+                <Label>Agente en Retell (opcional)</Label>
+                <Select
+                  value={form.retell_scope || 'all'}
+                  onValueChange={(v) => setForm({ ...form, retell_scope: v === 'all' ? '' : v })}
+                >
+                  <SelectTrigger><SelectValue placeholder="Ambos" /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Ambos agentes</SelectItem>
+                    <SelectItem value="12">Solo sofia_hogar_agent</SelectItem>
+                    <SelectItem value="13">Solo sofia_tyt_agent</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

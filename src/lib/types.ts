@@ -23,6 +23,8 @@ export interface User {
   aware_view?: 'full' | 'basico'
   /** admin: sin permiso para crear usuarios/proyectos/áreas (resto de Prisma) */
   admin_no_create?: boolean
+  /** admin: 12 = solo agente Hogar · 13 = solo agente TyT · null = ambos (independiente de aware_scope) */
+  retell_scope?: number | null
   avatar_color: string
   is_active?: boolean
   created_at?: string
