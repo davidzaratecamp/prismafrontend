@@ -67,10 +67,20 @@ import {
 import { RETELL_TZ_OFFSET_MS } from '@/components/retell/format'
 
 const RELATIVE_RANGES = [
+  { value: 'today', label: 'Hoy' },
   { value: '7', label: 'Últimos 7 días' },
   { value: '30', label: 'Últimos 30 días' },
   { value: '90', label: 'Últimos 90 días' },
 ]
+
+/* Mismos filtros de fecha que Analítica Aware (día específico + rango
+ * personalizado), en hora Bogotá — ver AwarePage.tsx todayCo/shift. */
+const today = () => new Date(Date.now() + RETELL_TZ_OFFSET_MS).toISOString().slice(0, 10)
+/** Instante UTC de la medianoche Bogotá de `ymd` (+ addDays), como ISO string. */
+function localDayToUtcIso(ymd: string, addDays = 0): string {
+  const [y, m, d] = ymd.split('-').map(Number)
+  return new Date(Date.UTC(y, m - 1, d + addDays) - RETELL_TZ_OFFSET_MS).toISOString()
+}
 
 const SENTIMENT_COLOR: Record<string, string> = {
   Positive: '#10b981',
@@ -96,6 +106,18 @@ function monthOptions(count = 12) {
 function useSelection(key: string): RetellFilters {
   return useMemo(() => {
     if (key === 'all') return {}
+    if (key === 'today') {
+      const t = today()
+      return { from: localDayToUtcIso(t), to: localDayToUtcIso(t, 1) }
+    }
+    if (key.startsWith('day:')) {
+      const d = key.slice(4)
+      return { from: localDayToUtcIso(d), to: localDayToUtcIso(d, 1) }
+    }
+    if (key.startsWith('range:')) {
+      const [, from, to] = key.split(':')
+      return { from: localDayToUtcIso(from), to: localDayToUtcIso(to, 1) }
+    }
     if (key.startsWith('month:')) {
       const ym = key.slice(6)
       const [y, m] = ym.split('-').map(Number)
@@ -115,6 +137,16 @@ export default function RetellPage() {
   const [agentId, setAgentId] = useState('all')
   const selection = useSelection(rangeKey)
   const months = useMemo(() => monthOptions(12), [])
+
+  const dayValue = rangeKey.startsWith('day:') ? rangeKey.slice(4) : ''
+  // Rango personalizado (fecha inicio / fecha fin), igual que en Analítica Aware.
+  const [customFrom, setCustomFrom] = useState('')
+  const [customTo, setCustomTo] = useState('')
+  function applyCustomRange(from: string, to: string) {
+    if (!from || !to) return
+    const [a, b] = from <= to ? [from, to] : [to, from]
+    setRangeKey(`range:${a}:${b}`)
+  }
 
   const filterOptions = useRetellFilterOptions()
   const agents = filterOptions.data?.agents ?? []
@@ -162,9 +194,12 @@ export default function RetellPage() {
                 ))}
               </SelectContent>
             </Select>
-            <Select value={rangeKey} onValueChange={setRangeKey}>
+            <Select
+              value={rangeKey.startsWith('day:') || rangeKey.startsWith('range:') ? '' : rangeKey}
+              onValueChange={setRangeKey}
+            >
               <SelectTrigger className="h-9 w-48">
-                <SelectValue />
+                <SelectValue placeholder="Día específico →" />
               </SelectTrigger>
               <SelectContent>
                 <SelectGroup>
@@ -189,6 +224,40 @@ export default function RetellPage() {
                 </SelectGroup>
               </SelectContent>
             </Select>
+            <input
+              type="date"
+              value={dayValue}
+              max={today()}
+              onChange={(e) => setRangeKey(e.target.value ? `day:${e.target.value}` : '30')}
+              className="h-9 rounded-md border bg-transparent px-2 text-sm text-foreground [color-scheme:light] dark:[color-scheme:dark]"
+              title="Ver un día concreto"
+            />
+            <div className="flex h-9 items-center gap-1 rounded-md border px-2">
+              <input
+                type="date"
+                value={customFrom}
+                max={customTo || today()}
+                onChange={(e) => {
+                  setCustomFrom(e.target.value)
+                  applyCustomRange(e.target.value, customTo)
+                }}
+                className="w-[124px] bg-transparent text-sm text-foreground [color-scheme:light] dark:[color-scheme:dark]"
+                title="Fecha inicio"
+              />
+              <span className="text-xs text-muted-foreground">→</span>
+              <input
+                type="date"
+                value={customTo}
+                min={customFrom || undefined}
+                max={today()}
+                onChange={(e) => {
+                  setCustomTo(e.target.value)
+                  applyCustomRange(customFrom, e.target.value)
+                }}
+                className="w-[124px] bg-transparent text-sm text-foreground [color-scheme:light] dark:[color-scheme:dark]"
+                title="Fecha fin"
+              />
+            </div>
             <Button onClick={runSync} disabled={sync.isPending}>
               <RefreshCw className={sync.isPending ? 'size-4 animate-spin' : 'size-4'} />
               {sync.isPending ? 'Sincronizando…' : 'Sincronizar'}
