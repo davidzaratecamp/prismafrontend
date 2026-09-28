@@ -186,7 +186,7 @@ export function DeliverableTable({ base }: { base: AwareFilters }) {
 
       <p className="text-xs text-muted-foreground">
         Una fila por llamada, correlacionable por el ID único. El tramo del asesor se empareja por
-        teléfono + fecha + hora (aproximado). La exportación entrega hasta 20 000 filas del rango.
+        teléfono + fecha + hora (aproximado). La exportación entrega todas las filas del rango elegido.
       </p>
 
       {isLoading ? (
