@@ -72,7 +72,6 @@ import {
   useAwareSentiment,
   useAwareSentimentByOutcome,
   useAwareSofiaTipificacion,
-  useAwareAsesorTipificacion,
   useAwareServiceGroups,
   useAwareServiceTypes,
   useAwareTalkRatio,
@@ -347,7 +346,7 @@ function ResumenTab({ filters, single, isHogar }: { filters: AwareFilters; singl
   const overview = useAwareOverview(filters)
   const comparison = useAwarePeriodComparison(filters)
   const tipificacion = useAwareSofiaTipificacion(filters)
-  const tipificacionAsesor = useAwareAsesorTipificacion(filters)
+  const outcomes = useAwareHumanOutcomes(filters)
   const volume = useAwareVolumeByDay(filters)
   const trend = useAwareDailyTrend(filters)
   const hangup = useAwareHangup(filters)
@@ -425,7 +424,7 @@ function ResumenTab({ filters, single, isHogar }: { filters: AwareFilters; singl
         <KpiCard label="Sentimiento positivo" value={pct(k.positive_rate)} hint={`negativo ${pct(k.negative_rate)}`} icon={Bot} tone="success" />
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-3">
+      <div className="grid gap-4 lg:grid-cols-2">
         <MiniBarList
           title="Tipificación IA de SOFIA"
           emptyLabel="Sin datos"
@@ -435,22 +434,10 @@ function ResumenTab({ filters, single, isHogar }: { filters: AwareFilters; singl
             display: `${num(r.calls)} (${pct(r.rate)})`,
           }))}
         />
-        <MiniBarList
-          title="Tipificación asesor"
-          emptyLabel="Sin datos"
-          rows={(tipificacionAsesor.data?.rows ?? []).map<MiniBarRow>((r) => ({
-            label: r.tipificacion,
-            value: r.calls,
-            display: `${num(r.calls)} (${pct(r.rate)})`,
-          }))}
-          note={
-            tipificacionAsesor.data?.sin_tipificar
-              ? `${num(tipificacionAsesor.data.sin_tipificar.calls)} transferidas (${pct(tipificacionAsesor.data.sin_tipificar.rate)}) sin tramo de asesor emparejado — abandono en cola o hueco del heurístico bot→asesor, no es una tipificación.`
-              : undefined
-          }
-        />
         <PeriodComparisonCard data={comparison.data} />
       </div>
+
+      <HumanOutcomesCard data={outcomes.data} hideNotes />
       <CallsByDayChart data={volume.data ?? []} single={single} />
       <TrendChart data={trend.data ?? []} />
 

@@ -28,7 +28,17 @@ export function BarRow({ label, calls, rate, color }: { label: string; calls: nu
   )
 }
 
-export function HumanOutcomesCard({ data }: { data?: AwareHumanOutcomes }) {
+export function HumanOutcomesCard({
+  data,
+  hideNotes,
+}: {
+  data?: AwareHumanOutcomes
+  /** Oculta las notas técnicas del heurístico bot→asesor (emparejamiento
+   *  aproximado, motivos sin clasificar) — usar donde la vista la vea Claro
+   *  (p.ej. Resumen, que a diferencia de Asesor humano no está oculto en
+   *  vista básica). */
+  hideNotes?: boolean
+}) {
   if (!data) return null
   return (
     <Card>
@@ -79,7 +89,7 @@ export function HumanOutcomesCard({ data }: { data?: AwareHumanOutcomes }) {
           </div>
         ))}
 
-        {data.no_venta_arbol.sin_clasificar && (
+        {!hideNotes && data.no_venta_arbol.sin_clasificar && (
           <p className="text-[11px] text-muted-foreground">
             {num(data.no_venta_arbol.sin_clasificar.calls)} no venta ({pct(data.no_venta_arbol.sin_clasificar.rate)}) sin
             motivo reconocido en el árbol de Claro — texto libre de Aware que no matchea ningún código del árbol, o
@@ -106,10 +116,12 @@ export function HumanOutcomesCard({ data }: { data?: AwareHumanOutcomes }) {
           </div>
         )}
 
-        <p className="text-[11px] text-muted-foreground">
-          {num(data.sin_atender)} transferencias no llegaron a un asesor. El emparejamiento bot→asesor es
-          aproximado (teléfono + fecha + hora).
-        </p>
+        {!hideNotes && (
+          <p className="text-[11px] text-muted-foreground">
+            {num(data.sin_atender)} transferencias no llegaron a un asesor. El emparejamiento bot→asesor es
+            aproximado (teléfono + fecha + hora).
+          </p>
+        )}
       </CardContent>
     </Card>
   )

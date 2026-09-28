@@ -17,14 +17,11 @@ export function MiniBarList({
   rows,
   emptyLabel = 'Sin datos',
   className,
-  note,
 }: {
   title: string
   rows: MiniBarRow[]
   emptyLabel?: string
   className?: string
-  /** Texto aclaratorio debajo de la lista (p.ej. lo que quedó fuera de las barras). */
-  note?: string
 }) {
   const max = Math.max(1, ...rows.map((r) => r.value))
 
@@ -54,7 +51,6 @@ export function MiniBarList({
             ))}
           </ul>
         )}
-        {note && <p className="mt-3 text-[11px] text-muted-foreground">{note}</p>}
       </CardContent>
     </Card>
   )
