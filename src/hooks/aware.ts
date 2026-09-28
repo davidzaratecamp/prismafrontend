@@ -118,6 +118,8 @@ export const useAwareDidBreakdown = (f?: AwareFilters) =>
   useAware<AwareDidBreakdown>('did-breakdown', 'analytics/did-breakdown', f)
 export const useAwareSofiaTipificacion = (f?: AwareFilters) =>
   useAware<AwareSofiaTipificacion>('sofia-tipificacion', 'analytics/sofia-tipificacion', f)
+export const useAwareAsesorTipificacion = (f?: AwareFilters) =>
+  useAware<AwareSofiaTipificacion>('asesor-tipificacion', 'analytics/asesor-tipificacion', f)
 export const useAwareTransfersAttended = (f?: AwareFilters) =>
   useAware<AwareTransfersAttended>('transfers-attended', 'analytics/transfers-attended', f)
 export const useAwareCalls = (f?: AwareFilters) =>

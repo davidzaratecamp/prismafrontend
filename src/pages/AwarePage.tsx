@@ -72,6 +72,7 @@ import {
   useAwareSentiment,
   useAwareSentimentByOutcome,
   useAwareSofiaTipificacion,
+  useAwareAsesorTipificacion,
   useAwareServiceGroups,
   useAwareServiceTypes,
   useAwareTalkRatio,
@@ -346,6 +347,7 @@ function ResumenTab({ filters, single, isHogar }: { filters: AwareFilters; singl
   const overview = useAwareOverview(filters)
   const comparison = useAwarePeriodComparison(filters)
   const tipificacion = useAwareSofiaTipificacion(filters)
+  const tipificacionAsesor = useAwareAsesorTipificacion(filters)
   const volume = useAwareVolumeByDay(filters)
   const trend = useAwareDailyTrend(filters)
   const hangup = useAwareHangup(filters)
@@ -423,11 +425,20 @@ function ResumenTab({ filters, single, isHogar }: { filters: AwareFilters; singl
         <KpiCard label="Sentimiento positivo" value={pct(k.positive_rate)} hint={`negativo ${pct(k.negative_rate)}`} icon={Bot} tone="success" />
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-2">
+      <div className="grid gap-4 lg:grid-cols-3">
         <MiniBarList
           title="Tipificación IA de SOFIA"
           emptyLabel="Sin datos"
           rows={(tipificacion.data?.rows ?? []).map<MiniBarRow>((r) => ({
+            label: r.tipificacion,
+            value: r.calls,
+            display: `${num(r.calls)} (${pct(r.rate)})`,
+          }))}
+        />
+        <MiniBarList
+          title="Tipificación asesor"
+          emptyLabel="Sin datos"
+          rows={(tipificacionAsesor.data?.rows ?? []).map<MiniBarRow>((r) => ({
             label: r.tipificacion,
             value: r.calls,
             display: `${num(r.calls)} (${pct(r.rate)})`,
