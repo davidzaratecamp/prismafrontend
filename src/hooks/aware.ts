@@ -8,6 +8,7 @@ import type {
   AwareByProject,
   AwareDidBreakdown,
   AwareSofiaTipificacion,
+  AwareAsesorTipificacion,
   AwareCall,
   AwareCallDetail,
   AwareCallsPage,
@@ -119,7 +120,7 @@ export const useAwareDidBreakdown = (f?: AwareFilters) =>
 export const useAwareSofiaTipificacion = (f?: AwareFilters) =>
   useAware<AwareSofiaTipificacion>('sofia-tipificacion', 'analytics/sofia-tipificacion', f)
 export const useAwareAsesorTipificacion = (f?: AwareFilters) =>
-  useAware<AwareSofiaTipificacion>('asesor-tipificacion', 'analytics/asesor-tipificacion', f)
+  useAware<AwareAsesorTipificacion>('asesor-tipificacion', 'analytics/asesor-tipificacion', f)
 export const useAwareTransfersAttended = (f?: AwareFilters) =>
   useAware<AwareTransfersAttended>('transfers-attended', 'analytics/transfers-attended', f)
 export const useAwareCalls = (f?: AwareFilters) =>

@@ -509,6 +509,14 @@ export interface AwareSofiaTipificacion {
   rows: { tipificacion: string; calls: number; rate: number | null }[]
 }
 
+export interface AwareAsesorTipificacion {
+  total: number
+  rows: { tipificacion: string; calls: number; rate: number | null }[]
+  /** Transferidas sin tramo de asesor emparejado (abandono en cola o hueco
+   *  del heurístico) — no es una tipificación, va aparte de `rows`. */
+  sin_tipificar: { calls: number; rate: number | null } | null
+}
+
 export interface AwareDidBreakdown {
   by_did: {
     did: string

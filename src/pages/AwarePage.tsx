@@ -443,6 +443,11 @@ function ResumenTab({ filters, single, isHogar }: { filters: AwareFilters; singl
             value: r.calls,
             display: `${num(r.calls)} (${pct(r.rate)})`,
           }))}
+          note={
+            tipificacionAsesor.data?.sin_tipificar
+              ? `${num(tipificacionAsesor.data.sin_tipificar.calls)} transferidas (${pct(tipificacionAsesor.data.sin_tipificar.rate)}) sin tramo de asesor emparejado — abandono en cola o hueco del heurístico bot→asesor, no es una tipificación.`
+              : undefined
+          }
         />
         <PeriodComparisonCard data={comparison.data} />
       </div>
