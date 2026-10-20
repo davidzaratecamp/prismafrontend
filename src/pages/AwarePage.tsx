@@ -349,8 +349,8 @@ function TipByReasonBreakdown({ rows }: { rows: { tipificacion: string; calls: n
   return (
     <>
       <p className="italic">
-        Desglose de estas mismas llamadas por tipificación IA de SOFIA (intención detectada en la conversación — no
-        define el motivo de colgado de arriba):
+        De este motivo, según tipificación IA de SOFIA (dato independiente del motivo de colgado — la tarjeta
+        "Tipificación IA de SOFIA" suma las 4 tarjetas de motivo en una sola, por eso ningún código coincide 1 a 1):
       </p>
       {rows.map((t) => (
         <p key={t.tipificacion} className="truncate">
