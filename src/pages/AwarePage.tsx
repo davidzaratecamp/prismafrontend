@@ -340,13 +340,15 @@ export default function AwarePage() {
   )
 }
 
-/** Top 4 tipificaciones IA dentro de un motivo de colgado — mismo
- *  tratamiento visual que el desglose de DID (extra de KpiCard). */
+/** Todas las tipificaciones IA dentro de un motivo de colgado — mismo
+ *  tratamiento visual que el desglose de DID (extra de KpiCard). Sin
+ *  recortar a pedido del usuario (2026-10-20): recortar a un top-N generaba
+ *  dudas porque la suma visible no daba el total de la tarjeta. */
 function TipByReasonBreakdown({ rows }: { rows: { tipificacion: string; calls: number; rate: number | null }[] }) {
   if (!rows.length) return null
   return (
     <>
-      {rows.slice(0, 4).map((t) => (
+      {rows.map((t) => (
         <p key={t.tipificacion} className="truncate">
           {t.tipificacion}: <span className="tabular-nums">{num(t.calls)}</span> ({pct(t.rate)})
         </p>
