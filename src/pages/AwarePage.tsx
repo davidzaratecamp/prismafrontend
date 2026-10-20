@@ -340,20 +340,17 @@ export default function AwarePage() {
   )
 }
 
-/** Todas las tipificaciones IA dentro de un motivo de colgado — mismo
- *  tratamiento visual que el desglose de DID (extra de KpiCard). Sin
- *  recortar a pedido del usuario (2026-10-20): recortar a un top-N generaba
+/** Todas las tipificaciones IA dentro de un motivo de colgado — solo visible
+ *  al pasar el cursor sobre la tarjeta (tooltip de KpiCard), para no alargar
+ *  las tarjetas y mantener la estética del resto del panel (a pedido del
+ *  usuario 2026-10-20). Sin recortar: antes se mostraba un top-4 y generaba
  *  dudas porque la suma visible no daba el total de la tarjeta. */
 function TipByReasonBreakdown({ rows }: { rows: { tipificacion: string; calls: number; rate: number | null }[] }) {
   if (!rows.length) return null
   return (
     <>
-      <p className="italic">
-        De este motivo, según tipificación IA de SOFIA (dato independiente del motivo de colgado — la tarjeta
-        "Tipificación IA de SOFIA" suma las 4 tarjetas de motivo en una sola, por eso ningún código coincide 1 a 1):
-      </p>
       {rows.map((t) => (
-        <p key={t.tipificacion} className="truncate">
+        <p key={t.tipificacion}>
           {t.tipificacion}: <span className="tabular-nums">{num(t.calls)}</span> ({pct(t.rate)})
         </p>
       ))}
@@ -437,7 +434,7 @@ function ResumenTab({ filters, single, isHogar }: { filters: AwareFilters; singl
           hint={`${num(k.user_hangup)} llamadas`}
           icon={PhoneOff}
           tone="danger"
-          extra={<TipByReasonBreakdown rows={k.tipificacion_by_reason.user_hangup} />}
+          tooltip={<TipByReasonBreakdown rows={k.tipificacion_by_reason.user_hangup} />}
         />
         <KpiCard
           label="Colgó el bot"
@@ -445,7 +442,7 @@ function ResumenTab({ filters, single, isHogar }: { filters: AwareFilters; singl
           hint={`${num(k.agent_hangup)} llamadas`}
           icon={Bot}
           tone="warning"
-          extra={<TipByReasonBreakdown rows={k.tipificacion_by_reason.agent_hangup} />}
+          tooltip={<TipByReasonBreakdown rows={k.tipificacion_by_reason.agent_hangup} />}
         />
         <KpiCard
           label="Cerró por inactividad"
@@ -453,7 +450,7 @@ function ResumenTab({ filters, single, isHogar }: { filters: AwareFilters; singl
           hint={`${num(k.inactivity)} llamadas`}
           icon={PhoneOff}
           tone="warning"
-          extra={<TipByReasonBreakdown rows={k.tipificacion_by_reason.inactivity} />}
+          tooltip={<TipByReasonBreakdown rows={k.tipificacion_by_reason.inactivity} />}
         />
         <KpiCard
           label="Abandono en cola"

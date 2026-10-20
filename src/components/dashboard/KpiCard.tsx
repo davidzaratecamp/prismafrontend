@@ -1,5 +1,6 @@
 import type { ComponentType, ReactNode } from 'react'
 import { Card } from '@/components/ui/card'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { cn } from '@/lib/utils'
 
 export function KpiCard({
@@ -9,6 +10,7 @@ export function KpiCard({
   icon: Icon,
   tone = 'default',
   extra,
+  tooltip,
 }: {
   label: string
   value: string | number
@@ -16,6 +18,8 @@ export function KpiCard({
   icon: ComponentType<{ className?: string }>
   tone?: 'default' | 'warning' | 'danger' | 'success'
   extra?: ReactNode
+  /** Detalle que solo aparece al pasar el cursor sobre la tarjeta (no ocupa espacio en el layout). */
+  tooltip?: ReactNode
 }) {
   const toneClass = {
     default: 'bg-primary/10 text-primary',
@@ -24,7 +28,7 @@ export function KpiCard({
     success: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400',
   }[tone]
 
-  return (
+  const card = (
     <Card className="p-5">
       <div className="flex items-start justify-between">
         <div>
@@ -38,5 +42,16 @@ export function KpiCard({
         </div>
       </div>
     </Card>
+  )
+
+  if (!tooltip) return card
+
+  return (
+    <Tooltip delayDuration={200}>
+      <TooltipTrigger asChild>{card}</TooltipTrigger>
+      <TooltipContent side="bottom" align="start" className="max-w-xs space-y-0.5 whitespace-normal">
+        {tooltip}
+      </TooltipContent>
+    </Tooltip>
   )
 }
