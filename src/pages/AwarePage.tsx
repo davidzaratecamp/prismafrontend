@@ -348,6 +348,7 @@ function TipByReasonBreakdown({ rows }: { rows: { tipificacion: string; calls: n
   if (!rows.length) return null
   return (
     <>
+      <p className="italic">Tipificación IA — intención detectada en la llamada, no siempre el resultado final:</p>
       {rows.map((t) => (
         <p key={t.tipificacion} className="truncate">
           {t.tipificacion}: <span className="tabular-nums">{num(t.calls)}</span> ({pct(t.rate)})
@@ -465,6 +466,7 @@ function ResumenTab({ filters, single, isHogar }: { filters: AwareFilters; singl
       <div className="grid gap-4 lg:grid-cols-2">
         <MiniBarList
           title="Tipificación IA de SOFIA"
+          description="Intención detectada por SOFIA en la conversación — no siempre coincide con el resultado técnico final de la llamada."
           emptyLabel="Sin datos"
           rows={(tipificacion.data?.rows ?? []).map<MiniBarRow>((r) => ({
             label: r.tipificacion,

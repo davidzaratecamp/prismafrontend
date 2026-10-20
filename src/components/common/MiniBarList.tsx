@@ -17,11 +17,14 @@ export function MiniBarList({
   rows,
   emptyLabel = 'Sin datos',
   className,
+  description,
 }: {
   title: string
   rows: MiniBarRow[]
   emptyLabel?: string
   className?: string
+  /** subtítulo chico bajo el título, para aclaraciones (ej. qué significa el dato) */
+  description?: string
 }) {
   const max = Math.max(1, ...rows.map((r) => r.value))
 
@@ -29,6 +32,7 @@ export function MiniBarList({
     <Card className={className}>
       <CardHeader>
         <CardTitle className="text-base">{title}</CardTitle>
+        {description && <p className="text-xs text-muted-foreground">{description}</p>}
       </CardHeader>
       <CardContent>
         {rows.length === 0 ? (
