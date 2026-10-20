@@ -340,6 +340,21 @@ export default function AwarePage() {
   )
 }
 
+/** Top 4 tipificaciones IA dentro de un motivo de colgado — mismo
+ *  tratamiento visual que el desglose de DID (extra de KpiCard). */
+function TipByReasonBreakdown({ rows }: { rows: { tipificacion: string; calls: number; rate: number | null }[] }) {
+  if (!rows.length) return null
+  return (
+    <>
+      {rows.slice(0, 4).map((t) => (
+        <p key={t.tipificacion} className="truncate">
+          {t.tipificacion}: <span className="tabular-nums">{num(t.calls)}</span> ({pct(t.rate)})
+        </p>
+      ))}
+    </>
+  )
+}
+
 /* ───────────────────────── Resumen ───────────────────────── */
 
 function ResumenTab({ filters, single, isHogar }: { filters: AwareFilters; single: boolean; isHogar: boolean }) {
@@ -410,9 +425,30 @@ function ResumenTab({ filters, single, isHogar }: { filters: AwareFilters; singl
             )
           }
         />
-        <KpiCard label="Colgó el cliente" value={pct(k.user_hangup_rate)} hint={`${num(k.user_hangup)} llamadas`} icon={PhoneOff} tone="danger" />
-        <KpiCard label="Colgó el bot" value={pct(k.agent_hangup_rate)} hint={`${num(k.agent_hangup)} llamadas`} icon={Bot} tone="warning" />
-        <KpiCard label="Cerró por inactividad" value={pct(k.inactivity_rate)} hint={`${num(k.inactivity)} llamadas`} icon={PhoneOff} tone="warning" />
+        <KpiCard
+          label="Colgó el cliente"
+          value={pct(k.user_hangup_rate)}
+          hint={`${num(k.user_hangup)} llamadas`}
+          icon={PhoneOff}
+          tone="danger"
+          extra={<TipByReasonBreakdown rows={k.tipificacion_by_reason.user_hangup} />}
+        />
+        <KpiCard
+          label="Colgó el bot"
+          value={pct(k.agent_hangup_rate)}
+          hint={`${num(k.agent_hangup)} llamadas`}
+          icon={Bot}
+          tone="warning"
+          extra={<TipByReasonBreakdown rows={k.tipificacion_by_reason.agent_hangup} />}
+        />
+        <KpiCard
+          label="Cerró por inactividad"
+          value={pct(k.inactivity_rate)}
+          hint={`${num(k.inactivity)} llamadas`}
+          icon={PhoneOff}
+          tone="warning"
+          extra={<TipByReasonBreakdown rows={k.tipificacion_by_reason.inactivity} />}
+        />
         <KpiCard
           label="Abandono en cola"
           value={abandon.data ? num(abandon.data.total) : '—'}

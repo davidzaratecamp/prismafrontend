@@ -446,6 +446,12 @@ export interface AwareOverview {
   negative_rate: number | null
   successful: number
   success_rate: number | null
+  // Desglose por tipificación IA de SOFIA, separado por motivo de colgado —
+  // el % de cada fila es relativo al total de ESE motivo, no al general.
+  tipificacion_by_reason: Record<
+    'user_hangup' | 'agent_hangup' | 'inactivity' | 'call_transfer',
+    { tipificacion: string; calls: number; rate: number | null }[]
+  >
 }
 
 export interface AwareVolumeDay {
