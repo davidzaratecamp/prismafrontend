@@ -348,7 +348,10 @@ function TipByReasonBreakdown({ rows }: { rows: { tipificacion: string; calls: n
   if (!rows.length) return null
   return (
     <>
-      <p className="italic">Tipificación IA — intención detectada en la llamada, no siempre el resultado final:</p>
+      <p className="italic">
+        Desglose de estas mismas llamadas por tipificación IA de SOFIA (intención detectada en la conversación — no
+        define el motivo de colgado de arriba):
+      </p>
       {rows.map((t) => (
         <p key={t.tipificacion} className="truncate">
           {t.tipificacion}: <span className="tabular-nums">{num(t.calls)}</span> ({pct(t.rate)})
