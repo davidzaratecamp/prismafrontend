@@ -177,6 +177,19 @@ export default function AwarePage() {
 
   const config = useAwareConfig()
 
+  // Clic en una tipificación IA (tarjeta "Tipificación IA de SOFIA" o las de
+  // motivo de colgado, en Resumen) → salta a Consolidado ya filtrado por esa
+  // tipificación. `jumpSeq` fuerza que DeliverableTable remonte (y tome el
+  // nuevo filtro inicial) aunque se repita el mismo valor dos veces seguidas.
+  const [activeTab, setActiveTab] = useState('resumen')
+  const [jumpTipIa, setJumpTipIa] = useState<string | undefined>(undefined)
+  const [jumpSeq, setJumpSeq] = useState(0)
+  function goToDeliverableByTipIa(tipIa: string) {
+    setJumpTipIa(tipIa)
+    setJumpSeq((n) => n + 1)
+    setActiveTab('entregable')
+  }
+
   return (
     <div className="space-y-6">
       <PageHeader
@@ -278,7 +291,7 @@ export default function AwarePage() {
         </Card>
       )}
 
-      <Tabs defaultValue="resumen">
+      <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList className="flex-wrap">
           <TabsTrigger value="resumen">Resumen</TabsTrigger>
           {!basico && <TabsTrigger value="recorrido">Recorrido</TabsTrigger>}
@@ -294,10 +307,15 @@ export default function AwarePage() {
         </TabsList>
 
         <TabsContent value="resumen" className="pt-4">
-          <ResumenTab filters={filters} single={proyecto !== 'all'} isHogar={proyecto === '12'} />
+          <ResumenTab
+            filters={filters}
+            single={proyecto !== 'all'}
+            isHogar={proyecto === '12'}
+            onSelectTipificacion={goToDeliverableByTipIa}
+          />
         </TabsContent>
         <TabsContent value="entregable" className="pt-4">
-          <DeliverableTable key={`${rangeKey}:${proyecto}`} base={filters} />
+          <DeliverableTable key={`${rangeKey}:${proyecto}:${jumpSeq}`} base={filters} initialTipIa={jumpTipIa} />
         </TabsContent>
         {canAgosto && (
           <TabsContent value="agosto" className="pt-4">
@@ -360,7 +378,18 @@ function TipByReasonBreakdown({ rows }: { rows: { tipificacion: string; calls: n
 
 /* ───────────────────────── Resumen ───────────────────────── */
 
-function ResumenTab({ filters, single, isHogar }: { filters: AwareFilters; single: boolean; isHogar: boolean }) {
+function ResumenTab({
+  filters,
+  single,
+  isHogar,
+  onSelectTipificacion,
+}: {
+  filters: AwareFilters
+  single: boolean
+  isHogar: boolean
+  /** clic en una fila de "Tipificación IA de SOFIA" → saltar a Consolidado filtrado por ese valor */
+  onSelectTipificacion?: (tipIa: string) => void
+}) {
   const overview = useAwareOverview(filters)
   const comparison = useAwarePeriodComparison(filters)
   const tipificacion = useAwareSofiaTipificacion(filters)
@@ -466,13 +495,20 @@ function ResumenTab({ filters, single, isHogar }: { filters: AwareFilters; singl
       <div className="grid gap-4 lg:grid-cols-2">
         <MiniBarList
           title="Tipificación IA de SOFIA"
-          description="Intención detectada por SOFIA en la conversación — no siempre coincide con el resultado técnico final de la llamada."
+          description="Intención detectada por SOFIA en la conversación — no siempre coincide con el resultado técnico final de la llamada. Clic en una fila para ver esas llamadas en Consolidado."
           emptyLabel="Sin datos"
           rows={(tipificacion.data?.rows ?? []).map<MiniBarRow>((r) => ({
             label: r.tipificacion,
             value: r.calls,
             display: `${num(r.calls)} (${pct(r.rate)})`,
+            // "Sin estandarizar" (texto libre que no matchea ningún código
+            // oficial) no tiene un filtro exacto equivalente en Consolidado.
+            disabled: r.tipificacion === 'Sin estandarizar',
           }))}
+          onRowClick={
+            onSelectTipificacion &&
+            ((row) => onSelectTipificacion(row.label === 'Sin dato' ? '__none__' : row.label))
+          }
         />
         <PeriodComparisonCard data={comparison.data} />
       </div>

@@ -88,12 +88,12 @@ const COLS: { key: string; label: string; help: string; align?: 'right' | 'cente
   { key: 'rec', label: 'Grabación', help: '14 · Enlace a la grabación (IA y asesor)', align: 'center' },
 ]
 
-export function DeliverableTable({ base }: { base: AwareFilters }) {
+export function DeliverableTable({ base, initialTipIa }: { base: AwareFilters; initialTipIa?: string }) {
   const [idUnico, setIdUnico] = useState('')
   const [estado, setEstado] = useState('all')
   const [venta, setVenta] = useState('all')
   const [tip, setTip] = useState('all')
-  const [tipIa, setTipIa] = useState('all')
+  const [tipIa, setTipIa] = useState(initialTipIa ?? 'all')
   const [page, setPage] = useState(1)
   const [open, setOpen] = useState<string | null>(null)
   const [copied, setCopied] = useState<string | null>(null)
