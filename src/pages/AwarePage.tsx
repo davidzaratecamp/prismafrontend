@@ -85,6 +85,9 @@ import {
 } from '@/hooks/aware'
 import { useAuthStore } from '@/stores/auth'
 
+// Pestaña "Recorrido" oculta temporalmente (2026-10-26). Para volver a mostrarla: true.
+const SHOW_RECORRIDO = false
+
 /* ── rango de fechas (hora Colombia) ── */
 const OFFSET = -5 * 3600000
 const todayCo = () => new Date(Date.now() + OFFSET).toISOString().slice(0, 10)
@@ -294,7 +297,7 @@ export default function AwarePage() {
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList className="flex-wrap">
           <TabsTrigger value="resumen">Resumen</TabsTrigger>
-          {!basico && <TabsTrigger value="recorrido">Recorrido</TabsTrigger>}
+          {!basico && SHOW_RECORRIDO && <TabsTrigger value="recorrido">Recorrido</TabsTrigger>}
           {!basico && <TabsTrigger value="asesor">Asesor humano</TabsTrigger>}
           {!basico && <TabsTrigger value="operacion">Operación</TabsTrigger>}
           {!basico && <TabsTrigger value="conversacion">Conversación</TabsTrigger>}
@@ -325,9 +328,11 @@ export default function AwarePage() {
 
         {!basico && (
           <>
-            <TabsContent value="recorrido" className="pt-4">
-              <RecorridoTab filters={filters} />
-            </TabsContent>
+            {SHOW_RECORRIDO && (
+              <TabsContent value="recorrido" className="pt-4">
+                <RecorridoTab filters={filters} />
+              </TabsContent>
+            )}
             <TabsContent value="asesor" className="pt-4">
               <AsesorTab filters={filters} />
             </TabsContent>
