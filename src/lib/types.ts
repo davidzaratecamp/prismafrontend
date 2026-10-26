@@ -583,6 +583,9 @@ export interface AwareFunnel {
   stages: { key: string; label: string; count: number; of_prev: number | null }[]
   not_attended: number
   not_attended_rate: number | null
+  /** atendidas por un asesor que no tienen (todavía) tipificación en Aware */
+  attended_untyped?: number
+  attended_untyped_rate?: number | null
   approximate: boolean
 }
 

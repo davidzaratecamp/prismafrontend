@@ -34,8 +34,8 @@ export function TransfersAttendedCard({ data }: { data?: AwareTransfersAttended 
           </div>
           <Bar attended={t.attended} total={t.transfers} />
           <p className="mt-1 text-[11px] text-muted-foreground">
-            {num(t.not_attended)} transferencias sin match de asesor humano (colgó en cola, no
-            contestó, o no se pudo emparejar).
+            {num(t.not_attended)} transferencias sin asesor humano (no llegaron a la cola o nadie
+            contestó). Cuenta como atendida aunque el asesor no haya tipificado.
           </p>
         </div>
 
@@ -54,8 +54,8 @@ export function TransfersAttendedCard({ data }: { data?: AwareTransfersAttended 
         </div>
 
         <p className={cn('text-[11px] text-muted-foreground', data.approximate && 'italic')}>
-          Aproximado: se empareja la llamada del bot con la del asesor por teléfono + fecha + hora
-          posterior (no hay un identificador compartido).
+          Aproximado: se empareja la llamada del bot con la contestada en la cola humana (central
+          telefónica) por teléfono + fecha + hora posterior (no hay un identificador compartido).
         </p>
       </CardContent>
     </Card>

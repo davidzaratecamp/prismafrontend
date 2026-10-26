@@ -35,8 +35,16 @@ export function FunnelCard({ data }: { data?: AwareFunnel }) {
           )
         })}
         <p className="pt-1 text-[11px] text-muted-foreground">
-          {num(data.not_attended)} transferencias sin asesor ({pct(data.not_attended_rate)}). "Atendidas"
-          es aproximado (empatado por teléfono + fecha + hora).
+          {num(data.not_attended)} transferencias sin asesor ({pct(data.not_attended_rate)}): no llegaron a la
+          cola humana o nadie contestó.
+          {!!data.attended_untyped && (
+            <>
+              {' '}De las atendidas, {num(data.attended_untyped)} ({pct(data.attended_untyped_rate)}) aún no
+              tienen tipificación del asesor en Aware.
+            </>
+          )}{' '}
+          "Atendidas" se cuenta por la central telefónica (llamada contestada en la cola) y se empata con la del bot
+          por teléfono + fecha + hora, así que es aproximado.
         </p>
       </CardContent>
     </Card>
