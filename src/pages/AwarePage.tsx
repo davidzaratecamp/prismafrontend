@@ -85,8 +85,10 @@ import {
 } from '@/hooks/aware'
 import { useAuthStore } from '@/stores/auth'
 
-// Pestaña "Recorrido" oculta temporalmente (2026-10-26). Para volver a mostrarla: true.
+// Pestaña "Recorrido" oculta temporalmente (2026-10-26), salvo para estos
+// usuarios. Para volver a mostrarla a todos: SHOW_RECORRIDO = true.
 const SHOW_RECORRIDO = false
+const RECORRIDO_ALLOWED_EMAILS = ['david.lopez@asisteing.com']
 
 /* ── rango de fechas (hora Colombia) ── */
 const OFFSET = -5 * 3600000
@@ -155,6 +157,9 @@ export default function AwarePage() {
   const scope = useAuthStore((s) => s.user?.aware_scope)
   const canQuality = useAuthStore((s) => s.user?.role === 'admin' || !!s.user?.aware_quality)
   const basico = useAuthStore((s) => s.user?.aware_view === 'basico')
+  const showRecorrido = useAuthStore((s) =>
+    SHOW_RECORRIDO || RECORRIDO_ALLOWED_EMAILS.includes((s.user?.email || '').toLowerCase()),
+  )
   // Pestaña "Agosto" (corrección manual, solo Claro Hogar) — oculta si el
   // analista está fijado a TyT (el backend igual devolvería 403).
   const canAgosto = scope !== 13
@@ -297,7 +302,7 @@ export default function AwarePage() {
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList className="flex-wrap">
           <TabsTrigger value="resumen">Resumen</TabsTrigger>
-          {!basico && SHOW_RECORRIDO && <TabsTrigger value="recorrido">Recorrido</TabsTrigger>}
+          {!basico && showRecorrido && <TabsTrigger value="recorrido">Recorrido</TabsTrigger>}
           {!basico && <TabsTrigger value="asesor">Asesor humano</TabsTrigger>}
           {!basico && <TabsTrigger value="operacion">Operación</TabsTrigger>}
           {!basico && <TabsTrigger value="conversacion">Conversación</TabsTrigger>}
@@ -328,7 +333,7 @@ export default function AwarePage() {
 
         {!basico && (
           <>
-            {SHOW_RECORRIDO && (
+            {showRecorrido && (
               <TabsContent value="recorrido" className="pt-4">
                 <RecorridoTab filters={filters} />
               </TabsContent>
