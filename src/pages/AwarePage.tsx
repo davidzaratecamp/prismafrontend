@@ -85,10 +85,6 @@ import {
 } from '@/hooks/aware'
 import { useAuthStore } from '@/stores/auth'
 
-// Pestaña "Recorrido" oculta temporalmente (2026-10-26), salvo para estos
-// usuarios. Para volver a mostrarla a todos: SHOW_RECORRIDO = true.
-const SHOW_RECORRIDO = false
-const RECORRIDO_ALLOWED_EMAILS = ['david.lopez@asisteing.com']
 
 /* ── rango de fechas (hora Colombia) ── */
 const OFFSET = -5 * 3600000
@@ -157,9 +153,8 @@ export default function AwarePage() {
   const scope = useAuthStore((s) => s.user?.aware_scope)
   const canQuality = useAuthStore((s) => s.user?.role === 'admin' || !!s.user?.aware_quality)
   const basico = useAuthStore((s) => s.user?.aware_view === 'basico')
-  const showRecorrido = useAuthStore((s) =>
-    SHOW_RECORRIDO || RECORRIDO_ALLOWED_EMAILS.includes((s.user?.email || '').toLowerCase()),
-  )
+  // Pestaña "Recorrido": solo con el permiso `aware_recorrido` (se da en Equipo).
+  const showRecorrido = useAuthStore((s) => !!s.user?.aware_recorrido)
   // Pestaña "Agosto" (corrección manual, solo Claro Hogar) — oculta si el
   // analista está fijado a TyT (el backend igual devolvería 403).
   const canAgosto = scope !== 13

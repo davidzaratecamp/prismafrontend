@@ -19,6 +19,8 @@ export interface User {
   aware_scope?: number | null
   /** analista y admin: acceso a la pestaña Calidad IA (interno) */
   aware_quality?: boolean
+  /** analista y admin: acceso a la pestaña Recorrido del panel Aware */
+  aware_recorrido?: boolean
   /** analista y admin: 'full' = todas las pestañas · 'basico' = solo Resumen + Consolidado */
   aware_view?: 'full' | 'basico'
   /** admin: sin permiso para crear usuarios/proyectos/áreas (resto de Prisma) */

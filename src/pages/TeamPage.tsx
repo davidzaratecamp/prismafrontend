@@ -98,6 +98,9 @@ export default function TeamPage() {
                     {u.role === 'analista' && u.aware_quality && (
                       <span className="rounded bg-secondary px-2 py-0.5">Calidad IA</span>
                     )}
+                    {u.aware_recorrido && (
+                      <span className="rounded bg-secondary px-2 py-0.5">Recorrido</span>
+                    )}
                     {u.role === 'analista' && u.aware_view === 'basico' && (
                       <span className="rounded bg-secondary px-2 py-0.5">Resumen + Consolidado</span>
                     )}

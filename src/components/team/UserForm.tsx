@@ -43,6 +43,7 @@ export function UserForm({
     area_id: '',
     aware_scope: '', // '' = ambas · '12' Hogar · '13' TyT
     aware_quality: false,
+    aware_recorrido: false,
     aware_view: 'full', // 'full' | 'basico'
     admin_no_create: false,
     retell_scope: '', // '' = ambos agentes · '12' Hogar · '13' TyT (solo admin)
@@ -58,6 +59,7 @@ export function UserForm({
       area_id: user?.area_id ? String(user.area_id) : '',
       aware_scope: user?.aware_scope ? String(user.aware_scope) : '',
       aware_quality: !!user?.aware_quality,
+      aware_recorrido: !!user?.aware_recorrido,
       aware_view: user?.aware_view ?? 'full',
       admin_no_create: !!user?.admin_no_create,
       retell_scope: user?.retell_scope ? String(user.retell_scope) : '',
@@ -77,6 +79,7 @@ export function UserForm({
       area_id: form.role === 'viewer' && form.area_id ? Number(form.area_id) : null,
       aware_scope: awareScoped && form.aware_scope ? Number(form.aware_scope) : null,
       aware_quality: awareScoped ? form.aware_quality : false,
+      aware_recorrido: awareScoped ? form.aware_recorrido : false,
       aware_view: awareScoped ? form.aware_view : 'full',
       admin_no_create: form.role === 'admin' ? form.admin_no_create : false,
       retell_scope: form.role === 'admin' && form.retell_scope ? Number(form.retell_scope) : null,
@@ -215,6 +218,15 @@ export function UserForm({
                 onCheckedChange={(v) => setForm({ ...form, aware_quality: v === true })}
               />
               Acceso a la pestaña <strong>Calidad IA</strong> (interno — no dar a analistas de Claro)
+            </label>
+          )}
+          {(form.role === 'analista' || form.role === 'admin') && (
+            <label className="flex items-center gap-2 text-sm">
+              <Checkbox
+                checked={form.aware_recorrido}
+                onCheckedChange={(v) => setForm({ ...form, aware_recorrido: v === true })}
+              />
+              Acceso a la pestaña <strong>Recorrido</strong> del panel Aware
             </label>
           )}
           {form.role === 'admin' && (
