@@ -34,10 +34,8 @@ export function TransfersAttendedCard({ data }: { data?: AwareTransfersAttended 
           </div>
           <Bar attended={t.attended} total={t.transfers} />
           <p className="mt-1 text-[11px] text-muted-foreground">
-            {num(t.not_attended)} transferencias sin asesor humano (no llegaron a la cola o nadie
-            contestó)
-            {!!t.in_progress && <>; {num(t.in_progress)} siguen en curso</>}. Cuenta como atendida aunque
-            el asesor no haya tipificado.
+            {num(t.not_attended)} sin asesor
+            {!!t.in_progress && <> · {num(t.in_progress)} en curso</>}
           </p>
         </div>
 
@@ -56,8 +54,7 @@ export function TransfersAttendedCard({ data }: { data?: AwareTransfersAttended 
         </div>
 
         <p className={cn('text-[11px] text-muted-foreground', data.approximate && 'italic')}>
-          Aproximado: se empareja la llamada del bot con la contestada en la cola humana (central
-          telefónica) por teléfono + fecha + hora posterior (no hay un identificador compartido).
+          Aproximado: la llamada del bot se cruza con la de la cola por teléfono y hora.
         </p>
       </CardContent>
     </Card>
