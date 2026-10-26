@@ -37,6 +37,12 @@ export function FunnelCard({ data }: { data?: AwareFunnel }) {
         <p className="pt-1 text-[11px] text-muted-foreground">
           {num(data.not_attended)} transferencias sin asesor ({pct(data.not_attended_rate)}): no llegaron a la
           cola humana o nadie contestó.
+          {!!data.in_progress && (
+            <>
+              {' '}{num(data.in_progress)} siguen en curso (el cliente sigue en línea: la central registra la llamada
+              cuando cuelgan).
+            </>
+          )}
           {!!data.attended_untyped && (
             <>
               {' '}De las atendidas, {num(data.attended_untyped)} ({pct(data.attended_untyped_rate)}) aún no

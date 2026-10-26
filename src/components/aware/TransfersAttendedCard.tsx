@@ -35,7 +35,9 @@ export function TransfersAttendedCard({ data }: { data?: AwareTransfersAttended 
           <Bar attended={t.attended} total={t.transfers} />
           <p className="mt-1 text-[11px] text-muted-foreground">
             {num(t.not_attended)} transferencias sin asesor humano (no llegaron a la cola o nadie
-            contestó). Cuenta como atendida aunque el asesor no haya tipificado.
+            contestó)
+            {!!t.in_progress && <>; {num(t.in_progress)} siguen en curso</>}. Cuenta como atendida aunque
+            el asesor no haya tipificado.
           </p>
         </div>
 

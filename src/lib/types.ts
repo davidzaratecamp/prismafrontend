@@ -532,12 +532,13 @@ export interface AwareDidBreakdown {
 
 export interface AwareTransfersAttended {
   range: { from: string; to: string }
-  total: { transfers: number; attended: number; not_attended: number; attended_rate: number | null }
+  total: { transfers: number; attended: number; in_progress?: number; not_attended: number; attended_rate: number | null }
   by_project: {
     proyecto_id: number
     name: string
     transfers: number
     attended: number
+    in_progress?: number
     not_attended: number
     attended_rate: number | null
   }[]
@@ -583,6 +584,8 @@ export interface AwareFunnel {
   stages: { key: string; label: string; count: number; of_prev: number | null }[]
   not_attended: number
   not_attended_rate: number | null
+  /** transferencias de hoy que siguen en línea (la central aún no las registra) */
+  in_progress?: number
   /** atendidas por un asesor que no tienen (todavía) tipificación en Aware */
   attended_untyped?: number
   attended_untyped_rate?: number | null
@@ -593,6 +596,7 @@ export interface AwareNotAttendedDay {
   day: string
   transferidas: number
   atendidas: number
+  en_curso?: number
   no_atendidas: number
   atendidas_rate: number | null
 }
