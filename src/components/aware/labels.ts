@@ -47,5 +47,6 @@ export const ESTADO_COLOR: Record<string, string> = {
 export const ESTADO_BADGE: Record<string, string> = {
   Transferido: 'bg-indigo-500/15 text-indigo-700 dark:text-indigo-300',
   Abandonado: 'bg-red-500/15 text-red-700 dark:text-red-300',
+  'En curso': 'bg-amber-500/15 text-amber-700 dark:text-amber-300',
   'Gestión IA': 'bg-muted text-muted-foreground',
 }

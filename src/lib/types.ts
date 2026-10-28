@@ -695,11 +695,17 @@ export interface AwareLiveFeed {
 export interface AwareHumanOutcomes {
   range: { from: string; to: string }
   transfers: number
+  // Tipificadas por el asesor o contestadas en la cola según la central
+  // (mismo criterio que Recorrido y Consolidado).
   atendidas: number
+  atendidas_tipificadas: number
+  atendidas_sin_tipificar: number
+  en_curso: number
   sin_atender: number
   atendidas_rate: number | null
   util_positivo: number
   util_negativo: number
+  // UP sobre atendidas_tipificadas (de una sin tipificar no se sabe el resultado).
   conversion_rate: number | null
   efectivo_rate: number | null
   tipificaciones: { cod: string; nombre: string; efectivo: string; calls: number }[]
@@ -862,7 +868,7 @@ export interface AwareDeliverableRow {
   did_cola: string | null
   did_exacto: boolean
   segmento: string | null
-  estado: 'Transferido' | 'Abandonado' | 'Gestión IA'
+  estado: 'Transferido' | 'Abandonado' | 'En curso' | 'Gestión IA'
   venta: 'Sí' | 'No'
   tipo_servicio: string | null
   gestion_ia: string

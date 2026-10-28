@@ -52,6 +52,9 @@ export function HumanOutcomesCard({
           <div className="rounded-lg border p-3">
             <p className="text-2xl font-semibold tabular-nums">{num(data.atendidas)}</p>
             <p className="text-xs text-muted-foreground">atendidas ({pct(data.atendidas_rate)} de {num(data.transfers)})</p>
+            {data.atendidas_sin_tipificar > 0 && (
+              <p className="text-[11px] text-muted-foreground">{num(data.atendidas_sin_tipificar)} sin tipificar</p>
+            )}
           </div>
           <div className="rounded-lg border border-emerald-500/30 bg-emerald-500/5 p-3">
             <p className="text-2xl font-semibold tabular-nums text-emerald-600 dark:text-emerald-400">{num(data.util_positivo)}</p>
@@ -108,7 +111,7 @@ export function HumanOutcomesCard({
                   key={t.cod}
                   label={t.nombre}
                   calls={t.calls}
-                  rate={data.atendidas ? t.calls / data.atendidas : 0}
+                  rate={data.atendidas_tipificadas ? t.calls / data.atendidas_tipificadas : 0}
                   color="#94a3b8"
                 />
               ))}
@@ -118,8 +121,11 @@ export function HumanOutcomesCard({
 
         {!hideNotes && (
           <p className="text-[11px] text-muted-foreground">
-            {num(data.sin_atender)} transferencias no llegaron a un asesor. El emparejamiento bot→asesor es
-            aproximado (teléfono + fecha + hora).
+            {num(data.sin_atender)} transferencias no llegaron a un asesor
+            {data.en_curso > 0 && <> y {num(data.en_curso)} siguen en curso</>}. Atendida = el asesor la tipificó o
+            la central la registra contestada en la cola; la conversión se calcula sobre las{' '}
+            {num(data.atendidas_tipificadas)} tipificadas. El emparejamiento bot→asesor es aproximado
+            (teléfono + fecha + hora).
           </p>
         )}
       </CardContent>
