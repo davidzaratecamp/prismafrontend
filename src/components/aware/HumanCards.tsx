@@ -227,8 +227,8 @@ export function QueueAbandonCard({ data }: { data?: AwareQueueAbandon }) {
       <CardContent className="space-y-3">
         <div className="grid grid-cols-3 gap-3 text-center">
           <div className="rounded-lg border p-3">
-            <p className="text-2xl font-semibold tabular-nums">{num(data.total)}</p>
-            <p className="text-xs text-muted-foreground">abandonos</p>
+            <p className="text-2xl font-semibold tabular-nums">{num(data.llamadas)}</p>
+            <p className="text-xs text-muted-foreground">llamadas · {num(data.total)} abandonos</p>
           </div>
           <div className="rounded-lg border p-3">
             <p className="text-2xl font-semibold tabular-nums">{data.avg_espera_s}s</p>

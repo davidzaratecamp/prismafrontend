@@ -745,7 +745,10 @@ export interface AwareAgentRow {
 }
 
 export interface AwareQueueAbandon {
+  // eventos de abandono (un cliente que abandona 2 veces suma 2)
   total: number
+  // llamadas de SOFIA abandonadas en cola — misma cifra que el filtro "Abandonado en cola" del Consolidado
+  llamadas: number
   avg_espera_s: number
   max_espera_s: number
   match_rate: number | null

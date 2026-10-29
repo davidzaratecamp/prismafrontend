@@ -486,8 +486,12 @@ function ResumenTab({
         />
         <KpiCard
           label="Abandono en cola"
-          value={abandon.data ? num(abandon.data.total) : '—'}
-          hint="mismo dato que Asesor humano · aproximado"
+          value={abandon.data ? num(abandon.data.llamadas) : '—'}
+          hint={
+            abandon.data
+              ? `llamadas · ${num(abandon.data.total)} abandonos (un cliente puede abandonar más de una vez)`
+              : 'llamadas'
+          }
           icon={PhoneOff}
           tone="warning"
         />
