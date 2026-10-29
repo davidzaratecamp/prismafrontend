@@ -72,7 +72,7 @@ const COLS: { key: string; label: string; help: string; align?: 'right' | 'cente
   { key: 'dtot', label: 'Dur. total (s)', help: '7 · Duración total (IA + asesor), en segundos', align: 'right' },
   { key: 'did', label: 'DID', help: '8 · DID real (número marcado) + origen del tráfico entre paréntesis cuando tiene nombre (hoy solo Hogar: 6019196235 Tráfico general, 6019142515 Tráfico 3112000000). TyT sale sin nombre. Exacto si hubo transferencia; si no, la línea principal de la campaña' },
   { key: 'seg', label: 'Segmento', help: '9 · Segmento de la llamada según el DID (Claro Hogar / Claro TyT)' },
-  { key: 'estado', label: 'Estado', help: '10 · Estado de la interacción: Transferido (atendida por un asesor según la central, con o sin tipificación) / Abandonado (colgó en espera o sin asesor) / En curso (sigue en línea, solo hoy)' },
+  { key: 'estado', label: 'Estado', help: '10 · Estado de la interacción: Transferido (atendida por un asesor según la central, con o sin tipificación) / Abandonado en cola (entró a la cola del asesor y colgó esperando) / Transferencia fallida (SOFIA transfirió pero la llamada nunca llegó a la cola) / En curso (sigue en línea, solo hoy)' },
   { key: 'venta', label: 'Venta', help: '11 · Venta: Sí / No', align: 'center' },
   { key: 'gestion', label: 'Gestión IA', help: '12 · Cómo terminó la gestión de SOFIA (disposición; cobertura total)' },
   { key: 'tip_ia', label: 'Tip. IA', help: '12 · Tipificación de SOFIA — CODIGO_TIPIFICACIONIA (8 valores oficiales; dato nuevo, cobertura parcial)' },
@@ -138,11 +138,12 @@ export function DeliverableTable({ base, initialTipIa }: { base: AwareFilters; i
           />
         </div>
         <Select value={estado} onValueChange={reset(setEstado)}>
-          <SelectTrigger className="h-9 w-44"><SelectValue placeholder="Estado" /></SelectTrigger>
+          <SelectTrigger className="h-9 w-52"><SelectValue placeholder="Estado" /></SelectTrigger>
           <SelectContent>
             <SelectItem value="all">Cualquier estado</SelectItem>
             <SelectItem value="transferido">Transferido</SelectItem>
-            <SelectItem value="abandonado">Abandonado</SelectItem>
+            <SelectItem value="abandonado_cola">Abandonado en cola</SelectItem>
+            <SelectItem value="transferencia_fallida">Transferencia fallida</SelectItem>
             <SelectItem value="en_curso">En curso</SelectItem>
             <SelectItem value="ia">Gestión IA</SelectItem>
           </SelectContent>

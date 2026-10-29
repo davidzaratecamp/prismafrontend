@@ -873,7 +873,7 @@ export interface AwareDeliverableRow {
   did_cola: string | null
   did_exacto: boolean
   segmento: string | null
-  estado: 'Transferido' | 'Abandonado' | 'En curso' | 'Gestión IA'
+  estado: 'Transferido' | 'Abandonado en cola' | 'Transferencia fallida' | 'En curso' | 'Gestión IA'
   venta: 'Sí' | 'No'
   tipo_servicio: string | null
   gestion_ia: string

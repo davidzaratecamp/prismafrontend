@@ -39,14 +39,17 @@ export const sentimentLabel = (v: string | null | undefined) =>
 
 export const ESTADO_COLOR: Record<string, string> = {
   Transferido: '#6366f1',
-  Abandonado: '#ef4444',
+  'Abandonado en cola': '#ef4444',
+  'Transferencia fallida': '#f97316',
+  'En curso': '#f59e0b',
   'Gestión IA': '#94a3b8',
 }
 
 /** Clases de badge por estado del entregable. */
 export const ESTADO_BADGE: Record<string, string> = {
   Transferido: 'bg-indigo-500/15 text-indigo-700 dark:text-indigo-300',
-  Abandonado: 'bg-red-500/15 text-red-700 dark:text-red-300',
+  'Abandonado en cola': 'bg-red-500/15 text-red-700 dark:text-red-300',
+  'Transferencia fallida': 'bg-orange-500/15 text-orange-700 dark:text-orange-300',
   'En curso': 'bg-amber-500/15 text-amber-700 dark:text-amber-300',
   'Gestión IA': 'bg-muted text-muted-foreground',
 }

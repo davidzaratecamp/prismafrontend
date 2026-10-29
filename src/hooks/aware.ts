@@ -55,7 +55,7 @@ export interface AwareFilters {
   sentiment?: string
   callSuccessful?: 'true' | 'false'
   // entregable por llamada
-  estado?: 'transferido' | 'abandonado' | 'en_curso' | 'ia'
+  estado?: 'transferido' | 'abandonado_cola' | 'transferencia_fallida' | 'en_curso' | 'ia'
   venta?: 'si' | 'no'
   tipificacion?: string
   tipificacionIa?: string
