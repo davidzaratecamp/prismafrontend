@@ -95,6 +95,9 @@ function RangeInputs({
 }) {
   const input =
     'w-[124px] bg-transparent text-sm text-foreground [color-scheme:light] dark:[color-scheme:dark]'
+  // Sin min/max cruzados entre "desde" y "hasta": impedían mover un rango
+  // (p. ej. B en septiembre no dejaba elegir un "desde" de octubre). Si el
+  // rango queda al revés, se arrastra el otro extremo.
   return (
     <div className="flex flex-wrap items-center gap-2">
       <span className="w-20 text-xs font-medium text-muted-foreground">{label}</span>
@@ -102,8 +105,11 @@ function RangeInputs({
         <input
           type="date"
           value={from}
-          max={to || todayCo()}
-          onChange={(e) => e.target.value && onChange(e.target.value, to)}
+          max={todayCo()}
+          onChange={(e) => {
+            const f = e.target.value
+            if (f) onChange(f, f > to ? f : to)
+          }}
           className={input}
           title="Desde"
         />
@@ -111,9 +117,11 @@ function RangeInputs({
         <input
           type="date"
           value={to}
-          min={from || undefined}
           max={todayCo()}
-          onChange={(e) => e.target.value && onChange(from, e.target.value)}
+          onChange={(e) => {
+            const t = e.target.value
+            if (t) onChange(t < from ? t : from, t)
+          }}
           className={input}
           title="Hasta"
         />
