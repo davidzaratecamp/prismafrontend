@@ -26,6 +26,7 @@ import { EmptyState } from '@/components/common/EmptyState'
 import { MiniBarList, type MiniBarRow } from '@/components/common/MiniBarList'
 import { HourHeatmap } from '@/components/common/HourHeatmap'
 import { num, pct } from '@/lib/analyticsFormat'
+import type { AwareQueueAbandon } from '@/lib/types'
 import { CallsByDayChart } from '@/components/aware/CallsByDayChart'
 import { TrendChart } from '@/components/aware/TrendChart'
 import { TransfersAttendedCard } from '@/components/aware/TransfersAttendedCard'
@@ -380,6 +381,27 @@ function TipByReasonBreakdown({ rows }: { rows: { tipificacion: string; calls: n
   )
 }
 
+/** Qué pasó con las transferencias (tooltip de "Transferidas a asesor"); cada
+ *  línea coincide con el filtro de estado del mismo nombre en Consolidado. */
+function TransferStatesBreakdown({ s }: { s: AwareQueueAbandon['transfer_states'] }) {
+  const rows = [
+    { label: 'Atendidas por un asesor', n: s.transferido },
+    { label: 'Abandono en cola', n: s.abandonado_cola },
+    { label: 'Transferencia fallida', n: s.transferencia_fallida },
+    { label: 'En curso', n: s.en_curso },
+  ].filter((r) => r.n > 0)
+  return (
+    <>
+      {rows.map((r) => (
+        <p key={r.label}>
+          {r.label}: <span className="tabular-nums">{num(r.n)}</span>
+        </p>
+      ))}
+      <p className="pt-1 opacity-70">Cada cifra coincide con el filtro de estado en Consolidado.</p>
+    </>
+  )
+}
+
 /* ───────────────────────── Resumen ───────────────────────── */
 
 function ResumenTab({
@@ -448,6 +470,7 @@ function ResumenTab({
           value={pct(k.transfer_rate)}
           hint={`${num(k.transfers)} llamadas`}
           icon={ArrowRightLeft}
+          tooltip={abandon.data && <TransferStatesBreakdown s={abandon.data.transfer_states} />}
           extra={
             isHogar && didBreakdown.data && (
               <>

@@ -749,6 +749,8 @@ export interface AwareQueueAbandon {
   total: number
   // llamadas de SOFIA abandonadas en cola — misma cifra que el filtro "Abandonado en cola" del Consolidado
   llamadas: number
+  // estado de cada transferencia; cada valor coincide con el filtro del mismo nombre en el Consolidado
+  transfer_states: { transferido: number; abandonado_cola: number; transferencia_fallida: number; en_curso: number }
   avg_espera_s: number
   max_espera_s: number
   match_rate: number | null
