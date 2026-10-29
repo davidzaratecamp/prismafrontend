@@ -66,7 +66,6 @@ import {
   useAwareHumanOutcomes,
   useAwareNotAttendedByDay,
   useAwareOverview,
-  useAwarePeriodComparison,
   useAwareQueueAbandon,
   useAwareRepeatCallers,
   useAwareSentiment,
@@ -396,7 +395,6 @@ function ResumenTab({
   onSelectTipificacion?: (tipIa: string) => void
 }) {
   const overview = useAwareOverview(filters)
-  const comparison = useAwarePeriodComparison(filters)
   const tipificacion = useAwareSofiaTipificacion(filters)
   const outcomes = useAwareHumanOutcomes(filters)
   const volume = useAwareVolumeByDay(filters)
@@ -515,7 +513,7 @@ function ResumenTab({
             ((row) => onSelectTipificacion(row.label === 'Sin dato' ? '__none__' : row.label))
           }
         />
-        <PeriodComparisonCard data={comparison.data} />
+        <PeriodComparisonCard filters={filters} />
       </div>
 
       <HumanOutcomesCard data={outcomes.data} hideNotes />

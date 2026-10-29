@@ -774,34 +774,39 @@ export interface AwareKeyword {
 export interface AwarePeriodStats {
   from: string
   to: string
+  days: number
   total_calls: number
+  calls_per_day: number | null
+  transfers: number
   transfer_rate: number | null
+  user_hangup: number
   user_hangup_rate: number | null
+  agent_hangup: number
   agent_hangup_rate: number | null
+  inactivity: number
   inactivity_rate: number | null
   avg_duration_seconds: number
   positive_rate: number | null
+  negative_rate: number | null
   success_rate: number | null
-  transfers: number
   atendidas: number
   atendidas_rate: number | null
+  en_curso: number
+  sin_asesor: number
+  sin_asesor_rate: number | null
+  ventas: number
   conversion_rate: number | null
+  abandono_cola: number
 }
 
 export interface AwarePeriodComparison {
   days: number
+  // true = el segundo tramo lo eligió el usuario (cmpFrom/cmpTo); false = el anterior de igual duración
+  custom: boolean
   current: AwarePeriodStats
   previous: AwarePeriodStats
-  deltas: {
-    total_calls_pct: number | null
-    transfer_rate_pp: number | null
-    user_hangup_rate_pp: number | null
-    agent_hangup_rate_pp: number | null
-    success_rate_pp: number | null
-    positive_rate_pp: number | null
-    conversion_rate_pp: number | null
-    atendidas_rate_pp: number | null
-  }
+  // Por métrica: tasas → diferencia en puntos (0.05 = +5 pp); conteos → variación relativa (0.05 = +5 %).
+  deltas: Partial<Record<keyof AwarePeriodStats, number | null>>
 }
 
 export interface AwareVoxproQuality {

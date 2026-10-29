@@ -46,6 +46,9 @@ import type {
 export interface AwareFilters {
   from?: string // 'YYYY-MM-DD' (hora Colombia)
   to?: string
+  // segundo rango de la comparación de periodos (Resumen); sin él, el anterior de igual duración
+  cmpFrom?: string
+  cmpTo?: string
   proyecto?: '12' | '13'
   hangup?: string
   phone?: string
