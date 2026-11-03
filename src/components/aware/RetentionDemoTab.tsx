@@ -95,6 +95,19 @@ function fmtDateTime(ms: number) {
     hour12: false,
   })
 }
+function fmtTime(ms: number, seconds = true) {
+  return new Date(ms).toLocaleTimeString('es-CO', {
+    timeZone: 'America/Bogota',
+    hour: '2-digit',
+    minute: '2-digit',
+    ...(seconds ? { second: '2-digit' } : {}),
+    hour12: false,
+  })
+}
+/** Inicio del bloque de 15 min que contiene `ms` (el borrado corre en :00, :15, :30, :45). */
+function jobSlot(ms: number) {
+  return Math.floor(ms / JOB_EVERY_MS) * JOB_EVERY_MS
+}
 function fmtLeft(ms: number) {
   if (ms <= 0) return 'vencido'
   const h = Math.floor(ms / HOUR)
@@ -122,7 +135,7 @@ export function RetentionDemoTab() {
   const [simNow, setSimNow] = useState(() => Date.now())
   const [calls, setCalls] = useState<DemoCall[]>(() => makeCalls(Date.now()))
   const [log, setLog] = useState<LogEntry[]>([])
-  const lastJob = useRef<number>(Date.now())
+  const lastJob = useRef<number>(jobSlot(Date.now()))
   const lastArrival = useRef<number>(Date.now())
   const runSeq = useRef(0)
   const idSeq = useRef(1000 + N_CALLS)
@@ -173,9 +186,12 @@ export function RetentionDemoTab() {
 
   // Proceso de borrado programado cada 15 min (simulados).
   useEffect(() => {
-    if (simNow - lastJob.current >= JOB_EVERY_MS) {
-      lastJob.current = simNow
-      runPurge(simNow)
+    // Corre en horas fijas (:00, :15, :30, :45) para que el registro no muestre
+    // horas irregulares cuando el reloj va acelerado.
+    const slot = jobSlot(simNow)
+    if (slot > lastJob.current) {
+      lastJob.current = slot
+      runPurge(slot)
     }
     // runPurge solo usa setters y refs
   }, [simNow])
@@ -183,7 +199,7 @@ export function RetentionDemoTab() {
   function reset() {
     const now = Date.now()
     setSimNow(now)
-    lastJob.current = now
+    lastJob.current = jobSlot(now)
     lastArrival.current = now
     runSeq.current = 0
     idSeq.current = 1000 + N_CALLS
@@ -215,7 +231,7 @@ export function RetentionDemoTab() {
   const porVencer = calls.filter((c) => c.numero && RETENTION_MS - (simNow - c.creado) <= HOUR).length
   const eliminados = calls.filter((c) => !c.numero).length
   const lastRun = log[0]
-  const nextRunIn = Math.max(0, JOB_EVERY_MS - (simNow - lastJob.current))
+  const nextRun = lastJob.current + JOB_EVERY_MS
 
   const runs = useMemo(() => {
     const byRun = new Map<number, LogEntry[]>()
@@ -234,12 +250,15 @@ export function RetentionDemoTab() {
             elimina a las 24 horas de la llamada en todos los lugares donde existe. Los registros anteriores a la activación no
             contienen números reales, por lo que el borrado aplica desde la activación en adelante.
           </p>
+          <p className="mt-1 text-xs tabular-nums text-muted-foreground">
+            Reloj de la demostración: {fmtDateTime(simNow).split(', ')[0]} · {fmtTime(simNow, !accel)}
+          </p>
         </div>
         <div className="flex flex-wrap gap-2">
           <Button size="sm" variant={accel ? 'default' : 'outline'} onClick={() => setAccel((a) => !a)}>
             <Zap className="size-3.5" /> {accel ? 'Acelerado: 24 h = 2 min' : 'Tiempo real'}
           </Button>
-          <Button size="sm" variant="outline" onClick={() => { lastJob.current = simNow; runPurge(simNow) }}>
+          <Button size="sm" variant="outline" onClick={() => runPurge(simNow)}>
             <Play className="size-3.5" /> Ejecutar borrado ahora
           </Button>
           <Button size="sm" variant="ghost" onClick={reset}>
@@ -254,8 +273,8 @@ export function RetentionDemoTab() {
         <KpiCard label="Números eliminados" value={eliminados} hint="en esta demostración" icon={Trash2} tone="success" />
         <KpiCard
           label="Último borrado"
-          value={lastRun ? fmtDateTime(lastRun.ts).split(', ')[1] ?? '' : '—'}
-          hint={`próximo en ${fmtLeft(nextRunIn)} · reloj ${fmtDateTime(simNow)}`}
+          value={lastRun ? fmtTime(lastRun.ts) : '—'}
+          hint={`próximo a las ${fmtTime(nextRun, false)}`}
           icon={ShieldCheck}
         />
       </div>
