@@ -86,6 +86,8 @@ import {
 } from '@/hooks/aware'
 import { useAuthStore } from '@/stores/auth'
 
+/** Usuarios (además de admin) que ven la pestaña demo de retención 24 h. */
+const RETENTION_DEMO_EMAILS = ['analista.aware@asisteing.com']
 
 /* ── rango de fechas (hora Colombia) ── */
 const OFFSET = -5 * 3600000
@@ -159,8 +161,10 @@ export default function AwarePage() {
   // Pestaña "Agosto" (corrección manual, solo Claro Hogar) — oculta si el
   // analista está fijado a TyT (el backend igual devolvería 403).
   const canAgosto = scope !== 13
-  // Demo de la retención de 24 h del número real (pedido de Legal de Claro) — solo admin por ahora
-  const canRetentionDemo = useAuthStore((s) => s.user?.role === 'admin')
+  // Demo de la retención de 24 h del número real (pedido de Legal de Claro) — solo usuarios internos
+  const canRetentionDemo = useAuthStore(
+    (s) => s.user?.role === 'admin' || RETENTION_DEMO_EMAILS.includes((s.user?.email || '').toLowerCase()),
+  )
   const locked = scope === 12 || scope === 13
   const proyecto: 'all' | '12' | '13' = locked ? (String(scope) as '12' | '13') : proyectoSel
 
