@@ -15,13 +15,13 @@ import { ESTADO_BADGE } from './labels'
  * desde la activación en adelante.
  *
  * Todo vive en el navegador: no consulta ni modifica datos reales. El reloj
- * se puede acelerar (24 h = 2 min) para ver el borrado durante una reunión.
+ * se puede acelerar (24 h = 10 min) para ver el borrado durante una reunión.
  */
 
 const HOUR = 3600_000
 const RETENTION_MS = 24 * HOUR
 const JOB_EVERY_MS = 15 * 60_000 // el proceso de borrado corre cada 15 min
-const ACCEL = (24 * HOUR) / (2 * 60_000) // 24 h simuladas en 2 min reales
+const ACCEL = (24 * HOUR) / (10 * 60_000) // 24 h simuladas en 10 min reales
 const N_CALLS = 36
 
 const UBICACIONES = [
@@ -256,7 +256,7 @@ export function RetentionDemoTab() {
         </div>
         <div className="flex flex-wrap gap-2">
           <Button size="sm" variant={accel ? 'default' : 'outline'} onClick={() => setAccel((a) => !a)}>
-            <Zap className="size-3.5" /> {accel ? 'Acelerado: 24 h = 2 min' : 'Tiempo real'}
+            <Zap className="size-3.5" /> {accel ? 'Acelerado: 24 h = 10 min' : 'Tiempo real'}
           </Button>
           <Button size="sm" variant="outline" onClick={() => runPurge(simNow)}>
             <Play className="size-3.5" /> Ejecutar borrado ahora
