@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { CheckCircle2, Clock, Download, FileText, FlaskConical, Play, RotateCcw, ShieldCheck, Trash2, Zap } from 'lucide-react'
+import { CheckCircle2, Clock, Download, FileText, FlaskConical, RotateCcw, ShieldCheck, Trash2, Zap } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { KpiCard } from '@/components/dashboard/KpiCard'
@@ -260,9 +260,6 @@ export function RetentionDemoTab() {
         <div className="flex flex-wrap gap-2">
           <Button size="sm" variant={accel ? 'default' : 'outline'} onClick={() => setAccel((a) => !a)}>
             <Zap className="size-3.5" /> {accel ? 'Acelerado: 24 h = 10 min' : 'Tiempo real'}
-          </Button>
-          <Button size="sm" variant="outline" onClick={() => runPurge(simNow)}>
-            <Play className="size-3.5" /> Ejecutar borrado ahora
           </Button>
           <Button
             size="sm"
