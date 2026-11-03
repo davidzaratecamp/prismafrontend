@@ -8,6 +8,8 @@
  * proceso real cuando se active, y la certificación es un formato para firmar.
  */
 
+import logoAsiste from '@/assets/asiste-logo.png?inline'
+
 export interface DocLocation {
   nombre: string
   detalle: string
@@ -68,11 +70,21 @@ export function openRetentionDoc({
 <html lang="es"><head><meta charset="utf-8">
 <title>Procedimiento de borrado - retención 24 h - Prisma</title>
 <style>
-  @page { size: Letter; margin: 18mm 16mm; }
-  * { box-sizing: border-box; }
+  @page {
+    size: Letter; margin: 18mm 16mm;
+    @top-left-corner { content: ""; background: linear-gradient(135deg, #1b54a3 0%, #1572b6 30%, #04aed1 50%, transparent 50%); }
+    @bottom-right-corner { content: ""; background: linear-gradient(315deg, #1b54a3 0%, #1572b6 30%, #04aed1 50%, transparent 50%); }
+    @top-right { content: ""; background: url(${logoAsiste}) right 4mm / auto 12mm no-repeat; }
+    @bottom-left { content: "ASISTE ING S.A.S  ·  Prisma — Procedimiento de borrado, retención 24 h"; font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; font-size: 7.5pt; color: #1572b6; letter-spacing: 0.04em; }
+    @bottom-right { content: counter(page); font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; font-size: 8pt; color: #1572b6; }
+  }
+  @page :first { @top-right { content: none; } }
+  .brand-head { display: flex; align-items: center; gap: 5mm; margin-bottom: 6mm; }
+  .brand-head img { height: 22mm; }
+  * { box-sizing: border-box; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   body { font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; color: #1c2330; font-size: 10pt; line-height: 1.5; margin: 0; }
   h1 { font-size: 18pt; margin: 0 0 2mm; }
-  h2 { font-size: 12.5pt; margin: 7mm 0 2mm; padding-bottom: 1.5mm; border-bottom: 2px solid #2457c5; page-break-after: avoid; }
+  h2 { font-size: 12.5pt; margin: 7mm 0 2mm; padding-bottom: 1.5mm; border-bottom: 2px solid #1b5ea8; page-break-after: avoid; }
   p { margin: 0 0 2.5mm; }
   ul { margin: 0 0 3mm; padding-left: 5mm; } li { margin-bottom: 1mm; }
   table { width: 100%; border-collapse: collapse; margin: 2mm 0 4mm; font-size: 8.8pt; }
@@ -84,20 +96,20 @@ export function openRetentionDoc({
   .meta { display: grid; grid-template-columns: repeat(3, auto); gap: 1mm 10mm; justify-content: start; font-size: 9pt; color: #5b6475; margin: 3mm 0 5mm; }
   .meta b { color: #1c2330; display: block; }
   .note { border-left: 3px solid #b7791f; background: #fbf1e1; padding: 2.5mm 3.5mm; margin: 3mm 0; font-size: 9pt; page-break-inside: avoid; }
-  .info { border-left: 3px solid #2457c5; background: #e8eefb; padding: 2.5mm 3.5mm; margin: 3mm 0; font-size: 9pt; page-break-inside: avoid; }
+  .info { border-left: 3px solid #1b5ea8; background: #e6f1fa; padding: 2.5mm 3.5mm; margin: 3mm 0; font-size: 9pt; page-break-inside: avoid; }
   .sign { display: grid; grid-template-columns: 1fr 1fr; gap: 12mm; margin-top: 12mm; page-break-inside: avoid; }
   .sign div { border-top: 1px solid #1c2330; padding-top: 1.5mm; font-size: 9pt; }
   .field { border-bottom: 1px solid #9aa3b2; display: inline-block; min-width: 55mm; }
-  .brand { font-size: 9pt; font-weight: 700; letter-spacing: .2em; color: #2457c5; }
+  .brand { font-size: 9pt; font-weight: 700; letter-spacing: .2em; color: #1b5ea8; }
   @media screen { body { max-width: 190mm; margin: 10mm auto; } .noprint { display: block; } }
   @media print { .noprint { display: none; } }
   .noprint { background: #1c2330; color: #fff; padding: 3mm 4mm; border-radius: 2mm; margin-bottom: 6mm; font-size: 9.5pt; }
-  .noprint button { margin-left: 3mm; padding: 1.5mm 4mm; border: 0; border-radius: 1.5mm; background: #2457c5; color: #fff; font-weight: 600; cursor: pointer; }
+  .noprint button { margin-left: 3mm; padding: 1.5mm 4mm; border: 0; border-radius: 1.5mm; background: #1b5ea8; color: #fff; font-weight: 600; cursor: pointer; }
 </style></head>
 <body>
 <div class="noprint">Para guardar como PDF elige "Guardar como PDF" en el destino de impresión. <button onclick="window.print()">Imprimir / Guardar PDF</button></div>
 
-<div class="brand">PRISMA</div>
+<div class="brand-head"><img src="${logoAsiste}" alt="Asiste Ing"><div class="brand">PRISMA</div></div>
 <h1>Procedimiento de borrado — retención máxima de 24 horas</h1>
 <p class="muted">Número telefónico real del cliente · Inbound Claro Hogar y Claro TyT</p>
 <div class="meta">
