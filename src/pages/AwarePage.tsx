@@ -49,6 +49,7 @@ import { TalkRatioCard } from '@/components/aware/TalkRatioCard'
 import { QualityTab } from '@/components/aware/QualityTab'
 import { PeriodComparisonCard } from '@/components/aware/PeriodComparisonCard'
 import { LiveFeed } from '@/components/aware/LiveFeed'
+import { RetentionDemoTab } from '@/components/aware/RetentionDemoTab'
 import { HANGUP_COLOR, HANGUP_LABEL, SENTIMENT_COLOR, SENTIMENT_LABEL } from '@/components/aware/labels'
 import {
   useAwareAgentHangup,
@@ -158,6 +159,8 @@ export default function AwarePage() {
   // Pestaña "Agosto" (corrección manual, solo Claro Hogar) — oculta si el
   // analista está fijado a TyT (el backend igual devolvería 403).
   const canAgosto = scope !== 13
+  // Demo de la retención de 24 h del número real (pedido de Legal de Claro) — solo admin por ahora
+  const canRetentionDemo = useAuthStore((s) => s.user?.role === 'admin')
   const locked = scope === 12 || scope === 13
   const proyecto: 'all' | '12' | '13' = locked ? (String(scope) as '12' | '13') : proyectoSel
 
@@ -307,6 +310,7 @@ export default function AwarePage() {
           <TabsTrigger value="entregable">Consolidado</TabsTrigger>
           {canAgosto && <TabsTrigger value="agosto">Agosto</TabsTrigger>}
           {!basico && <TabsTrigger value="envivo">En vivo</TabsTrigger>}
+          {canRetentionDemo && <TabsTrigger value="retencion">Retención 24 h (demo)</TabsTrigger>}
         </TabsList>
 
         <TabsContent value="resumen" className="pt-4">
@@ -320,6 +324,11 @@ export default function AwarePage() {
         <TabsContent value="entregable" className="pt-4">
           <DeliverableTable key={`${rangeKey}:${proyecto}:${jumpSeq}`} base={filters} initialTipIa={jumpTipIa} />
         </TabsContent>
+        {canRetentionDemo && (
+          <TabsContent value="retencion" className="pt-4">
+            <RetentionDemoTab />
+          </TabsContent>
+        )}
         {canAgosto && (
           <TabsContent value="agosto" className="pt-4">
             <AgostoTab />
