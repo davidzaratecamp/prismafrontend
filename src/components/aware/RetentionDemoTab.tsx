@@ -1,10 +1,12 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { CheckCircle2, Clock, Download, FlaskConical, Play, RotateCcw, ShieldCheck, Trash2, Zap } from 'lucide-react'
+import { CheckCircle2, Clock, Download, FileText, FlaskConical, Play, RotateCcw, ShieldCheck, Trash2, Zap } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { KpiCard } from '@/components/dashboard/KpiCard'
 import { cn } from '@/lib/utils'
+import { useAuthStore } from '@/stores/auth'
 import { ESTADO_BADGE } from './labels'
+import { openRetentionDoc } from './retentionDoc'
 
 /**
  * Pestaña de DEMOSTRACIÓN (datos ficticios) del proceso de retención de 24 h
@@ -135,6 +137,7 @@ export function RetentionDemoTab() {
   const [simNow, setSimNow] = useState(() => Date.now())
   const [calls, setCalls] = useState<DemoCall[]>(() => makeCalls(Date.now()))
   const [log, setLog] = useState<LogEntry[]>([])
+  const userName = useAuthStore((s) => s.user?.name || s.user?.email || '')
   const lastJob = useRef<number>(jobSlot(Date.now()))
   const lastArrival = useRef<number>(Date.now())
   const runSeq = useRef(0)
@@ -260,6 +263,17 @@ export function RetentionDemoTab() {
           </Button>
           <Button size="sm" variant="outline" onClick={() => runPurge(simNow)}>
             <Play className="size-3.5" /> Ejecutar borrado ahora
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => {
+              if (!openRetentionDoc({ ubicaciones: UBICACIONES, log, generadoPor: userName })) {
+                alert('El navegador bloqueó la ventana. Permite ventanas emergentes para Prisma e inténtalo de nuevo.')
+              }
+            }}
+          >
+            <FileText className="size-3.5" /> Exportar documentación (PDF)
           </Button>
           <Button size="sm" variant="ghost" onClick={reset}>
             <RotateCcw className="size-3.5" /> Reiniciar
