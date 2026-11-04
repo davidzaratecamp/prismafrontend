@@ -22,7 +22,9 @@ import { openRetentionDoc } from './retentionDoc'
 
 const HOUR = 3600_000
 const RETENTION_MS = 24 * HOUR
-const JOB_EVERY_MS = 15 * 60_000 // el proceso de borrado corre cada 15 min
+const JOB_EVERY_MS = 10 * 60_000 // el proceso de borrado corre cada 10 min
+// Se borra al cumplir 23 h 50 min: con ejecuciones cada 10 min, ningún número llega a 24 h.
+const PURGE_AT_MS = RETENTION_MS - JOB_EVERY_MS
 const ACCEL = (24 * HOUR) / (10 * 60_000) // 24 h simuladas en 10 min reales
 const N_CALLS = 36
 
@@ -106,7 +108,7 @@ function fmtTime(ms: number, seconds = true) {
     hour12: false,
   })
 }
-/** Inicio del bloque de 15 min que contiene `ms` (el borrado corre en :00, :15, :30, :45). */
+/** Inicio del bloque de 10 min que contiene `ms` (el borrado corre en :00, :10, :20, :30, :40, :50). */
 function jobSlot(ms: number) {
   return Math.floor(ms / JOB_EVERY_MS) * JOB_EVERY_MS
 }
@@ -163,7 +165,7 @@ export function RetentionDemoTab() {
     const run = runSeq.current
     let count = 0
     const next = callsRef.current.map((c) => {
-      if (c.numero && at - c.creado >= RETENTION_MS) {
+      if (c.numero && at - c.creado >= PURGE_AT_MS) {
         count++
         return { ...c, numero: null, eliminado: at }
       }
@@ -187,9 +189,9 @@ export function RetentionDemoTab() {
     )
   }
 
-  // Proceso de borrado programado cada 15 min (simulados).
+  // Proceso de borrado programado cada 10 min (simulados).
   useEffect(() => {
-    // Corre en horas fijas (:00, :15, :30, :45) para que el registro no muestre
+    // Corre en horas fijas (:00, :10, :20, :30, :40, :50) para que el registro no muestre
     // horas irregulares cuando el reloj va acelerado.
     const slot = jobSlot(simNow)
     if (slot > lastJob.current) {
@@ -250,7 +252,7 @@ export function RetentionDemoTab() {
           <p className="font-medium">Demostración con datos ficticios</p>
           <p className="text-muted-foreground">
             Así funcionará la retención de 24 horas del número real del cliente cuando Claro lo entregue. Cada número se
-            elimina a las 24 horas de la llamada en todos los lugares donde existe. Los registros anteriores a la activación no
+            elimina antes de cumplir 24 horas desde la llamada, en todos los lugares donde existe. Los registros anteriores a la activación no
             contienen números reales, por lo que el borrado aplica desde la activación en adelante.
           </p>
           <p className="mt-1 text-xs tabular-nums text-muted-foreground">
@@ -382,7 +384,7 @@ export function RetentionDemoTab() {
               </Button>
             </div>
             {!runs.length ? (
-              <p className="text-xs text-muted-foreground">Aún no se ha ejecutado el proceso. Corre cada 15 minutos.</p>
+              <p className="text-xs text-muted-foreground">Aún no se ha ejecutado el proceso. Corre cada 10 minutos.</p>
             ) : (
               <div className="max-h-[300px] space-y-3 overflow-auto">
                 {runs.map(([run, entries]) => (

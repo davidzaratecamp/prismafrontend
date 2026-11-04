@@ -122,12 +122,12 @@ export function openRetentionDoc({
 
 <h2>1. Descripción del mecanismo de borrado y su alcance</h2>
 <p><b>Alcance.</b> El número telefónico real del cliente que Claro entregue para cada llamada de las campañas inbound Claro Hogar y Claro TyT. Hasta la fecha de activación, la plataforma solo ha recibido un identificador genérico asignado por la plataforma de contact center, no el número real. Por eso <b>no existe información histórica con números reales</b> y el borrado aplica desde la activación en adelante.</p>
-<p><b>Regla de retención.</b> Cada número tiene una vigencia máxima de <b>24 horas</b>, contadas desde la hora de la llamada. Al cumplirse, se elimina de forma definitiva en todas las ubicaciones listadas en la sección 2.</p>
+<p><b>Regla de retención.</b> Cada número tiene una vigencia máxima de <b>24 horas</b>, contadas desde la hora de la llamada. Para garantizarlo, el número se elimina al cumplir <b>23 horas y 50 minutos</b>, de forma definitiva, en todas las ubicaciones listadas en la sección 2.</p>
 <p><b>Mecanismo.</b></p>
 <ul>
-  <li><b>Proceso automático programado</b> que se ejecuta cada <b>15 minutos</b> (a las :00, :15, :30 y :45 de cada hora). Así, ningún número permanece más de 24 horas y 15 minutos en el peor caso.</li>
-  <li>En cada ejecución identifica los registros con más de 24 horas y <b>elimina el número</b> en cada ubicación. El resto de la llamada (fecha, hora, campaña, resultado) se conserva sin el número, para la analítica agregada.</li>
-  <li>Después del borrado, el proceso <b>verifica</b> que en cada ubicación queden <b>0 números</b> con más de 24 horas. Si encuentra alguno, la ejecución queda marcada como "REVISAR" y se reintenta en la siguiente ejecución.</li>
+  <li><b>Proceso automático programado</b> que se ejecuta cada <b>10 minutos</b> (a las :00, :10, :20, :30, :40 y :50 de cada hora). Como el corte es a las 23 h 50 min y el proceso corre cada 10 minutos, ningún número llega a cumplir 24 horas.</li>
+  <li>En cada ejecución identifica los registros con 23 h 50 min o más y <b>elimina el número</b> en cada ubicación. El resto de la llamada (fecha, hora, campaña, resultado) se conserva sin el número, para la analítica agregada.</li>
+  <li>Después del borrado, el proceso <b>verifica</b> que en cada ubicación queden <b>0 números</b> con 23 h 50 min o más. Si encuentra alguno, la ejecución queda marcada como "REVISAR" y se reintenta en la siguiente ejecución.</li>
   <li>Cada ejecución deja un <b>registro de auditoría</b> con fecha y hora, ubicación, cantidad eliminada, cantidad restante y responsable. <b>El registro de auditoría nunca contiene el número.</b></li>
 </ul>
 
@@ -148,7 +148,7 @@ export function openRetentionDoc({
 </ul>
 
 <h2>4. Fecha y hora de ejecución del procedimiento</h2>
-<p>Cada ejecución registra su fecha y hora exacta, en hora de Colombia. El proceso se ejecuta cada 15 minutos de forma continua. El Anexo A muestra el formato con datos de demostración.</p>
+<p>Cada ejecución registra su fecha y hora exacta, en hora de Colombia. El proceso se ejecuta cada 10 minutos de forma continua. El Anexo A muestra el formato con datos de demostración.</p>
 
 <h2>5. Responsable que realizó la actividad</h2>
 <p>La ejecución es automática; el registro indica "Proceso automático Prisma" o el proveedor correspondiente. Los responsables del procedimiento son:</p>
@@ -166,7 +166,7 @@ export function openRetentionDoc({
 <tr><td>Archivos temporales</td><td>No se generan archivos temporales con el número. Los audios se convierten al vuelo sin almacenarse.</td></tr>
 <tr><td>Registros del servidor (logs)</td><td>El número no se escribe en los registros del servidor. Cada ejecución lo verifica.</td></tr>
 <tr><td>Registros de prueba</td><td>Las pruebas usan datos ficticios. No se usan números reales en pruebas.</td></tr>
-<tr><td>Copia en Prisma (réplica de Aware)</td><td>El número se elimina a las 24 horas, igual que en la fuente.</td></tr>
+<tr><td>Copia en Prisma (réplica de Aware)</td><td>El número se elimina al cumplir 23 h 50 min, igual que en la fuente.</td></tr>
 </table>
 
 <h2>7. Certificación formal del proveedor</h2>
@@ -180,7 +180,7 @@ export function openRetentionDoc({
 <h2>8. Validación del cumplimiento de los controles de seguridad y protección de datos</h2>
 <table>
 <tr><th style="width:34%">Control</th><th>Cómo se cumple</th></tr>
-<tr><td>Retención máxima de 24 horas</td><td>Proceso automático cada 15 minutos con verificación de 0 restantes.</td></tr>
+<tr><td>Retención máxima de 24 horas</td><td>Proceso automático cada 10 minutos, corte a las 23 h 50 min y verificación de 0 restantes.</td></tr>
 <tr><td>Trazabilidad</td><td>Registro de auditoría por ejecución, sin datos personales.</td></tr>
 <tr><td>Minimización</td><td>El número se muestra enmascarado en pantalla y en exportaciones. Solo se conserva lo necesario para la analítica agregada.</td></tr>
 <tr><td>Control de acceso</td><td>Usuarios personales con contraseña cifrada, sesión con vencimiento, límite de intentos, restricción por campaña y permisos por pestaña.</td></tr>
