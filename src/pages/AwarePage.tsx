@@ -50,6 +50,7 @@ import { QualityTab } from '@/components/aware/QualityTab'
 import { PeriodComparisonCard } from '@/components/aware/PeriodComparisonCard'
 import { LiveFeed } from '@/components/aware/LiveFeed'
 import { RetentionDemoTab } from '@/components/aware/RetentionDemoTab'
+import { AuditTab } from '@/components/aware/AuditTab'
 import { HANGUP_COLOR, HANGUP_LABEL, SENTIMENT_COLOR, SENTIMENT_LABEL } from '@/components/aware/labels'
 import {
   useAwareAgentHangup,
@@ -315,6 +316,7 @@ export default function AwarePage() {
           {canAgosto && <TabsTrigger value="agosto">Agosto</TabsTrigger>}
           {!basico && <TabsTrigger value="envivo">En vivo</TabsTrigger>}
           {canRetentionDemo && <TabsTrigger value="retencion">Retención 24 h (demo)</TabsTrigger>}
+          {canRetentionDemo && <TabsTrigger value="auditoria">Auditoría</TabsTrigger>}
         </TabsList>
 
         <TabsContent value="resumen" className="pt-4">
@@ -328,6 +330,11 @@ export default function AwarePage() {
         <TabsContent value="entregable" className="pt-4">
           <DeliverableTable key={`${rangeKey}:${proyecto}:${jumpSeq}`} base={filters} initialTipIa={jumpTipIa} />
         </TabsContent>
+        {canRetentionDemo && (
+          <TabsContent value="auditoria" className="pt-4">
+            <AuditTab />
+          </TabsContent>
+        )}
         {canRetentionDemo && (
           <TabsContent value="retencion" className="pt-4">
             <RetentionDemoTab />
