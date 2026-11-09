@@ -89,6 +89,8 @@ import { useAuthStore } from '@/stores/auth'
 
 /** Usuarios (además de admin) que ven la pestaña demo de retención 24 h. */
 const RETENTION_DEMO_EMAILS = ['analista.aware@asisteing.com']
+/** Bitácora de auditoría: solo estos dos usuarios (el backend aplica la misma regla). */
+const AUDIT_EMAILS = ['analista.aware@asisteing.com', 'david.lopez@asisteing.com']
 
 /* ── rango de fechas (hora Colombia) ── */
 const OFFSET = -5 * 3600000
@@ -165,6 +167,9 @@ export default function AwarePage() {
   // Demo de la retención de 24 h del número real (pedido de Legal de Claro) — solo usuarios internos
   const canRetentionDemo = useAuthStore(
     (s) => s.user?.role === 'admin' || RETENTION_DEMO_EMAILS.includes((s.user?.email || '').toLowerCase()),
+  )
+  const canAudit = useAuthStore(
+    (s) => AUDIT_EMAILS.includes((s.user?.email || '').toLowerCase()),
   )
   const locked = scope === 12 || scope === 13
   const proyecto: 'all' | '12' | '13' = locked ? (String(scope) as '12' | '13') : proyectoSel
@@ -316,7 +321,7 @@ export default function AwarePage() {
           {canAgosto && <TabsTrigger value="agosto">Agosto</TabsTrigger>}
           {!basico && <TabsTrigger value="envivo">En vivo</TabsTrigger>}
           {canRetentionDemo && <TabsTrigger value="retencion">Retención 24 h (demo)</TabsTrigger>}
-          {canRetentionDemo && <TabsTrigger value="auditoria">Auditoría</TabsTrigger>}
+          {canAudit && <TabsTrigger value="auditoria">Auditoría</TabsTrigger>}
         </TabsList>
 
         <TabsContent value="resumen" className="pt-4">
@@ -330,7 +335,7 @@ export default function AwarePage() {
         <TabsContent value="entregable" className="pt-4">
           <DeliverableTable key={`${rangeKey}:${proyecto}:${jumpSeq}`} base={filters} initialTipIa={jumpTipIa} />
         </TabsContent>
-        {canRetentionDemo && (
+        {canAudit && (
           <TabsContent value="auditoria" className="pt-4">
             <AuditTab />
           </TabsContent>
