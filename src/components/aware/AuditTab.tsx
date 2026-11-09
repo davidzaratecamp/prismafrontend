@@ -52,6 +52,7 @@ const ACCION: Record<string, string> = {
   usuario_creado: 'Usuario creado',
   usuario_modificado: 'Usuario modificado',
   usuario_desactivado: 'Usuario desactivado',
+  usuario_updated: 'Usuario modificado',
 }
 
 const CAMPO: Record<string, string> = {
